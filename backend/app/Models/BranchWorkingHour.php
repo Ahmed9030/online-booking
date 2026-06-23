@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Scopes\BusinessScope;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,6 +12,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 final class BranchWorkingHour extends Model
 {
     use HasUuids;
+
+    protected static function booted(): void
+    {
+        self::addGlobalScope(new BusinessScope);
+    }
 
     protected $fillable = [
         'branch_id',

@@ -50,9 +50,9 @@ final class Staff extends Model
         return $this->belongsTo(Branch::class);
     }
 
-    public function user(): HasOne
+    public function user(): BelongsTo
     {
-        return $this->hasOne(User::class, 'id', 'user_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function services(): BelongsToMany
