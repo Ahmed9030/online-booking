@@ -1,0 +1,11 @@
+includes:
+    - ./vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app/
+
+    # Level 5 for standard initial Laravel analysis
+    level: 5
+
+    checkMissingIterableValueType: false

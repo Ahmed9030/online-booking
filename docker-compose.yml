@@ -1,0 +1,50 @@
+services:
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: booking_backend_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./backend:/var/www/html
+    networks:
+      - booking_network
+    depends_on:
+      - postgres
+
+  nginx:
+    image: nginx:alpine
+    container_name: booking_backend_nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - booking_network
+    depends_on:
+      - app
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: booking_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: booking_saas
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - booking_network
+
+volumes:
+  postgres_data:
+
+networks:
+  booking_network:
+    driver: bridge
