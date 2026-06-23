@@ -24,6 +24,12 @@ class DemoBusinessSeeder extends Seeder
 {
     public function run(): void
     {
+
+     if (! app()->environment('local')) {
+        $this->command?->warn('DemoBusinessSeeder skipped outside local environment.');
+        return;
+    }
+
         $owner = User::firstOrCreate(
             ['email' => 'owner@demo.local'],
             [
@@ -252,9 +258,10 @@ class DemoBusinessSeeder extends Seeder
                     'starts_at' => $startsAt,
                 ],
                 [
-                    'branch_id' => $i % 2 === 0 ? $branch1->id : $branch2->id,
-                    'service_id' => [$serviceHaircut->id, $serviceBeardTrim->id][$i % 2],
-                    'staff_id' => [$staffAhmed->id, $staffKarim->id, $staffHassan->id][$i % 3],
+
+                'branch_id' => $i % 2 === 0 ? $branch1->id : $branch2->id,
+                     'service_id' => $i % 2 === 0 ? [$serviceHaircut->id, $serviceBeardTrim->id][$i % 2] : [$serviceHaircut2->id, $serviceBeardTrim2->id][$i % 2],
+                     'staff_id' => $i % 2 === 0 ? [$staffAhmed->id, $staffKarim->id, $staffOmar->id][$i % 3] : [$staffHassan->id][$i % 1],
                     'ends_at' => $endsAt,
                     'status' => BookingStatus::Confirmed,
                     'source' => BookingSource::Online,
