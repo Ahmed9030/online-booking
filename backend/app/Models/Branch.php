@@ -1,0 +1,64 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Models;
+
+use App\Models\Scopes\BusinessScope;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+final class Branch extends Model
+{
+    use HasUuids, SoftDeletes;
+
+    protected $fillable = [
+        'business_id',
+        'name',
+        'address',
+        'city',
+        'whatsapp_number',
+        'slug',
+        'is_active',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
+
+    protected static function booted(): void
+    {
+        self::addGlobalScope(new BusinessScope);
+    }
+
+    public function business(): BelongsTo
+    {
+        return $this->belongsTo(Business::class);
+    }
+
+    public function staff(): HasMany
+    {
+        return $this->hasMany(Staff::class);
+    }
+
+    public function services(): HasMany
+    {
+        return $this->hasMany(Service::class);
+    }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function workingHours(): HasMany
+    {
+        return $this->hasMany(BranchWorkingHour::class);
+    }
+}

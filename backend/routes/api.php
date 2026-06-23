@@ -11,4 +11,3 @@ Route::prefix('v1')->group(function () {
     Route::prefix('admin')->group(base_path('routes/api/v1/admin.php'));
     Route::prefix('internal')->group(base_path('routes/api/v1/internal.php'));
 });
-

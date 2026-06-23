@@ -12,25 +12,27 @@
 ## Current Status
 
 **Phase:** 1 — Backend Foundation
-**Active Feature:** Database migrations for Booking SaaS core schema
-**Last Session:** Implemented PostgreSQL UUID migrations for all Phase 1 core tables from `01-create-tables.md`
+**Active Feature:** Middleware foundation for secured API access
+**Last Session:** Implemented `02-Models + Relationships + Multi-Tenancy.md`
 **Build Week:** 1 of 8
 
 ---
 
 ## Last Completed
-- Created Laravel PostgreSQL migrations for `users`, `businesses`, `branches`, working hours, `staff`, `services`, pivot assignments, `customers`, OTP codes, `bookings`, and `notifications_log`
-- Added native PostgreSQL enum types for user roles, subscription status, booking status/source, and notification type/channel/status
-- Added required UUID primary keys, foreign keys, indexes, soft deletes, and the partial `bookings_staff_time_idx` index
-- Verified migrations and rollback successfully against temporary database `booking_saas_migration_check`
+- Created Eloquent models for `Business`, `Branch`, `Staff`, `Service`, `Booking`, `Customer`, `OtpCode`, working hours, and `NotificationLog`
+- Added all specified relationships, UUID usage, fillable fields, casts, and soft deletes where required
+- Added `BusinessScope` and applied it to `Branch`, `Staff`, `Service`, `Customer`, and `Booking`
+- Added backed enums for `UserRole`, subscription status, booking status/source, and notification fields
+- Updated `User` for Sanctum API tokens, UUIDs, role casting, and business/staff/owned-business relationships
+- Verified Phase 1 setup basics are complete: Laravel 13 app, PHP 8.3 minimum, PostgreSQL/database queue env config, Sanctum dependency, versioned API route includes, and route files
 
 ---
 
 ## Next Up
-1. Create all Eloquent models with relationships
-2. Create `BusinessScope` and apply it to tenant-owned models
-3. Create `User` model roles enum (`owner`, `staff`, `admin`)
-4. Configure versioned API route file includes and middleware
+1. Add `EnsureUserHasRole` middleware
+2. Add `EnsureSubscriptionActive` middleware
+3. Add `VerifyInternalWebhookSecret` middleware
+4. Run `DemoBusinessSeeder` for local dev
 
 
 ---
@@ -58,10 +60,10 @@ Status keys: 🔲 Not Started | 🟡 In Progress | ✅ Complete | 🔴 Blocked
 models and scopes in place, Sanctum auth scaffolded.
 
 ### Tasks
-- [ ] Create Laravel 13 project (`composer create-project laravel/laravel`)
-- [ ] Set PHP 8.3 minimum in `composer.json`
-- [ ] Configure `.env` (PostgreSQL, APP_URL, queue driver = database)
-- [ ] Install Laravel Sanctum (`php artisan install:api`)
+- [x] Create Laravel 13 project (`composer create-project laravel/laravel`)
+- [x] Set PHP 8.3 minimum in `composer.json`
+- [x] Configure `.env` (PostgreSQL, APP_URL, queue driver = database)
+- [x] Install Laravel Sanctum (`php artisan install:api`)
 - [x] Create migrations for all tables (from Phase 5 schema):
   - [x] `users`
   - [x] `businesses`
@@ -75,12 +77,12 @@ models and scopes in place, Sanctum auth scaffolded.
   - [x] `otp_codes`
   - [x] `bookings`
   - [x] `notifications_log`
-- [ ] Create all Eloquent models with relationships
-- [ ] Create `BusinessScope` global scope (auto-filter by `business_id`)
-- [ ] Apply `BusinessScope` to: `Branch`, `Staff`, `Service`, `Customer`, `Booking`
-- [ ] Create `User` model roles enum (`owner`, `staff`, `admin`)
-- [ ] Configure `api.php` with versioned route file includes
-- [ ] Create route files: `public.php`, `auth.php`, `owner.php`, `staff.php`,
+- [x] Create all Eloquent models with relationships
+- [x] Create `BusinessScope` global scope (auto-filter by `business_id`)
+- [x] Apply `BusinessScope` to: `Branch`, `Staff`, `Service`, `Customer`, `Booking`
+- [x] Create `User` model roles enum (`owner`, `staff`, `admin`)
+- [x] Configure `api.php` with versioned route file includes
+- [x] Create route files: `public.php`, `auth.php`, `owner.php`, `staff.php`,
       `customer.php`, `admin.php`, `internal.php`
 - [ ] Add `EnsureUserHasRole` middleware
 - [ ] Add `EnsureSubscriptionActive` middleware
@@ -305,5 +307,6 @@ all functional and connected to the real API.
 
 | Date | Session Summary | Files Touched |
 |---|---|---|
+| 2026-06-23 | Implemented `02-Models + Relationships + Multi-Tenancy.md`: Eloquent models, relationships, tenant `BusinessScope`, Sanctum-ready auth entities, and backed enums. Verified with PHPUnit, Pint, and PHP syntax checks. PHPStan analyse currently exits non-zero without diagnostics and needs follow-up investigation. | [progress-tracker.md](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/Context/progress-tracker.md), [User.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/User.php), [BusinessScope.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Scopes/BusinessScope.php), [Business.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Business.php), [Branch.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Branch.php), [Staff.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Staff.php), [Service.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Service.php), [Booking.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Booking.php), [Customer.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Customer.php), [OtpCode.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/OtpCode.php), [BranchWorkingHour.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/BranchWorkingHour.php), [StaffWorkingHour.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/StaffWorkingHour.php), [NotificationLog.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/NotificationLog.php), [Enums](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Enums) |
 | 2026-06-23 | Implemented `01-create-tables.md`: Laravel PostgreSQL UUID migrations for all Booking SaaS core tables, native enum types, foreign keys, required indexes, soft deletes, and booking partial index. Verified migrate + rollback in temporary PostgreSQL database. | [progress-tracker.md](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/Context/progress-tracker.md), [0001_01_01_000000_create_users_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/0001_01_01_000000_create_users_table.php), [2026_06_23_120000_create_businesses_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120000_create_businesses_table.php), [2026_06_23_120001_create_branches_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120001_create_branches_table.php), [2026_06_23_120002_create_branch_working_hours_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120002_create_branch_working_hours_table.php), [2026_06_23_120003_create_staff_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120003_create_staff_table.php), [2026_06_23_120004_create_staff_working_hours_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120004_create_staff_working_hours_table.php), [2026_06_23_120005_create_services_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120005_create_services_table.php), [2026_06_23_120006_create_staff_services_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120006_create_staff_services_table.php), [2026_06_23_120007_create_customers_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120007_create_customers_table.php), [2026_06_23_120008_create_otp_codes_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120008_create_otp_codes_table.php), [2026_06_23_120009_create_bookings_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120009_create_bookings_table.php), [2026_06_23_120010_create_notifications_log_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120010_create_notifications_log_table.php) |
 | 2026-06-23 | Project setup initialized. Saved specification to setup-project.md and updated progress tracker. | [progress-tracker.md](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/Context/progress-tracker.md), [setup-project.md](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/Context/feature-specs/setup-project.md) |
