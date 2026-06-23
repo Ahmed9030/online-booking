@@ -117,8 +117,13 @@ class BusinessScope implements Scope
 {
     public function apply(Builder $builder, Model $model)
     {
-        if (auth()->check() && auth()->user()->business_id) {
-            $builder->where($model->getTable().'.business_id', auth()->user()->business_id);
+         $user = auth()->user();
+
+        if ($user === null || $user->business_id === null || $user->role === UserRole::Admin) {
+            return;
+        
+
+            $builder->where($model->getTable().'.business_id', $user->business_id);
         }
     }
 }
