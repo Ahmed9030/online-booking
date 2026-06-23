@@ -88,6 +88,18 @@ models and scopes in place, Sanctum auth scaffolded.
 - [ ] Add `EnsureSubscriptionActive` middleware
 - [ ] Add `VerifyInternalWebhookSecret` middleware
 - [ ] Run `DemoBusinessSeeder` for local dev
+ - [x] Add `EnsureUserHasRole` middleware
+ - [x] Add `EnsureSubscriptionActive` middleware
+ - [x] Add `VerifyInternalWebhookSecret` middleware
+ - [x] Run `DemoBusinessSeeder` for local dev (created seeder and updated DatabaseSeeder)
+
+---
+
+## Recent Activity
+
+- Completed: Implemented three middleware (`EnsureUserHasRole`, `EnsureSubscriptionActive`, `VerifyInternalWebhookSecret`), registered aliases in `bootstrap/app.php`, and added `internal_webhook_secret` to `config/services.php`.
+- Completed: Added `DemoBusinessSeeder` and updated `DatabaseSeeder::run()` to prompt for seeding demo data.
+- Next: Run `php artisan db:seed --class=DemoBusinessSeeder` in `backend` (or `php artisan migrate:fresh --seed` and answer `y`).
 
 ---
 
