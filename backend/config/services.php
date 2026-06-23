@@ -35,4 +35,6 @@ return [
         ],
     ],
 
+    'internal_webhook_secret' => env('INTERNAL_WEBHOOK_SECRET'),
+
 ];

@@ -15,11 +15,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Run demo seeder only in local environment
+        if ($this->command->confirm('Seed demo data?', true)) {
+            $this->call(\Database\Seeders\DemoBusinessSeeder::class);
+        }
     }
 }
