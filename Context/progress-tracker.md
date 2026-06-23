@@ -41,7 +41,7 @@
 
 | Phase | Focus | Status |
 |---|---|---|
-| 1 | Backend Foundation | 🟡 In Progress |
+| 1 | Backend Foundation | ✅ In Progress |
 | 2 | Core Booking Logic | 🔲 Not Started |
 | 3 | Owner/Staff API | 🔲 Not Started |
 | 4 | Frontend Foundation | 🔲 Not Started |
@@ -84,10 +84,6 @@ models and scopes in place, Sanctum auth scaffolded.
 - [x] Configure `api.php` with versioned route file includes
 - [x] Create route files: `public.php`, `auth.php`, `owner.php`, `staff.php`,
       `customer.php`, `admin.php`, `internal.php`
-- [ ] Add `EnsureUserHasRole` middleware
-- [ ] Add `EnsureSubscriptionActive` middleware
-- [ ] Add `VerifyInternalWebhookSecret` middleware
-- [ ] Run `DemoBusinessSeeder` for local dev
  - [x] Add `EnsureUserHasRole` middleware
  - [x] Add `EnsureSubscriptionActive` middleware
  - [x] Add `VerifyInternalWebhookSecret` middleware

@@ -16,7 +16,11 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Run demo seeder only in local environment
-        if ($this->command->confirm('Seed demo data?', true)) {
+        if (! app()->environment('local')) {
+        return;
+    }
+    
+    if ($this->command?->confirm('Seed demo data?', false) ?? false) {
             $this->call(\Database\Seeders\DemoBusinessSeeder::class);
         }
     }
