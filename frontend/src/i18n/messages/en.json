@@ -1,0 +1,11 @@
+{
+  "Common": {
+    "title": "Barbershop Booking System",
+    "welcome": "Welcome to the Barbershop Booking System"
+  },
+  "Auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout"
+  }
+}
