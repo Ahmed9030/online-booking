@@ -9,9 +9,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("CREATE TYPE notification_type AS ENUM ('confirmation', 'reminder', 'cancellation')");
-        DB::statement("CREATE TYPE notification_channel AS ENUM ('whatsapp', 'sms', 'email')");
-        DB::statement("CREATE TYPE notification_status AS ENUM ('queued', 'sent', 'failed')");
+        if (Schema::getConnection()->getDriverName() === 'pgsql') {
+            DB::statement("CREATE TYPE notification_type AS ENUM ('confirmation', 'reminder', 'cancellation')");
+            DB::statement("CREATE TYPE notification_channel AS ENUM ('whatsapp', 'sms', 'email')");
+            DB::statement("CREATE TYPE notification_status AS ENUM ('queued', 'sent', 'failed')");
+        }
 
         Schema::create('notifications_log', function (Blueprint $table) {
             $table->uuid('id')->primary();
@@ -29,8 +31,10 @@ return new class extends Migration
     {
         Schema::dropIfExists('notifications_log');
 
-        DB::statement('DROP TYPE IF EXISTS notification_status');
-        DB::statement('DROP TYPE IF EXISTS notification_channel');
-        DB::statement('DROP TYPE IF EXISTS notification_type');
+        if (Schema::getConnection()->getDriverName() === 'pgsql') {
+            DB::statement('DROP TYPE IF EXISTS notification_status');
+            DB::statement('DROP TYPE IF EXISTS notification_channel');
+            DB::statement('DROP TYPE IF EXISTS notification_type');
+        }
     }
 };

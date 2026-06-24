@@ -11,10 +11,10 @@
 
 ## Current Status
 
-**Phase:** 1 — Backend Foundation
-**Active Feature:** Middleware foundation for secured API access
-**Last Session:** Implemented `02-Models + Relationships + Multi-Tenancy.md`
-**Build Week:** 1 of 8
+**Phase:** 2 — Core Booking Logic
+**Active Feature:** Availability engine and booking actions
+**Last Session:** Implemented core booking services, repository, actions, events, listener, DTO, and exception classes
+**Build Week:** 2 of 8
 
 ---
 
@@ -25,6 +25,10 @@
 - Added backed enums for `UserRole`, subscription status, booking status/source, and notification fields
 - Updated `User` for Sanctum API tokens, UUIDs, role casting, and business/staff/owned-business relationships
 - Verified Phase 1 setup basics are complete: Laravel 13 app, PHP 8.3 minimum, PostgreSQL/database queue env config, Sanctum dependency, versioned API route includes, and route files
+- Implemented Availability repository and service for slot generation and conflict detection
+- Added booking actions: `CreateBookingAction`, `AssignAvailableStaffAction`, `CancelBookingAction`, `MarkBookingCompletedAction`, `MarkBookingNoShowAction`
+- Added `CreateBookingData` DTO and `SlotNotAvailableException`
+- Added events: `BookingCreated`, `BookingCancelled` and listener `DispatchBookingConfirmationJob`
 
 ---
 
@@ -41,8 +45,8 @@
 
 | Phase | Focus | Status |
 |---|---|---|
-| 1 | Backend Foundation | ✅ In Progress |
-| 2 | Core Booking Logic | 🔲 Not Started |
+| 1 | Backend Foundation | ✅ Complete |
+| 2 | Core Booking Logic | 🟡 In Progress |
 | 3 | Owner/Staff API | 🔲 Not Started |
 | 4 | Frontend Foundation | 🔲 Not Started |
 | 5 | Dashboard Frontend | 🔲 Not Started |
@@ -95,7 +99,23 @@ models and scopes in place, Sanctum auth scaffolded.
 
 - Completed: Implemented three middleware (`EnsureUserHasRole`, `EnsureSubscriptionActive`, `VerifyInternalWebhookSecret`), registered aliases in `bootstrap/app.php`, and added `internal_webhook_secret` to `config/services.php`.
 - Completed: Added `DemoBusinessSeeder` and updated `DatabaseSeeder::run()` to prompt for seeding demo data.
-- Next: Run `php artisan db:seed --class=DemoBusinessSeeder` in `backend` (or `php artisan migrate:fresh --seed` and answer `y`).
+- Completed: Implemented core booking pieces (repository, service, actions, DTO, events, listener). Files created:
+  - backend/app/Repositories/AvailabilityRepository.php
+  - backend/app/Services/AvailabilityService.php
+  - backend/app/Data/CreateBookingData.php
+  - backend/app/Actions/Bookings/CreateBookingAction.php
+  - backend/app/Actions/Bookings/AssignAvailableStaffAction.php
+  - backend/app/Actions/Bookings/CancelBookingAction.php
+  - backend/app/Actions/Bookings/MarkBookingCompletedAction.php
+  - backend/app/Actions/Bookings/MarkBookingNoShowAction.php
+  - backend/app/Events/BookingCreated.php
+  - backend/app/Events/BookingCancelled.php
+  - backend/app/Listeners/DispatchBookingConfirmationJob.php
+  - backend/app/Exceptions/SlotNotAvailableException.php
+  - backend/app/Providers/EventServiceProvider.php
+- Next: Wire the `SendBookingConfirmationWebhook` job and run the booking feature tests.
+
+- Completed: Added `BookingCompleted` event, `UpdateCustomerVisitStats` listener, registered them in `EventServiceProvider.php`, updated `MarkBookingCompletedAction` to fire the event, and added Phase 2 tests (feature + unit).
 
 ---
 
@@ -105,28 +125,31 @@ models and scopes in place, Sanctum auth scaffolded.
 conflict prevention and "any available" staff assignment.
 
 ### Tasks
-- [ ] Create `AvailabilityService` (slot generation logic)
-  - [ ] Generate slots from `branch_working_hours` + `staff_working_hours`
-  - [ ] Filter out slots blocked by existing `bookings` (conflict query)
-  - [ ] Handle `service.duration_minutes` for slot length
-  - [ ] Handle "any available" — find first free staff for requested service + slot
-- [ ] Create `AvailabilityRepository` (raw conflict query with composite index)
-- [ ] Create `CreateBookingAction`
-  - [ ] Validate slot still available (re-check inside transaction)
-  - [ ] Assign specific staff OR call "any available" logic
-  - [ ] Create booking row
-  - [ ] Fire `BookingCreated` event
-- [ ] Create `AssignAvailableStaffAction`
-- [ ] Create `CancelBookingAction` (update status + fire `BookingCancelled`)
-- [ ] Create `MarkBookingCompletedAction`
-- [ ] Create `MarkBookingNoShowAction` (update status + increment `customer.visit_count`... wait, no-show doesn't increment)
-- [ ] Register `BookingCreated` → `DispatchBookingConfirmationJob` listener
+- [x] Create `AvailabilityService` (slot generation logic)
+  - [x] Generate slots from `branch_working_hours` + `staff_working_hours`
+  - [x] Filter out slots blocked by existing `bookings` (conflict query)
+  - [x] Handle `service.duration_minutes` for slot length
+  - [x] Handle "any available" — find first free staff for requested service + slot
+- [x] Create `AvailabilityRepository` (raw conflict query with composite index)
+- [x] Create `CreateBookingAction`
+  - [x] Validate slot still available (re-check inside transaction)
+  - [x] Assign specific staff OR call "any available" logic
+  - [x] Create booking row
+  - [x] Fire `BookingCreated` event
+- [x] Create `AssignAvailableStaffAction`
+- [x] Create `CancelBookingAction` (update status + fire `BookingCancelled`)
+- [x] Create `MarkBookingCompletedAction`
+- [x] Create `MarkBookingNoShowAction` (update status; no-show does not increment visit count)
+- [x] Register `BookingCreated` → `DispatchBookingConfirmationJob` listener
 - [ ] Register `UpdateCustomerVisitStats` on `BookingCompleted`
 - [ ] Write feature tests:
-  - [ ] `CreateBookingTest` — happy path
-  - [ ] `AvailabilityConflictTest` — double-booking attempt rejected
-  - [ ] `AnyAvailableStaffAssignmentTest`
-- [ ] Write unit test: `AvailabilityServiceTest`
+ - [x] Register `BookingCreated` → `DispatchBookingConfirmationJob` listener
+ - [x] Register `UpdateCustomerVisitStats` on `BookingCompleted`
+ - [x] Write feature tests:
+  - [x] `CreateBookingTest` — happy path
+  - [x] `AvailabilityConflictTest` — double-booking attempt rejected
+  - [x] `AnyAvailableStaffAssignmentTest`
+ - [x] Write unit test: `AvailabilityServiceTest`
 
 ---
 
@@ -318,3 +341,4 @@ all functional and connected to the real API.
 | 2026-06-23 | Implemented `02-Models + Relationships + Multi-Tenancy.md`: Eloquent models, relationships, tenant `BusinessScope`, Sanctum-ready auth entities, and backed enums. Verified with PHPUnit, Pint, and PHP syntax checks. PHPStan analyse currently exits non-zero without diagnostics and needs follow-up investigation. | [progress-tracker.md](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/Context/progress-tracker.md), [User.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/User.php), [BusinessScope.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Scopes/BusinessScope.php), [Business.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Business.php), [Branch.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Branch.php), [Staff.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Staff.php), [Service.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Service.php), [Booking.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Booking.php), [Customer.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Customer.php), [OtpCode.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/OtpCode.php), [BranchWorkingHour.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/BranchWorkingHour.php), [StaffWorkingHour.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/StaffWorkingHour.php), [NotificationLog.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/NotificationLog.php), [Enums](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Enums) |
 | 2026-06-23 | Implemented `01-create-tables.md`: Laravel PostgreSQL UUID migrations for all Booking SaaS core tables, native enum types, foreign keys, required indexes, soft deletes, and booking partial index. Verified migrate + rollback in temporary PostgreSQL database. | [progress-tracker.md](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/Context/progress-tracker.md), [0001_01_01_000000_create_users_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/0001_01_01_000000_create_users_table.php), [2026_06_23_120000_create_businesses_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120000_create_businesses_table.php), [2026_06_23_120001_create_branches_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120001_create_branches_table.php), [2026_06_23_120002_create_branch_working_hours_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120002_create_branch_working_hours_table.php), [2026_06_23_120003_create_staff_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120003_create_staff_table.php), [2026_06_23_120004_create_staff_working_hours_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120004_create_staff_working_hours_table.php), [2026_06_23_120005_create_services_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120005_create_services_table.php), [2026_06_23_120006_create_staff_services_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120006_create_staff_services_table.php), [2026_06_23_120007_create_customers_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120007_create_customers_table.php), [2026_06_23_120008_create_otp_codes_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120008_create_otp_codes_table.php), [2026_06_23_120009_create_bookings_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120009_create_bookings_table.php), [2026_06_23_120010_create_notifications_log_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120010_create_notifications_log_table.php) |
 | 2026-06-23 | Project setup initialized. Saved specification to setup-project.md and updated progress tracker. | [progress-tracker.md](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/Context/progress-tracker.md), [setup-project.md](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/Context/feature-specs/setup-project.md) |
+| 2026-06-24 | Implemented BookingCompleted event + UpdateCustomerVisitStats listener, registered in EventServiceProvider, updated MarkBookingCompletedAction to dispatch event, and added feature/unit tests for Phase 2. | [backend/app/Events/BookingCompleted.php](backend/app/Events/BookingCompleted.php), [backend/app/Listeners/UpdateCustomerVisitStats.php](backend/app/Listeners/UpdateCustomerVisitStats.php), [backend/app/Providers/EventServiceProvider.php](backend/app/Providers/EventServiceProvider.php), [backend/app/Actions/Bookings/MarkBookingCompletedAction.php](backend/app/Actions/Bookings/MarkBookingCompletedAction.php), [backend/tests/Feature/Booking/CreateBookingTest.php](backend/tests/Feature/Booking/CreateBookingTest.php), [backend/tests/Feature/Booking/AvailabilityConflictTest.php](backend/tests/Feature/Booking/AvailabilityConflictTest.php), [backend/tests/Feature/Booking/AnyAvailableStaffAssignmentTest.php](backend/tests/Feature/Booking/AnyAvailableStaffAssignmentTest.php), [backend/tests/Unit/AvailabilityServiceTest.php](backend/tests/Unit/AvailabilityServiceTest.php) |
