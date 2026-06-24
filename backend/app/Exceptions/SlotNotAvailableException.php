@@ -11,7 +11,9 @@ final class SlotNotAvailableException extends Exception
     public function render()
     {
         return response()->json([
-            'message' => $this->message ?? 'The requested time slot is not available.',
+            'message' => $this->getMessage() !== ''
+                ? $this->getMessage()
+                : 'The requested time slot is not available.',
         ], 422);
     }
 }

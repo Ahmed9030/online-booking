@@ -84,7 +84,7 @@ class CreateBookingTest extends TestCase
      */
     public function test_creates_booking_with_valid_data(): void
     {
-        $startsAt = now('Africa/Cairo')->addDays(1)->setHour(14)->setMinute(0)->setSecond(0);
+        $startsAt = Carbon::parse('2026-06-30 14:00:00', 'Africa/Cairo');
         $endsAt = $startsAt->clone()->addMinutes(30);
 
         $data = new CreateBookingData(
@@ -121,12 +121,12 @@ class CreateBookingTest extends TestCase
         ]);
     }
 
-    /**
+/**
      * Test: Booking start and end times are stored in UTC.
      */
     public function test_booking_times_stored_in_utc(): void
     {
-        $cairoTime = now('Africa/Cairo')->addDays(1)->setHour(14)->setMinute(0)->setSecond(0);
+        $cairoTime = Carbon::parse('2026-06-30 14:00:00', 'Africa/Cairo');
         $endsAt = $cairoTime->clone()->addMinutes(30);
 
         $data = new CreateBookingData(
@@ -141,9 +141,12 @@ class CreateBookingTest extends TestCase
 
         $booking = $this->action->handle($data);
 
-        // Cairo is UTC+3, so 2 PM Cairo = 11 AM UTC
-        $this->assertEquals(11, $booking->starts_at->setTimezone('UTC')->hour);
-        $this->assertEquals(11, $booking->starts_at->hour); // Laravel defaults to app timezone
+        // Convert the Cairo time to UTC to compare with stored UTC time
+        $expectedUtc = $cairoTime->copy()->setTimezone('UTC');
+
+        $this->assertEquals($expectedUtc->hour, $booking->starts_at->hour);
+        $this->assertEquals($expectedUtc->minute, $booking->starts_at->minute);
+        $this->assertEquals($expectedUtc->second, $booking->starts_at->second);
     }
 
     /**
@@ -157,7 +160,7 @@ class CreateBookingTest extends TestCase
         ]);
         $this->staff->services()->attach($service60->id);
 
-        $startsAt = now('Africa/Cairo')->addDays(1)->setHour(10)->setMinute(0);
+        $startsAt = Carbon::parse('2026-06-30 10:00:00', 'Africa/Cairo');
         $endsAt = $startsAt->clone()->addMinutes(60);
 
         $data = new CreateBookingData(
@@ -184,7 +187,7 @@ class CreateBookingTest extends TestCase
     {
         $this->expectsEvents(\App\Events\BookingCreated::class);
 
-        $startsAt = now('Africa/Cairo')->addDays(1)->setHour(14)->setMinute(0);
+        $startsAt = Carbon::parse('2026-06-30 14:00:00', 'Africa/Cairo');
         $endsAt = $startsAt->clone()->addMinutes(30);
 
         $data = new CreateBookingData(
@@ -249,7 +252,7 @@ class CreateBookingTest extends TestCase
      */
     public function test_booking_source_stored_correctly(): void
     {
-        $startsAt = now('Africa/Cairo')->addDays(1)->setHour(14)->setMinute(0);
+        $startsAt = Carbon::parse('2026-06-30 14:00:00', 'Africa/Cairo');
         $endsAt = $startsAt->clone()->addMinutes(30);
 
         // Test with 'manual' source (walk-in/phone booking)
@@ -274,7 +277,7 @@ class CreateBookingTest extends TestCase
      */
     public function test_create_multiple_sequential_bookings(): void
     {
-        $base = now('Africa/Cairo')->addDays(1)->setHour(10)->setMinute(0);
+        $base = Carbon::parse('2026-06-30 10:00:00', 'Africa/Cairo');
 
         // Create 3 sequential bookings
         for ($i = 0; $i < 3; $i++) {
