@@ -74,4 +74,9 @@ final class Booking extends Model
     {
         return $this->belongsTo(User::class, 'created_by_user_id');
     }
+
+    public function notificationLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(NotificationLog::class);
+    }
 }

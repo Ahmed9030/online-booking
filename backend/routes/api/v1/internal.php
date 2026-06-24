@@ -1,10 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Http\Controllers\Api\V1\Internal\DueRemindersController;
+use App\Http\Controllers\Api\V1\Internal\NotificationCallbackController;
 use Illuminate\Support\Facades\Route;
 
-// Internal Routes (Secret verification protected)
-Route::middleware(['throttle:100,1', 'internal.webhook.secret'])->group(function () { 
-       Route::get('/bookings/due-reminders', function () {
-        return response()->json(['message' => 'Internal reminders placeholder']);
-    });
+Route::middleware(['internal.webhook.secret', 'throttle:100,1'])->group(function () {
+    // n8n polls for due reminders
+    Route::get('bookings/due-reminders', [DueRemindersController::class, 'index']);
+
+    // n8n reports back on delivery
+    Route::post('notifications/{id}/sent', [NotificationCallbackController::class, 'sent']);
+    Route::post('notifications/{id}/failed', [NotificationCallbackController::class, 'failed']);
 });
