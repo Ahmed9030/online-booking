@@ -9,7 +9,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("CREATE TYPE subscription_status AS ENUM ('trial', 'active', 'expired', 'suspended')");
+        if (Schema::getConnection()->getDriverName() === 'pgsql') {
+            DB::statement("CREATE TYPE subscription_status AS ENUM ('trial', 'active', 'expired', 'suspended')");
+        }
 
         Schema::create('businesses', function (Blueprint $table) {
             $table->uuid('id')->primary();
@@ -36,6 +38,8 @@ return new class extends Migration
 
         Schema::dropIfExists('businesses');
 
-        DB::statement('DROP TYPE IF EXISTS subscription_status');
+        if (Schema::getConnection()->getDriverName() === 'pgsql') {
+            DB::statement('DROP TYPE IF EXISTS subscription_status');
+        }
     }
 };

@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Models\Scopes\BusinessScope;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,7 +14,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 final class Customer extends Model
 {
-    use HasApiTokens, HasUuids;
+    use HasFactory, HasApiTokens, HasUuids;
 
     protected $fillable = [
         'business_id',

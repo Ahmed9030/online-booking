@@ -9,8 +9,10 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("CREATE TYPE booking_status AS ENUM ('confirmed', 'completed', 'no_show', 'cancelled')");
-        DB::statement("CREATE TYPE booking_source AS ENUM ('online', 'manual')");
+        if (Schema::getConnection()->getDriverName() === 'pgsql') {
+            DB::statement("CREATE TYPE booking_status AS ENUM ('confirmed', 'completed', 'no_show', 'cancelled')");
+            DB::statement("CREATE TYPE booking_source AS ENUM ('online', 'manual')");
+        }
 
         Schema::create('bookings', function (Blueprint $table) {
             $table->uuid('id')->primary();
@@ -22,7 +24,7 @@ return new class extends Migration
             $table->timestamp('starts_at');
             $table->timestamp('ends_at');
             $table->rawColumn('status', 'booking_status')->index();
-            $table->rawColumn('source', 'booking_source');
+            $table->rawColumn('source', 'booking_source')->nullable();
             $table->foreignUuid('created_by_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->text('notes')->nullable();
             $table->timestamps();
@@ -31,18 +33,23 @@ return new class extends Migration
             $table->index(['staff_id', 'starts_at', 'ends_at']);
         });
 
-        DB::statement("
-            CREATE INDEX bookings_staff_time_idx
-            ON bookings (staff_id, starts_at, ends_at)
-            WHERE status = 'confirmed'
-        ");
+        if (Schema::getConnection()->getDriverName() === 'pgsql') {
+            DB::statement(<<<'SQL'
+                CREATE INDEX bookings_staff_time_idx
+                ON bookings (staff_id, starts_at, ends_at)
+                WHERE status = 'confirmed'
+            SQL
+            );
+        }
     }
 
     public function down(): void
     {
         Schema::dropIfExists('bookings');
 
-        DB::statement('DROP TYPE IF EXISTS booking_source');
-        DB::statement('DROP TYPE IF EXISTS booking_status');
+        if (Schema::getConnection()->getDriverName() === 'pgsql') {
+            DB::statement('DROP TYPE IF EXISTS booking_source');
+            DB::statement('DROP TYPE IF EXISTS booking_status');
+        }
     }
 };

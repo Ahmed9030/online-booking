@@ -12,7 +12,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement("CREATE TYPE user_role AS ENUM ('owner', 'staff', 'admin')");
+        if (Schema::getConnection()->getDriverName() === 'pgsql') {
+            DB::statement("CREATE TYPE user_role AS ENUM ('owner', 'staff', 'admin')");
+        }
 
         Schema::create('users', function (Blueprint $table) {
             $table->uuid('id')->primary();
@@ -53,6 +55,8 @@ return new class extends Migration
         Schema::dropIfExists('sessions');
         Schema::dropIfExists('users');
 
-        DB::statement('DROP TYPE IF EXISTS user_role');
+        if (Schema::getConnection()->getDriverName() === 'pgsql') {
+            DB::statement('DROP TYPE IF EXISTS user_role');
+        }
     }
 };
