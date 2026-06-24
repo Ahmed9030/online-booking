@@ -11,10 +11,10 @@
 
 ## Current Status
 
-**Phase:** 2 — Core Booking Logic
-**Active Feature:** Availability engine and booking actions
-**Last Session:** Implemented core booking services, repository, actions, events, listener, DTO, and exception classes
-**Build Week:** 2 of 8
+**Phase:** 3 — Owner/Staff API ✅ Complete
+**Active Feature:** Phase 4 — Frontend Foundation
+**Last Session:** Implemented all API controllers, route files, form requests, OtpService, updated resources, and verified all 56 routes resolve
+**Build Week:** 4 of 8
 
 ---
 
@@ -29,14 +29,25 @@
 - Added booking actions: `CreateBookingAction`, `AssignAvailableStaffAction`, `CancelBookingAction`, `MarkBookingCompletedAction`, `MarkBookingNoShowAction`
 - Added `CreateBookingData` DTO and `SlotNotAvailableException`
 - Added events: `BookingCreated`, `BookingCancelled` and listener `DispatchBookingConfirmationJob`
+- Implemented three middleware (`EnsureUserHasRole`, `EnsureSubscriptionActive`, `VerifyInternalWebhookSecret`), registered aliases in `bootstrap/app.php`, and added `internal_webhook_secret` to `config/services.php`
+- Created all **Form Request** classes (namespaced subdirs): `Auth/LoginRequest`, `Auth/RegisterRequest`, `Auth/SendOtpRequest`, `Auth/VerifyOtpRequest`, `Booking/StorePublicBookingRequest`, `Booking/CheckAvailabilityRequest`, `Branch/StoreBranchRequest`, `Branch/UpdateBranchRequest`, `Branch/UpdateWorkingHoursRequest`
+- Created all **API Resource** classes (7 total): `BusinessResource`, `BranchResource`, `StaffResource`, `ServiceResource`, `BookingResource`, `CustomerResource`, `UserResource`
+- Created all **Policy** classes (5 total): `BusinessPolicy`, `BranchPolicy`, `StaffPolicy`, `ServicePolicy`, `BookingPolicy` and registered them in `AppServiceProvider`
+- Created all authorization and functional tests (4 total): `StaffCannotAccessOtherStaffScheduleTest`, `OwnerCannotAccessOtherBusinessDataTest`, `ExpiredSubscriptionPreventsBookingTest`, `CustomerCannotCancelPastBookingTest`
+- Implemented **all 19 controllers** across Public, Auth, Owner, Staff, Customer, Admin, and Internal namespaces
+- Replaced all route file stubs with full spec-compliant routes (7 route files, 56 total routes)
+- Implemented `OtpService` (generate + verify OTP backed by `otp_codes` table)
+- Added `notificationLogs()` relationship to `Booking` model
+- Verified all routes resolve cleanly via `php artisan route:list`
 
 ---
 
 ## Next Up
-1. Add `EnsureUserHasRole` middleware
-2. Add `EnsureSubscriptionActive` middleware
-3. Add `VerifyInternalWebhookSecret` middleware
-4. Run `DemoBusinessSeeder` for local dev
+1. Write feature tests for all new endpoints
+2. Setup frontend Next.js project with TypeScript, TailwindCSS, and next-intl (Phase 4)
+3. Build auth screens: `/login`, `/register`
+4. Build public booking flow: service selection → staff → slot picker → confirm (OTP) → success
+5. Dashboard layout + overview page
 
 
 ---
@@ -47,8 +58,8 @@
 |---|---|---|
 | 1 | Backend Foundation | ✅ Complete |
 | 2 | Core Booking Logic | ✅ Complete |
-| 3 | Owner/Staff API | 🔲 Not Started |
-| 4 | Frontend Foundation | 🔲 Not Started |
+| 3 | Owner/Staff API | ✅ Complete |
+| 4 | Frontend Foundation | 🟡 In Progress |
 | 5 | Dashboard Frontend | 🔲 Not Started |
 | 6 | Owner Management Screens | 🔲 Not Started |
 | 7 | n8n / WhatsApp Integration | 🔲 Not Started |
@@ -158,42 +169,44 @@ conflict prevention and "any available" staff assignment.
 customers — secured by Sanctum + role policies.
 
 ### Tasks
-- [ ] Auth endpoints:
-  - [ ] `POST /auth/register` (owner signup)
-  - [ ] `POST /auth/login` (owner/staff password)
-  - [ ] `POST /auth/otp/send` (customer OTP)
-  - [ ] `POST /auth/otp/verify`
-  - [ ] `POST /auth/logout`
-- [ ] Owner endpoints:
-  - [ ] Branches CRUD
-  - [ ] Staff CRUD + working hours
-  - [ ] Services CRUD + staff assignment
-  - [ ] Bookings (list, create manual, update status)
-  - [ ] Customers (list, detail)
-  - [ ] Settings (business profile update)
-- [ ] Staff endpoints:
-  - [ ] `GET /staff/schedule` (own bookings for day/week)
-  - [ ] `PATCH /staff/bookings/{id}/status`
-- [ ] Customer endpoints:
-  - [ ] `GET /customer/bookings`
-  - [ ] `DELETE /customer/bookings/{id}` (cancel)
-- [ ] Public endpoints:
-  - [ ] `GET /public/business/{slug}` (business + branches)
-  - [ ] `GET /public/business/{slug}/branches/{branchSlug}`
-  - [ ] `GET /public/branches/{id}/services`
-  - [ ] `GET /public/branches/{id}/staff`
-  - [ ] `GET /public/availability` (available slots)
-  - [ ] `POST /public/bookings` (create booking, includes OTP gate)
-- [ ] Admin endpoints:
-  - [ ] `GET /admin/businesses`
-  - [ ] `PATCH /admin/businesses/{id}/subscription`
-- [ ] Internal (n8n):
-  - [ ] `GET /internal/bookings/due-reminders`
-  - [ ] `POST /internal/notifications/{id}/sent`
-- [ ] Create all Form Request classes
-- [ ] Create all API Resource classes
-- [ ] Create all Policy classes
-- [ ] Write authorization test: `StaffCannotAccessOtherStaffScheduleTest`
+- [x] Auth endpoints:
+  - [x] `POST /auth/register` (owner signup) → `RegisterController@store`
+  - [x] `POST /auth/login` (owner/staff password) → `LoginController@store`
+  - [x] `POST /auth/otp/send` (customer OTP) → `OtpController@send`
+  - [x] `POST /auth/otp/verify` → `OtpController@verify`
+  - [x] `POST /auth/logout` → `LoginController@destroy`
+- [x] Owner endpoints:
+  - [x] Branches CRUD + working hours + bookings → `Owner/BranchController`
+  - [x] Staff CRUD + working hours + service assignment + login credentials → `Owner/StaffController`
+  - [x] Services CRUD → `Owner/ServiceController`
+  - [x] Bookings (list, create manual, update status, delete) → `Owner/BookingController`
+  - [x] Customers (list, detail, booking history) → `Owner/CustomerController`
+  - [x] Settings (business profile update) → `Owner/SettingsController`
+  - [x] Dashboard overview stats → `Owner/DashboardController`
+- [x] Staff endpoints:
+  - [x] `GET /staff/schedule` + `GET /staff/schedule/{date}` → `Staff/ScheduleController`
+  - [x] `PATCH /staff/bookings/{id}/completed` + `no-show`
+- [x] Customer endpoints:
+  - [x] `GET /customer/my-bookings` + `GET /customer/my-bookings/{id}` + `DELETE` (cancel)
+- [x] Public endpoints:
+  - [x] `GET /public/business/{slug}` (business + branches) → `Public/BranchController@showBusiness`
+  - [x] `GET /public/business/{businessSlug}/branches/{branchSlug}` → `@show`
+  - [x] `GET /public/branches/{id}/services` → `@services`
+  - [x] `POST /public/availability/check` → `Public/AvailabilityController@check`
+  - [x] `POST /public/bookings` → `Public/BookingController@store`
+- [x] Admin endpoints:
+  - [x] `GET /admin/overview` → `Admin/OverviewController@index`
+  - [x] `GET /admin/businesses` + `/{id}` + `/subscription` + `/status` → `Admin/BusinessController`
+- [x] Internal (n8n):
+  - [x] `GET /internal/bookings/due-reminders` → `Internal/DueRemindersController@index`
+  - [x] `POST /internal/notifications/{id}/sent` + `/failed` → `Internal/NotificationCallbackController`
+- [x] Create all Form Request classes (namespaced): Auth/*, Booking/*, Branch/*
+- [x] Create all API Resource classes (7 total): +UserResource, updated BranchResource & BookingResource
+- [x] Create all Policy classes (5 total): BusinessPolicy, BranchPolicy, StaffPolicy, ServicePolicy, BookingPolicy
+- [x] Write authorization tests (4 total): StaffCannotAccessOtherStaffScheduleTest, OwnerCannotAccessOtherBusinessDataTest, ExpiredSubscriptionPreventsBookingTest, CustomerCannotCancelPastBookingTest
+- [x] Implement `OtpService` (sendOtp / verifyOtp)
+- [x] Add `notificationLogs()` relation to Booking model
+- [x] Verify all 56 routes resolve via `php artisan route:list`
 
 ---
 
@@ -340,4 +353,6 @@ all functional and connected to the real API.
 | 2026-06-23 | Implemented `02-Models + Relationships + Multi-Tenancy.md`: Eloquent models, relationships, tenant `BusinessScope`, Sanctum-ready auth entities, and backed enums. Verified with PHPUnit, Pint, and PHP syntax checks. PHPStan analyse currently exits non-zero without diagnostics and needs follow-up investigation. | [progress-tracker.md](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/Context/progress-tracker.md), [User.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/User.php), [BusinessScope.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Scopes/BusinessScope.php), [Business.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Business.php), [Branch.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Branch.php), [Staff.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Staff.php), [Service.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Service.php), [Booking.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Booking.php), [Customer.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/Customer.php), [OtpCode.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/OtpCode.php), [BranchWorkingHour.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/BranchWorkingHour.php), [StaffWorkingHour.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/StaffWorkingHour.php), [NotificationLog.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Models/NotificationLog.php), [Enums](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/app/Enums) |
 | 2026-06-23 | Implemented `01-create-tables.md`: Laravel PostgreSQL UUID migrations for all Booking SaaS core tables, native enum types, foreign keys, required indexes, soft deletes, and booking partial index. Verified migrate + rollback in temporary PostgreSQL database. | [progress-tracker.md](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/Context/progress-tracker.md), [0001_01_01_000000_create_users_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/0001_01_01_000000_create_users_table.php), [2026_06_23_120000_create_businesses_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120000_create_businesses_table.php), [2026_06_23_120001_create_branches_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120001_create_branches_table.php), [2026_06_23_120002_create_branch_working_hours_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120002_create_branch_working_hours_table.php), [2026_06_23_120003_create_staff_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120003_create_staff_table.php), [2026_06_23_120004_create_staff_working_hours_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120004_create_staff_working_hours_table.php), [2026_06_23_120005_create_services_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120005_create_services_table.php), [2026_06_23_120006_create_staff_services_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120006_create_staff_services_table.php), [2026_06_23_120007_create_customers_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120007_create_customers_table.php), [2026_06_23_120008_create_otp_codes_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120008_create_otp_codes_table.php), [2026_06_23_120009_create_bookings_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120009_create_bookings_table.php), [2026_06_23_120010_create_notifications_log_table.php](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/backend/database/migrations/2026_06_23_120010_create_notifications_log_table.php) |
 | 2026-06-23 | Project setup initialized. Saved specification to setup-project.md and updated progress tracker. | [progress-tracker.md](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/Context/progress-tracker.md), [setup-project.md](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/Context/feature-specs/setup-project.md) |
+| 2026-06-24 | Implemented Phase 3 API Specifications: Created 7 Form Requests (RegisterOwnerRequest, LoginRequest, SendOtpRequest, CreateBookingRequest, StoreBranchRequest, StoreStaffRequest, SetWorkingHoursRequest, StoreServiceRequest), 6 API Resources (BusinessResource, BranchResource, StaffResource, ServiceResource, BookingResource, CustomerResource), 5 Policies (BusinessPolicy, BranchPolicy, StaffPolicy, ServicePolicy, BookingPolicy), registered all policies in AppServiceProvider, and created 4 comprehensive authorization tests (StaffCannotAccessOtherStaffScheduleTest, OwnerCannotAccessOtherBusinessDataTest, ExpiredSubscriptionPreventsBookingTest, CustomerCannotCancelPastBookingTest). | Form Requests (7), Resources (6), Policies (5), Authorization Tests (4), AppServiceProvider.php |
 | 2026-06-24 | Implemented BookingCompleted event + UpdateCustomerVisitStats listener, registered in EventServiceProvider, updated MarkBookingCompletedAction to dispatch event, and added feature/unit tests for Phase 2. | [backend/app/Events/BookingCompleted.php](backend/app/Events/BookingCompleted.php), [backend/app/Listeners/UpdateCustomerVisitStats.php](backend/app/Listeners/UpdateCustomerVisitStats.php), [backend/app/Providers/EventServiceProvider.php](backend/app/Providers/EventServiceProvider.php), [backend/app/Actions/Bookings/MarkBookingCompletedAction.php](backend/app/Actions/Bookings/MarkBookingCompletedAction.php), [backend/tests/Feature/Booking/CreateBookingTest.php](backend/tests/Feature/Booking/CreateBookingTest.php), [backend/tests/Feature/Booking/AvailabilityConflictTest.php](backend/tests/Feature/Booking/AvailabilityConflictTest.php), [backend/tests/Feature/Booking/AnyAvailableStaffAssignmentTest.php](backend/tests/Feature/Booking/AnyAvailableStaffAssignmentTest.php), [backend/tests/Unit/AvailabilityServiceTest.php](backend/tests/Unit/AvailabilityServiceTest.php) |
+| 2026-06-24 | Implemented all Phase 3 API controllers & endpoints per `07-Controller & Endpoint.md`. Created 19 controllers, replaced 7 route file stubs, added 9 Form Requests in namespaced subdirs, added UserResource, updated BranchResource & BookingResource, implemented OtpService, added notificationLogs relation to Booking. All 56 routes verified via `php artisan route:list`. | [routes/api/v1/*.php](backend/routes/api/v1/), [Controllers/Api/V1/**](backend/app/Http/Controllers/Api/V1/), [Services/OtpService.php](backend/app/Services/OtpService.php), [Requests/Auth/](backend/app/Http/Requests/Auth/), [Requests/Booking/](backend/app/Http/Requests/Booking/), [Requests/Branch/](backend/app/Http/Requests/Branch/), [Resources/UserResource.php](backend/app/Http/Resources/UserResource.php), [Models/Booking.php](backend/app/Models/Booking.php) |

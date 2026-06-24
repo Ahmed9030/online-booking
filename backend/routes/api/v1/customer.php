@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Http\Controllers\Api\V1\Customer\MyBookingsController;
 use Illuminate\Support\Facades\Route;
 
-// Customer Routes (Sanctum/OTP protected)
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/bookings', function () {
-        return response()->json(['message' => 'Customer bookings placeholder']);
-    });
+    // Customer views own bookings
+    Route::get('my-bookings', [MyBookingsController::class, 'index']);
+    Route::get('my-bookings/{id}', [MyBookingsController::class, 'show']);
+    Route::delete('my-bookings/{id}', [MyBookingsController::class, 'cancel']);
 });
