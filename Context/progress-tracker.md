@@ -46,7 +46,7 @@
 | Phase | Focus | Status |
 |---|---|---|
 | 1 | Backend Foundation | ✅ Complete |
-| 2 | Core Booking Logic | 🟡 In Progress |
+| 2 | Core Booking Logic | ✅ Complete |
 | 3 | Owner/Staff API | 🔲 Not Started |
 | 4 | Frontend Foundation | 🔲 Not Started |
 | 5 | Dashboard Frontend | 🔲 Not Started |
@@ -141,8 +141,7 @@ conflict prevention and "any available" staff assignment.
 - [x] Create `MarkBookingCompletedAction`
 - [x] Create `MarkBookingNoShowAction` (update status; no-show does not increment visit count)
 - [x] Register `BookingCreated` → `DispatchBookingConfirmationJob` listener
-- [ ] Register `UpdateCustomerVisitStats` on `BookingCompleted`
-- [ ] Write feature tests:
+- [x] Write feature tests:
  - [x] Register `BookingCreated` → `DispatchBookingConfirmationJob` listener
  - [x] Register `UpdateCustomerVisitStats` on `BookingCompleted`
  - [x] Write feature tests:

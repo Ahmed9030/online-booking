@@ -44,31 +44,29 @@ class AnyAvailableStaffAssignmentTest extends TestCase
 
         $this->branch = Branch::factory()->for($this->business)->create();
 
-        // Branch working hours
-        for ($day = 0; $day < 5; $day++) {
-            BranchWorkingHour::create([
-                'branch_id' => $this->branch->id,
-                'weekday' => $day,
-                'open_time' => '09:00',
-                'close_time' => '18:00',
-            ]);
-        }
+        $bookingWeekday = now('Africa/Cairo')->addDays(1)->dayOfWeek;
+
+        // Branch working hours for the target booking day
+        BranchWorkingHour::create([
+            'branch_id' => $this->branch->id,
+            'weekday' => $bookingWeekday,
+            'open_time' => '09:00',
+            'close_time' => '18:00',
+        ]);
 
         // Create three staff members
         $this->staff1 = Staff::factory()->for($this->business)->for($this->branch)->create(['name' => 'Ahmed']);
         $this->staff2 = Staff::factory()->for($this->business)->for($this->branch)->create(['name' => 'Karim']);
         $this->staff3 = Staff::factory()->for($this->business)->for($this->branch)->create(['name' => 'Hassan']);
 
-        // Set working hours for all staff
+        // Set working hours for all staff on the target booking day
         foreach ([$this->staff1, $this->staff2, $this->staff3] as $staff) {
-            for ($day = 0; $day < 5; $day++) {
-                StaffWorkingHour::create([
-                    'staff_id' => $staff->id,
-                    'weekday' => $day,
-                    'start_time' => '09:00',
-                    'end_time' => '18:00',
-                ]);
-            }
+            StaffWorkingHour::create([
+                'staff_id' => $staff->id,
+                'weekday' => $bookingWeekday,
+                'start_time' => '09:00',
+                'end_time' => '18:00',
+            ]);
         }
 
         // Create service

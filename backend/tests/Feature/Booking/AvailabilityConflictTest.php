@@ -43,26 +43,24 @@ class AvailabilityConflictTest extends TestCase
 
         $this->branch = Branch::factory()->for($this->business)->create();
 
-        // Working hours: 9 AM – 6 PM
-        for ($day = 0; $day < 5; $day++) {
-            BranchWorkingHour::create([
-                'branch_id' => $this->branch->id,
-                'weekday' => $day,
-                'open_time' => '09:00',
-                'close_time' => '18:00',
-            ]);
-        }
+        $bookingWeekday = now('Africa/Cairo')->addDays(1)->dayOfWeek;
+
+        // Working hours: 9 AM – 6 PM for the target booking day
+        BranchWorkingHour::create([
+            'branch_id' => $this->branch->id,
+            'weekday' => $bookingWeekday,
+            'open_time' => '09:00',
+            'close_time' => '18:00',
+        ]);
 
         $this->staff = Staff::factory()->for($this->business)->for($this->branch)->create();
 
-        for ($day = 0; $day < 5; $day++) {
-            StaffWorkingHour::create([
-                'staff_id' => $this->staff->id,
-                'weekday' => $day,
-                'start_time' => '09:00',
-                'end_time' => '18:00',
-            ]);
-        }
+        StaffWorkingHour::create([
+            'staff_id' => $this->staff->id,
+            'weekday' => $bookingWeekday,
+            'start_time' => '09:00',
+            'end_time' => '18:00',
+        ]);
 
         $this->service = Service::factory()->for($this->business)->for($this->branch)->create([
             'duration_minutes' => 30,
@@ -348,15 +346,15 @@ class AvailabilityConflictTest extends TestCase
         $staff2 = Staff::factory()->for($this->business)->for($this->branch)->create();
         $staff2->services()->attach($this->service->id);
 
-        // Set working hours for staff2
-        for ($day = 0; $day < 5; $day++) {
-            StaffWorkingHour::create([
-                'staff_id' => $staff2->id,
-                'weekday' => $day,
-                'start_time' => '09:00',
-                'end_time' => '18:00',
-            ]);
-        }
+        $staff2Weekday = now('Africa/Cairo')->addDays(1)->dayOfWeek;
+
+        // Set working hours for staff2 on the target booking day
+        StaffWorkingHour::create([
+            'staff_id' => $staff2->id,
+            'weekday' => $staff2Weekday,
+            'start_time' => '09:00',
+            'end_time' => '18:00',
+        ]);
 
         $startsAt = now('Africa/Cairo')->addDays(1)->setHour(14)->setMinute(0);
         $endsAt = $startsAt->clone()->addMinutes(30);
