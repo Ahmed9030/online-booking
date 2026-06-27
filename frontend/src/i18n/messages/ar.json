@@ -1,11 +1,52 @@
 {
-  "Common": {
+  "common": {
     "title": "نظام حجز الصالونات",
-    "welcome": "مرحباً بك في نظام حجز الصالونات"
+    "welcome": "مرحباً بك في نظام حجز الصالونات",
+    "loading": "جاري التحميل...",
+    "today": "اليوم",
+    "confirm": "تأكيد",
+    "back_to_home": "العودة للرئيسية"
   },
-  "Auth": {
+  "auth": {
     "login": "تسجيل الدخول",
     "register": "إنشاء حساب جديد",
-    "logout": "تسجيل الخروج"
+    "logout": "تسجيل الخروج",
+    "email": "البريد الإلكتروني",
+    "email_or_username": "البريد الإلكتروني أو اسم المستخدم",
+    "password": "كلمة المرور",
+    "password_confirmation": "تأكيد كلمة المرور",
+    "name": "الاسم الكامل",
+    "business_name": "اسم المشروع",
+    "branch_name": "اسم الفرع",
+    "branch_address": "عنوان الفرع",
+    "no_account": "ليس لديك حساب؟",
+    "has_account": "لديك حساب بالفعل؟",
+    "login_title": "تسجيل الدخول"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "calendar": "التقويم",
+    "bookings": "الحجوزات",
+    "customers": "العملاء",
+    "staff": "الموظفين",
+    "services": "الخدمات",
+    "branches": "الفروع",
+    "settings": "الإعدادات",
+    "my_bookings": "حجوزاتي"
+  },
+  "booking": {
+    "select_service": "اختر الخدمة",
+    "select_staff": "اختر الموظف",
+    "select_time": "اختر الوقت",
+    "confirm": "تأكيد الحجز",
+    "enter_details": "أدخل التفاصيل",
+    "customer_name": "اسم العميل",
+    "customer_phone": "رقم الهاتف",
+    "confirm_booking": "تأكيد الحجز",
+    "any_available": "أي موظف متاح",
+    "success_title": "تم الحجز بنجاح",
+    "success_message": "سيتم إرسال تأكيد الحجز عبر واتساب",
+    "back_to_home": "العودة للرئيسية",
+    "select_date": "اختر التاريخ"
   }
 }

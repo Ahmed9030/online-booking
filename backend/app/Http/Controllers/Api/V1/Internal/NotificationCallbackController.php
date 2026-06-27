@@ -19,7 +19,7 @@ class NotificationCallbackController extends Controller
         $log = NotificationLog::findOrFail($id);
 
         $log->update([
-            'status'  => 'sent',
+            'status' => 'sent',
             'sent_at' => now(),
         ]);
 
@@ -35,7 +35,7 @@ class NotificationCallbackController extends Controller
         $log = NotificationLog::findOrFail($id);
 
         $log->update([
-            'status'        => 'failed',
+            'status' => 'failed',
             'error_message' => request()->input('error_message'),
         ]);
 

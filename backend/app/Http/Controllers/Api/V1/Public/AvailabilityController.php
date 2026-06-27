@@ -33,7 +33,7 @@ class AvailabilityController extends Controller
      */
     public function check(CheckAvailabilityRequest $request): JsonResponse
     {
-        $branch  = Branch::findOrFail($request->validated('branch_id'));
+        $branch = Branch::findOrFail($request->validated('branch_id'));
         $service = Service::findOrFail($request->validated('service_id'));
 
         $staff = null;
@@ -47,7 +47,7 @@ class AvailabilityController extends Controller
 
         return response()->json([
             'data' => [
-                'slots'           => $slots,
+                'slots' => $slots,
                 'total_available' => $slots->count(),
             ],
         ]);

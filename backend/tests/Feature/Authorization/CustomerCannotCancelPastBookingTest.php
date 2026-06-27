@@ -21,7 +21,7 @@ class CustomerCannotCancelPastBookingTest extends TestCase
     {
         // Create a business and customer
         $business = Business::factory()->create();
-        $customer = User::factory()->create(['role' => UserRole::CUSTOMER]);
+        $customer = User::factory()->create(['role' => UserRole::Customer]);
 
         // Create a booking in the past
         $pastBooking = Booking::factory()->create([
@@ -36,7 +36,7 @@ class CustomerCannotCancelPastBookingTest extends TestCase
         $response = $this->patchJson("/api/v1/bookings/{$pastBooking->id}/cancel");
 
         // Should return 403 or 422 (cannot cancel completed/past booking)
-        $response->assertStatus([403, 422]);
+        $this->assertContains($response->status(), [403, 422]);
     }
 
     /**
@@ -46,7 +46,7 @@ class CustomerCannotCancelPastBookingTest extends TestCase
     {
         // Create a business and customer
         $business = Business::factory()->create();
-        $customer = User::factory()->create(['role' => UserRole::CUSTOMER]);
+        $customer = User::factory()->create(['role' => UserRole::Customer]);
 
         // Create a booking in the future
         $futureBooking = Booking::factory()->create([
@@ -61,7 +61,7 @@ class CustomerCannotCancelPastBookingTest extends TestCase
         $response = $this->patchJson("/api/v1/bookings/{$futureBooking->id}/cancel");
 
         // Should succeed (200 or 204)
-        $response->assertStatus([200, 204]);
+        $this->assertContains($response->status(), [200, 204]);
     }
 
     /**
@@ -71,7 +71,7 @@ class CustomerCannotCancelPastBookingTest extends TestCase
     {
         // Create a business and customer
         $business = Business::factory()->create();
-        $customer = User::factory()->create(['role' => UserRole::CUSTOMER]);
+        $customer = User::factory()->create(['role' => UserRole::Customer]);
 
         // Create a booking starting in 1 hour (often businesses require 24 hours notice)
         $soonBooking = Booking::factory()->create([

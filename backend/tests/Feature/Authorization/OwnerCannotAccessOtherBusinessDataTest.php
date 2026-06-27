@@ -20,10 +20,10 @@ class OwnerCannotAccessOtherBusinessDataTest extends TestCase
     {
         // Create two businesses with different owners
         $owner1 = User::factory()->create(['role' => UserRole::OWNER]);
-        $business1 = Business::factory()->create(['owner_id' => $owner1->id]);
+        $business1 = Business::factory()->create(['owner_user_id' => $owner1->id]);
 
         $owner2 = User::factory()->create(['role' => UserRole::OWNER]);
-        $business2 = Business::factory()->create(['owner_id' => $owner2->id]);
+        $business2 = Business::factory()->create(['owner_user_id' => $owner2->id]);
 
         // Create branches for business 2
         $branch2 = Branch::factory()->create(['business_id' => $business2->id]);
@@ -43,10 +43,10 @@ class OwnerCannotAccessOtherBusinessDataTest extends TestCase
     {
         // Create two owners and businesses
         $owner1 = User::factory()->create(['role' => UserRole::OWNER]);
-        $business1 = Business::factory()->create(['owner_id' => $owner1->id]);
+        $business1 = Business::factory()->create(['owner_user_id' => $owner1->id]);
 
         $owner2 = User::factory()->create(['role' => UserRole::OWNER]);
-        $business2 = Business::factory()->create(['owner_id' => $owner2->id]);
+        $business2 = Business::factory()->create(['owner_user_id' => $owner2->id]);
 
         // Create branches for both businesses
         $branch1 = Branch::factory()->create(['business_id' => $business1->id]);
@@ -59,7 +59,7 @@ class OwnerCannotAccessOtherBusinessDataTest extends TestCase
         // Should only see branch1 in results
         $branches = $response->json('data');
         $this->assertTrue(
-            collect($branches)->every(fn($branch) => $branch['id'] !== $branch2->id)
+            collect($branches)->every(fn ($branch) => $branch['id'] !== $branch2->id)
         );
     }
 }

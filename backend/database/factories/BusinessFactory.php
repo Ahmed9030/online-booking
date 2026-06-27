@@ -13,12 +13,13 @@ class BusinessFactory extends Factory
     public function definition()
     {
         $name = $this->faker->company();
+
         return [
             'owner_user_id' => null,
             'name' => $name,
             'logo_url' => null,
             'description' => $this->faker->sentence(),
-            'slug' => Str::slug($name) . '-' . Str::random(4),
+            'slug' => Str::slug($name).'-'.Str::random(4),
             'subscription_status' => 'active',
             'subscription_expires_at' => now()->addDays(30),
         ];

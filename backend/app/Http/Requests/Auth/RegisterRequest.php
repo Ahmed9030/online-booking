@@ -17,13 +17,13 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'           => ['required', 'string', 'min:2', 'max:100'],
-            'email'          => ['required', 'email', 'unique:users,email'],
-            'password'       => ['required', 'confirmed', Password::default()],
-            'business_name'  => ['required', 'string', 'min:3', 'max:100'],
-            'branch_name'    => ['required', 'string', 'min:3', 'max:100'],
+            'name' => ['required', 'string', 'min:2', 'max:100'],
+            'email' => ['required', 'email', 'unique:users,email'],
+            'password' => ['required', 'confirmed', Password::default()],
+            'business_name' => ['required', 'string', 'min:3', 'max:100'],
+            'branch_name' => ['required', 'string', 'min:3', 'max:100'],
             'branch_address' => ['required', 'string', 'min:5'],
-            'city'           => ['nullable', 'string', 'max:50'],
+            'city' => ['nullable', 'string', 'max:50'],
         ];
     }
 

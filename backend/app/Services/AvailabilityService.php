@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Exceptions\SlotNotAvailableException;
 use App\Models\Branch;
 use App\Models\Service as ServiceModel;
 use App\Models\Staff;
 use App\Repositories\AvailabilityRepository;
-use App\Exceptions\SlotNotAvailableException;
 use Carbon\Carbon;
 use Illuminate\Support\Collection as SupportCollection;
 
@@ -96,6 +96,7 @@ final class AvailabilityService
         $bookedSlots = $bookedSlots->map(function ($b) {
             $b->starts_at = Carbon::parse($b->starts_at)->setTimezone('Africa/Cairo');
             $b->ends_at = Carbon::parse($b->ends_at)->setTimezone('Africa/Cairo');
+
             return $b;
         });
 
@@ -112,7 +113,7 @@ final class AvailabilityService
 
             if ($isAvailable) {
                 $slots->push([
-                    'id' => $staff->id . '_' . $current->format('H_i'),
+                    'id' => $staff->id.'_'.$current->format('H_i'),
                     'starts_at' => $current->clone(),
                     'ends_at' => $slotEnd->clone(),
                     'staff_id' => $staff->id,

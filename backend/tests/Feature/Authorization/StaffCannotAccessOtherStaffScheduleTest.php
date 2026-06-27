@@ -22,7 +22,7 @@ class StaffCannotAccessOtherStaffScheduleTest extends TestCase
     {
         // Create a business and owner
         $owner = User::factory()->create(['role' => UserRole::OWNER]);
-        $business = Business::factory()->create(['owner_id' => $owner->id]);
+        $business = Business::factory()->create(['owner_user_id' => $owner->id]);
 
         // Create a branch
         $branch = Branch::factory()->create(['business_id' => $business->id]);

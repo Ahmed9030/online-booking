@@ -14,9 +14,10 @@ use Laravel\Sanctum\HasApiTokens;
 
 final class Customer extends Model
 {
-    use HasFactory, HasApiTokens, HasUuids;
+    use HasApiTokens, HasFactory, HasUuids;
 
     protected $fillable = [
+        'user_id',
         'business_id',
         'phone',
         'name',
@@ -37,6 +38,11 @@ final class Customer extends Model
     protected static function booted(): void
     {
         self::addGlobalScope(new BusinessScope);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function business(): BelongsTo

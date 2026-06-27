@@ -14,7 +14,7 @@ class ServiceFactory extends Factory
         return [
             'business_id' => null,
             'branch_id' => null,
-            'name' => $this->faker->word . ' Service',
+            'name' => $this->faker->word.' Service',
             'duration_minutes' => 30,
             'price' => 100.00,
             'is_active' => true,

@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
+use App\Exceptions\SlotNotAvailableException;
+use App\Models\Booking;
 use App\Models\Branch;
 use App\Models\BranchWorkingHour;
 use App\Models\Business;
-use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Staff;
 use App\Models\StaffWorkingHour;
 use App\Services\AvailabilityService;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -22,10 +22,15 @@ class AvailabilityServiceTest extends TestCase
     use RefreshDatabase;
 
     protected AvailabilityService $service;
+
     protected Business $business;
+
     protected Branch $branch;
+
     protected Staff $staff;
+
     protected Service $bookingService;
+
     protected Customer $customer;
 
     protected function setUp(): void
@@ -213,7 +218,7 @@ class AvailabilityServiceTest extends TestCase
         ]);
 
         // Try to assert slot available for the same time
-        $this->expectException(\App\Exceptions\SlotNotAvailableException::class);
+        $this->expectException(SlotNotAvailableException::class);
 
         $this->service->assertSlotAvailable(
             $this->staff->id,
@@ -264,7 +269,7 @@ class AvailabilityServiceTest extends TestCase
         $startsAt2 = $startsAt1->clone()->addMinutes(15);
         $endsAt2 = $endsAt1->clone()->addMinutes(15);
 
-        $this->expectException(\App\Exceptions\SlotNotAvailableException::class);
+        $this->expectException(SlotNotAvailableException::class);
 
         $this->service->assertSlotAvailable(
             $this->staff->id,

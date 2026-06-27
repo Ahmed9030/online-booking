@@ -16,10 +16,10 @@ class CheckAvailabilityRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'branch_id'  => ['required', 'uuid', 'exists:branches,id'],
+            'branch_id' => ['required', 'uuid', 'exists:branches,id'],
             'service_id' => ['required', 'uuid', 'exists:services,id'],
-            'staff_id'   => ['nullable', 'uuid', 'exists:staff,id'],
-            'date'       => ['required', 'date', 'after_or_equal:today'],
+            'staff_id' => ['nullable', 'uuid', 'exists:staff,id'],
+            'date' => ['required', 'date', 'after_or_equal:today'],
         ];
     }
 }

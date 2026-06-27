@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Business;
 use App\Models\Customer;
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
 
 class OverviewController extends Controller
@@ -19,27 +18,27 @@ class OverviewController extends Controller
      */
     public function index(): JsonResponse
     {
-        $totalBusinesses  = Business::withoutGlobalScopes()->count();
+        $totalBusinesses = Business::withoutGlobalScopes()->count();
         $activeBusinesses = Business::withoutGlobalScopes()
             ->where('subscription_status', 'active')
             ->count();
-        $trialBusinesses  = Business::withoutGlobalScopes()
+        $trialBusinesses = Business::withoutGlobalScopes()
             ->where('subscription_status', 'trial')
             ->count();
-        $totalCustomers   = Customer::withoutGlobalScopes()->count();
-        $totalBookings    = Booking::withoutGlobalScopes()->count();
-        $monthBookings    = Booking::withoutGlobalScopes()
+        $totalCustomers = Customer::withoutGlobalScopes()->count();
+        $totalBookings = Booking::withoutGlobalScopes()->count();
+        $monthBookings = Booking::withoutGlobalScopes()
             ->whereMonth('created_at', now()->month)
             ->count();
 
         return response()->json([
             'data' => [
                 'businesses' => [
-                    'total'   => $totalBusinesses,
-                    'active'  => $activeBusinesses,
-                    'trial'   => $trialBusinesses,
+                    'total' => $totalBusinesses,
+                    'active' => $activeBusinesses,
+                    'trial' => $trialBusinesses,
                 ],
-                'customers'      => $totalCustomers,
+                'customers' => $totalCustomers,
                 'bookings_total' => $totalBookings,
                 'bookings_month' => $monthBookings,
             ],

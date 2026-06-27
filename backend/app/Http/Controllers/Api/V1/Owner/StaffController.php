@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Owner;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\StaffResource;
 use App\Models\Staff;
 use App\Models\StaffWorkingHour;
 use App\Models\User;
-use App\Enums\UserRole;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
@@ -37,16 +37,16 @@ class StaffController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name'      => ['required', 'string', 'min:2', 'max:100'],
+            'name' => ['required', 'string', 'min:2', 'max:100'],
             'branch_id' => ['required', 'uuid', 'exists:branches,id'],
             'is_active' => ['sometimes', 'boolean'],
         ]);
 
         $staff = Staff::create([
             'business_id' => auth()->user()->business_id,
-            'branch_id'   => $validated['branch_id'],
-            'name'        => $validated['name'],
-            'is_active'   => $validated['is_active'] ?? true,
+            'branch_id' => $validated['branch_id'],
+            'name' => $validated['name'],
+            'is_active' => $validated['is_active'] ?? true,
         ]);
 
         return response()->json(['data' => new StaffResource($staff)], 201);
@@ -74,7 +74,7 @@ class StaffController extends Controller
             ->findOrFail($id);
 
         $validated = $request->validate([
-            'name'      => ['sometimes', 'string', 'min:2', 'max:100'],
+            'name' => ['sometimes', 'string', 'min:2', 'max:100'],
             'branch_id' => ['sometimes', 'uuid', 'exists:branches,id'],
             'is_active' => ['sometimes', 'boolean'],
         ]);
@@ -108,9 +108,9 @@ class StaffController extends Controller
             ->findOrFail($id);
 
         $request->validate([
-            'working_hours'              => ['required', 'array', 'min:1'],
-            'working_hours.*.weekday'    => ['required', 'integer', 'between:0,6'],
-            'working_hours.*.open_time'  => ['nullable', 'date_format:H:i'],
+            'working_hours' => ['required', 'array', 'min:1'],
+            'working_hours.*.weekday' => ['required', 'integer', 'between:0,6'],
+            'working_hours.*.open_time' => ['nullable', 'date_format:H:i'],
             'working_hours.*.close_time' => ['nullable', 'date_format:H:i'],
         ]);
 
@@ -118,9 +118,9 @@ class StaffController extends Controller
 
         foreach ($request->validated()['working_hours'] as $hours) {
             StaffWorkingHour::create([
-                'staff_id'   => $staff->id,
-                'weekday'    => $hours['weekday'],
-                'open_time'  => $hours['open_time'] ?? null,
+                'staff_id' => $staff->id,
+                'weekday' => $hours['weekday'],
+                'open_time' => $hours['open_time'] ?? null,
                 'close_time' => $hours['close_time'] ?? null,
             ]);
         }
@@ -138,7 +138,7 @@ class StaffController extends Controller
             ->findOrFail($id);
 
         $request->validate([
-            'service_ids'   => ['required', 'array'],
+            'service_ids' => ['required', 'array'],
             'service_ids.*' => ['uuid', 'exists:services,id'],
         ]);
 
@@ -165,12 +165,12 @@ class StaffController extends Controller
         $user = User::updateOrCreate(
             ['id' => $staff->user_id],
             [
-                'name'        => $staff->name,
-                'username'    => $request->input('username'),
-                'password'    => Hash::make($request->input('password')),
-                'role'        => UserRole::Staff,
+                'name' => $staff->name,
+                'username' => $request->input('username'),
+                'password' => Hash::make($request->input('password')),
+                'role' => UserRole::Staff,
                 'business_id' => $staff->business_id,
-                'is_active'   => true,
+                'is_active' => true,
             ],
         );
 

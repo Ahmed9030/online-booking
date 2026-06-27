@@ -1,21 +1,27 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Providers;
 
+use App\Events\BookingCancelled;
+use App\Events\BookingCompleted;
+use App\Events\BookingCreated;
+use App\Listeners\DispatchBookingConfirmationJob;
+use App\Listeners\UpdateCustomerVisitStats;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
 {
     protected $listen = [
-        \App\Events\BookingCreated::class => [
-            \App\Listeners\DispatchBookingConfirmationJob::class,
+        BookingCreated::class => [
+            DispatchBookingConfirmationJob::class,
         ],
         // Booking lifecycle events
-        \App\Events\BookingCompleted::class => [
-            \App\Listeners\UpdateCustomerVisitStats::class,
+        BookingCompleted::class => [
+            UpdateCustomerVisitStats::class,
         ],
-        \App\Events\BookingCancelled::class => [
+        BookingCancelled::class => [
             // Add listeners for cancellations here
         ],
     ];

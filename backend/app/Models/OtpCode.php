@@ -19,11 +19,11 @@ final class OtpCode extends Model
         'expires_at',
         'consumed_at',
     ];
-    
-     protected $hidden = [
+
+    protected $hidden = [
         'code',
     ];
- 
+
     protected function casts(): array
     {
         return [

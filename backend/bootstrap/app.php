@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Middleware\EnsureSubscriptionActive;
+use App\Http\Middleware\EnsureUserHasRole;
+use App\Http\Middleware\VerifyInternalWebhookSecret;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,9 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'role' => \App\Http\Middleware\EnsureUserHasRole::class,
-            'subscription.active' => \App\Http\Middleware\EnsureSubscriptionActive::class,
-            'internal.webhook.secret' => \App\Http\Middleware\VerifyInternalWebhookSecret::class,
+            'role' => EnsureUserHasRole::class,
+            'subscription.active' => EnsureSubscriptionActive::class,
+            'internal.webhook.secret' => VerifyInternalWebhookSecret::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

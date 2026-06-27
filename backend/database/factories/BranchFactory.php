@@ -13,7 +13,7 @@ class BranchFactory extends Factory
     {
         return [
             'business_id' => null,
-            'name' => $this->faker->company . ' Branch',
+            'name' => $this->faker->company.' Branch',
             'address' => $this->faker->address,
             'city' => $this->faker->city,
             'whatsapp_number' => $this->faker->phoneNumber,

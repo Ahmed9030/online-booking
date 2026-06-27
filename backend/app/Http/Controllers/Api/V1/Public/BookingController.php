@@ -11,6 +11,7 @@ use App\Http\Requests\Booking\StorePublicBookingRequest;
 use App\Http\Resources\BookingResource;
 use App\Models\Branch;
 use App\Models\Customer;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 
@@ -47,9 +48,17 @@ class BookingController extends Controller
             ['name' => $validated['customer_name'], 'otp_verified_at' => now()],
         );
 
+        if ($customer->user_id === null) {
+            $user = User::where('phone', $customer->phone)->where('role', 'customer')->first();
+            if ($user !== null) {
+                $customer->user()->associate($user);
+                $customer->saveQuietly();
+            }
+        }
+
         // Create booking via action
         $startsAt = Carbon::parse($validated['starts_at'])->setTimezone('Africa/Cairo');
-        $endsAt   = Carbon::parse($validated['ends_at'])->setTimezone('Africa/Cairo');
+        $endsAt = Carbon::parse($validated['ends_at'])->setTimezone('Africa/Cairo');
 
         $data = new CreateBookingData(
             businessId: $business->id,

@@ -7,6 +7,7 @@ namespace Tests\Feature\Booking;
 use App\Actions\Bookings\CreateBookingAction;
 use App\Data\CreateBookingData;
 use App\Enums\BookingStatus;
+use App\Events\BookingCreated;
 use App\Models\Booking;
 use App\Models\Branch;
 use App\Models\BranchWorkingHour;
@@ -24,10 +25,15 @@ class CreateBookingTest extends TestCase
     use RefreshDatabase;
 
     protected Business $business;
+
     protected Branch $branch;
+
     protected Staff $staff;
+
     protected Service $service;
+
     protected Customer $customer;
+
     protected CreateBookingAction $action;
 
     protected function setUp(): void
@@ -121,7 +127,7 @@ class CreateBookingTest extends TestCase
         ]);
     }
 
-/**
+    /**
      * Test: Booking start and end times are stored in UTC.
      */
     public function test_booking_times_stored_in_utc(): void
@@ -185,7 +191,7 @@ class CreateBookingTest extends TestCase
      */
     public function test_booking_fires_booking_created_event(): void
     {
-        $this->expectsEvents(\App\Events\BookingCreated::class);
+        $this->expectsEvents(BookingCreated::class);
 
         $startsAt = Carbon::parse('2026-06-30 14:00:00', 'Africa/Cairo');
         $endsAt = $startsAt->clone()->addMinutes(30);

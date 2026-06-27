@@ -6,8 +6,8 @@ namespace Tests\Feature\Booking;
 
 use App\Actions\Bookings\CreateBookingAction;
 use App\Data\CreateBookingData;
-use App\Enums\BookingStatus;
 use App\Enums\BookingSource;
+use App\Enums\BookingStatus;
 use App\Exceptions\SlotNotAvailableException;
 use App\Models\Booking;
 use App\Models\Branch;
@@ -17,7 +17,6 @@ use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Staff;
 use App\Models\StaffWorkingHour;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -26,11 +25,17 @@ class AvailabilityConflictTest extends TestCase
     use RefreshDatabase;
 
     protected Business $business;
+
     protected Branch $branch;
+
     protected Staff $staff;
+
     protected Service $service;
+
     protected Customer $customer1;
+
     protected Customer $customer2;
+
     protected CreateBookingAction $action;
 
     protected function setUp(): void

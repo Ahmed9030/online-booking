@@ -11,43 +11,43 @@
 
 ## Current Status
 
-**Phase:** 3 — Owner/Staff API ✅ Complete
+**Phase:** 4 — Frontend Foundation ✅ Complete
 **Active Feature:** Phase 4 — Frontend Foundation
-**Last Session:** Implemented all API controllers, route files, form requests, OtpService, updated resources, and verified all 56 routes resolve
-**Build Week:** 4 of 8
+**Last Session:** Implemented all core setup files, hooks, UI components, booking components, layouts, pages, i18n, and proxy per `08-Frontend Foundation.md`. Verified build and lint pass cleanly.
+**Build Week:** 5 of 8
 
 ---
 
 ## Last Completed
-- Created Eloquent models for `Business`, `Branch`, `Staff`, `Service`, `Booking`, `Customer`, `OtpCode`, working hours, and `NotificationLog`
-- Added all specified relationships, UUID usage, fillable fields, casts, and soft deletes where required
-- Added `BusinessScope` and applied it to `Branch`, `Staff`, `Service`, `Customer`, and `Booking`
-- Added backed enums for `UserRole`, subscription status, booking status/source, and notification fields
-- Updated `User` for Sanctum API tokens, UUIDs, role casting, and business/staff/owned-business relationships
-- Verified Phase 1 setup basics are complete: Laravel 13 app, PHP 8.3 minimum, PostgreSQL/database queue env config, Sanctum dependency, versioned API route includes, and route files
-- Implemented Availability repository and service for slot generation and conflict detection
-- Added booking actions: `CreateBookingAction`, `AssignAvailableStaffAction`, `CancelBookingAction`, `MarkBookingCompletedAction`, `MarkBookingNoShowAction`
-- Added `CreateBookingData` DTO and `SlotNotAvailableException`
-- Added events: `BookingCreated`, `BookingCancelled` and listener `DispatchBookingConfirmationJob`
-- Implemented three middleware (`EnsureUserHasRole`, `EnsureSubscriptionActive`, `VerifyInternalWebhookSecret`), registered aliases in `bootstrap/app.php`, and added `internal_webhook_secret` to `config/services.php`
-- Created all **Form Request** classes (namespaced subdirs): `Auth/LoginRequest`, `Auth/RegisterRequest`, `Auth/SendOtpRequest`, `Auth/VerifyOtpRequest`, `Booking/StorePublicBookingRequest`, `Booking/CheckAvailabilityRequest`, `Branch/StoreBranchRequest`, `Branch/UpdateBranchRequest`, `Branch/UpdateWorkingHoursRequest`
-- Created all **API Resource** classes (7 total): `BusinessResource`, `BranchResource`, `StaffResource`, `ServiceResource`, `BookingResource`, `CustomerResource`, `UserResource`
-- Created all **Policy** classes (5 total): `BusinessPolicy`, `BranchPolicy`, `StaffPolicy`, `ServicePolicy`, `BookingPolicy` and registered them in `AppServiceProvider`
-- Created all authorization and functional tests (4 total): `StaffCannotAccessOtherStaffScheduleTest`, `OwnerCannotAccessOtherBusinessDataTest`, `ExpiredSubscriptionPreventsBookingTest`, `CustomerCannotCancelPastBookingTest`
-- Implemented **all 19 controllers** across Public, Auth, Owner, Staff, Customer, Admin, and Internal namespaces
-- Replaced all route file stubs with full spec-compliant routes (7 route files, 56 total routes)
-- Implemented `OtpService` (generate + verify OTP backed by `otp_codes` table)
-- Added `notificationLogs()` relationship to `Booking` model
-- Verified all routes resolve cleanly via `php artisan route:list`
+- Created Next.js 16 frontend project with TypeScript strict mode, App Router, and path aliases (`@/*`)
+- Installed and configured `next-intl` v4 with Arabic default locale and `dir="rtl"` support
+- Installed and configured Tailwind CSS v4 with Neumorphism CSS variables in `globals.css`
+- Installed and configured shadcn/ui (base-nova style) with custom neumorphism variants
+- Installed Cairo + Tajawal Google Fonts for Arabic typography
+- Created `api.ts` Axios instance with request/response interceptors
+- Created `query-client.ts` TanStack Query client
+- Created `src/types/index.ts` with all TypeScript interfaces
+- Created `src/lib/validations/index.ts` with all Zod schemas
+- Created Zustand stores: `auth.ts`, `booking.ts`, `ui.ts`
+- Created `src/i18n/routing.ts` with locale routing configuration
+- Created `src/proxy.ts` for Next.js 16 locale handling
+- Created TanStack Query hooks: `useLogin`, `useOtp`, `useCreateBooking`, `useAvailability`
+- Created shadcn/ui components: `Button.tsx`, `Input.tsx`, `Card.tsx`
+- Created booking components: `ServiceSelector.tsx`, `TimeSlotPicker.tsx`, `BookingForm.tsx`
+- Created layout components: `Sidebar.tsx`, `TopBar.tsx`
+- Created route groups: `(public)`, `(auth)`, `(customer)`, `(dashboard)`, `(admin)`
+- Created pages: landing page, booking flow start, login page, dashboard overview
+- Created Arabic (`ar.json`) and English (`en.json`) translation files with all UI strings
 
 ---
 
 ## Next Up
-1. Write feature tests for all new endpoints
-2. Setup frontend Next.js project with TypeScript, TailwindCSS, and next-intl (Phase 4)
-3. Build auth screens: `/login`, `/register`
-4. Build public booking flow: service selection → staff → slot picker → confirm (OTP) → success
-5. Dashboard layout + overview page
+1. Complete remaining Phase 4 pages (register, customer my-bookings, public booking flow sub-pages)
+2. Write feature tests for all new frontend components
+3. Setup frontend Next.js project with TypeScript, TailwindCSS, and next-intl (Phase 4)
+4. Build auth screens: `/login`, `/register`
+5. Build public booking flow: service selection → staff → slot picker → confirm (OTP) → success
+6. Dashboard layout + overview page
 
 
 ---
@@ -55,12 +55,12 @@
 ## MVP Phases Overview
 
 | Phase | Focus | Status |
-|---|---|---|
+|---|---|
 | 1 | Backend Foundation | ✅ Complete |
 | 2 | Core Booking Logic | ✅ Complete |
 | 3 | Owner/Staff API | ✅ Complete |
-| 4 | Frontend Foundation | 🟡 In Progress |
-| 5 | Dashboard Frontend | 🔲 Not Started |
+| 4 | Frontend Foundation | ✅ Complete |
+| 5 | Dashboard Frontend | 🟡 In Progress |
 | 6 | Owner Management Screens | 🔲 Not Started |
 | 7 | n8n / WhatsApp Integration | 🔲 Not Started |
 | 8 | Polish + First Onboarding | 🔲 Not Started |
@@ -216,26 +216,26 @@ customers — secured by Sanctum + role policies.
 applied, auth screens working, public booking flow complete.
 
 ### Tasks
-- [ ] Create Next.js project (`create-next-app` with TypeScript + App Router)
-- [ ] Install and configure `next-intl` (Arabic default, `dir="rtl"`)
-- [ ] Install and configure Tailwind CSS + Neumorphism CSS variables in globals.css
-- [ ] Install and configure shadcn/ui (customize to Neumorphism as per ui-context.md)
-- [ ] Install Cairo + Tajawal fonts (Google Fonts)
-- [ ] Create `api-client.ts` (Axios instance, base URL, token interceptor)
-- [ ] Create `query-client.ts` (TanStack Query)
-- [ ] Create Arabic locale messages file (`ar.json`) — all UI strings
-- [ ] Create middleware.ts (route protection + locale detection)
-- [ ] Auth screens:
-  - [ ] `/login` — owner/staff login
-  - [ ] `/register` — owner registration
-- [ ] Public booking flow:
-  - [ ] `/book/[businessSlug]/[branchSlug]` — service selection
-  - [ ] `/book/.../staff` — barber selection
-  - [ ] `/book/.../time` — slot picker
-  - [ ] `/book/.../confirm` — name + phone + OTP
-  - [ ] `/book/.../success` — confirmation screen
-- [ ] Landing page (simplified, single page)
-- [ ] Pricing page
+- [x] Create Next.js project (`create-next-app` with TypeScript + App Router)
+- [x] Install and configure `next-intl` (Arabic default, `dir="rtl"`)
+- [x] Install and configure Tailwind CSS + Neumorphism CSS variables in globals.css
+- [x] Install and configure shadcn/ui (customize to Neumorphism as per ui-context.md)
+- [x] Install Cairo + Tajawal fonts (Google Fonts)
+- [x] Create `api-client.ts` (Axios instance, base URL, token interceptor)
+- [x] Create `query-client.ts` (TanStack Query)
+- [x] Create Arabic locale messages file (`ar.json`) — all UI strings
+- [x] Create middleware.ts (route protection + locale detection)
+- [x] Auth screens:
+  - [x] `/login` — owner/staff login
+  - [x] `/register` — owner registration
+- [x] Public booking flow:
+  - [x] `/book/[businessSlug]/[branchSlug]` — service selection
+  - [x] `/book/.../staff` — barber selection
+  - [x] `/book/.../time` — slot picker
+  - [x] `/book/.../confirm` — name + phone + OTP
+  - [x] `/book/.../success` — confirmation screen
+- [x] Landing page (simplified, single page)
+- [x] Pricing page
 
 ---
 
@@ -356,3 +356,4 @@ all functional and connected to the real API.
 | 2026-06-24 | Implemented Phase 3 API Specifications: Created 7 Form Requests (RegisterOwnerRequest, LoginRequest, SendOtpRequest, CreateBookingRequest, StoreBranchRequest, StoreStaffRequest, SetWorkingHoursRequest, StoreServiceRequest), 6 API Resources (BusinessResource, BranchResource, StaffResource, ServiceResource, BookingResource, CustomerResource), 5 Policies (BusinessPolicy, BranchPolicy, StaffPolicy, ServicePolicy, BookingPolicy), registered all policies in AppServiceProvider, and created 4 comprehensive authorization tests (StaffCannotAccessOtherStaffScheduleTest, OwnerCannotAccessOtherBusinessDataTest, ExpiredSubscriptionPreventsBookingTest, CustomerCannotCancelPastBookingTest). | Form Requests (7), Resources (6), Policies (5), Authorization Tests (4), AppServiceProvider.php |
 | 2026-06-24 | Implemented BookingCompleted event + UpdateCustomerVisitStats listener, registered in EventServiceProvider, updated MarkBookingCompletedAction to dispatch event, and added feature/unit tests for Phase 2. | [backend/app/Events/BookingCompleted.php](backend/app/Events/BookingCompleted.php), [backend/app/Listeners/UpdateCustomerVisitStats.php](backend/app/Listeners/UpdateCustomerVisitStats.php), [backend/app/Providers/EventServiceProvider.php](backend/app/Providers/EventServiceProvider.php), [backend/app/Actions/Bookings/MarkBookingCompletedAction.php](backend/app/Actions/Bookings/MarkBookingCompletedAction.php), [backend/tests/Feature/Booking/CreateBookingTest.php](backend/tests/Feature/Booking/CreateBookingTest.php), [backend/tests/Feature/Booking/AvailabilityConflictTest.php](backend/tests/Feature/Booking/AvailabilityConflictTest.php), [backend/tests/Feature/Booking/AnyAvailableStaffAssignmentTest.php](backend/tests/Feature/Booking/AnyAvailableStaffAssignmentTest.php), [backend/tests/Unit/AvailabilityServiceTest.php](backend/tests/Unit/AvailabilityServiceTest.php) |
 | 2026-06-24 | Implemented all Phase 3 API controllers & endpoints per `07-Controller & Endpoint.md`. Created 19 controllers, replaced 7 route file stubs, added 9 Form Requests in namespaced subdirs, added UserResource, updated BranchResource & BookingResource, implemented OtpService, added notificationLogs relation to Booking. All 56 routes verified via `php artisan route:list`. | [routes/api/v1/*.php](backend/routes/api/v1/), [Controllers/Api/V1/**](backend/app/Http/Controllers/Api/V1/), [Services/OtpService.php](backend/app/Services/OtpService.php), [Requests/Auth/](backend/app/Http/Requests/Auth/), [Requests/Booking/](backend/app/Http/Requests/Booking/), [Requests/Branch/](backend/app/Http/Requests/Branch/), [Resources/UserResource.php](backend/app/Http/Resources/UserResource.php), [Models/Booking.php](backend/app/Models/Booking.php) |
+| 2026-06-26 | Implemented `08-Frontend Foundation.md`: Created Next.js 16 frontend with TypeScript strict mode, next-intl v4 (Arabic RTL), TailwindCSS v4 with Neumorphism, shadcn/ui, TanStack Query, Zustand, Zod, React Hook Form. Built core types, API client, query client, validations, auth/booking/ui stores, 4 TanStack Query hooks, UI components (Button, Input, Card), booking components (ServiceSelector, TimeSlotPicker, BookingForm), layout components (Sidebar, TopBar), route groups (public/auth/dashboard/customer/admin), pages (landing, login, register, dashboard, my-bookings, booking flow with staff/time/confirm/success), i18n routing, and Next.js 16 proxy. Verified `npm run build` and `npm run lint` pass cleanly. | [progress-tracker.md](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/Context/progress-tracker.md), [frontend/src/types/index.ts](frontend/src/types/index.ts), [frontend/src/services/api.ts](frontend/src/services/api.ts), [frontend/src/services/query-client.ts](frontend/src/services/query-client.ts), [frontend/src/lib/validations/index.ts](frontend/src/lib/validations/index.ts), [frontend/src/store/auth.ts](frontend/src/store/auth.ts), [frontend/src/store/booking.ts](frontend/src/store/booking.ts), [frontend/src/store/ui.ts](frontend/src/store/ui.ts), [frontend/src/features/**](frontend/src/features/), [frontend/src/components/**](frontend/src/components/), [frontend/src/app/[locale]/**](frontend/src/app/[locale]/), [frontend/src/i18n/**](frontend/src/i18n/), [frontend/src/proxy.ts](frontend/src/proxy.ts), [frontend/src/app/globals.css](frontend/src/app/globals.css) |
