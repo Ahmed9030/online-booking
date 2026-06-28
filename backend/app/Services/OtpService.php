@@ -24,13 +24,15 @@ class OtpService
         $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         OtpCode::create([
-            'phone'      => $phone,
-            'code'       => $code,
+            'phone' => $phone,
+            'code' => $code,
             'expires_at' => now()->addMinutes(5),
         ]);
 
         // TODO: dispatch SendOtpViaWhatsAppJob when n8n integration is ready
-        Log::info("OTP for {$phone}: {$code}");
+        if (app()->environment('local')) {
+            Log::info("OTP for {$phone}: {$code}");
+        }
     }
 
     /**
@@ -45,7 +47,7 @@ class OtpService
             ->where('expires_at', '>', now())
             ->first();
 
-        if (!$otp) {
+        if (! $otp) {
             return false;
         }
 

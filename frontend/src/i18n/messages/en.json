@@ -1,11 +1,52 @@
 {
-  "Common": {
+  "common": {
     "title": "Barbershop Booking System",
-    "welcome": "Welcome to the Barbershop Booking System"
+    "welcome": "Welcome to the Barbershop Booking System",
+    "loading": "Loading...",
+    "today": "Today",
+    "confirm": "Confirm",
+    "back_to_home": "Back to Home"
   },
-  "Auth": {
+  "auth": {
     "login": "Login",
     "register": "Register",
-    "logout": "Logout"
+    "logout": "Logout",
+    "email": "Email",
+    "email_or_username": "Email or Username",
+    "password": "Password",
+    "password_confirmation": "Password Confirmation",
+    "name": "Full Name",
+    "business_name": "Business Name",
+    "branch_name": "Branch Name",
+    "branch_address": "Branch Address",
+    "no_account": "Don't have an account?",
+    "has_account": "Already have an account?",
+    "login_title": "Login"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "calendar": "Calendar",
+    "bookings": "Bookings",
+    "customers": "Customers",
+    "staff": "Staff",
+    "services": "Services",
+    "branches": "Branches",
+    "settings": "Settings",
+    "my_bookings": "My Bookings"
+  },
+  "booking": {
+    "select_service": "Select Service",
+    "select_staff": "Select Staff",
+    "select_time": "Select Time",
+    "confirm": "Confirm Booking",
+    "enter_details": "Enter details",
+    "customer_name": "Customer Name",
+    "customer_phone": "Customer Phone",
+    "confirm_booking": "Confirm Booking",
+    "any_available": "Any Available Staff",
+    "success_title": "Booking Confirmed",
+    "success_message": "A confirmation will be sent via WhatsApp",
+    "back_to_home": "Back to Home",
+    "select_date": "Select Date"
   }
 }

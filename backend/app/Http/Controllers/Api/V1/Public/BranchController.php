@@ -31,8 +31,8 @@ class BranchController extends Controller
         return response()->json([
             'data' => [
                 'business' => [
-                    'id'       => $business->id,
-                    'name'     => $business->name,
+                    'id' => $business->id,
+                    'name' => $business->name,
                     'logo_url' => $business->logo_url,
                 ],
                 'branches' => BranchResource::collection($branches),

@@ -31,8 +31,8 @@ class SettingsController extends Controller
         $business = auth()->user()->business;
 
         $validated = $request->validate([
-            'name'        => ['sometimes', 'string', 'min:3', 'max:100'],
-            'logo_url'    => ['nullable', 'url'],
+            'name' => ['sometimes', 'string', 'min:3', 'max:100'],
+            'logo_url' => ['nullable', 'url'],
             'description' => ['nullable', 'string', 'max:1000'],
         ]);
 

@@ -10,6 +10,7 @@ use App\Models\Service;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Validation\Rule;
 
 class ServiceController extends Controller
 {
@@ -33,22 +34,22 @@ class ServiceController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name'             => ['required', 'string', 'min:2', 'max:100'],
-            'description'      => ['nullable', 'string', 'max:500'],
+            'name' => ['required', 'string', 'min:2', 'max:100'],
+            'description' => ['nullable', 'string', 'max:500'],
             'duration_minutes' => ['required', 'integer', 'min:5', 'max:480'],
-            'price'            => ['required', 'numeric', 'min:0'],
-            'branch_id'        => ['required', 'uuid', 'exists:branches,id'],
-            'is_active'        => ['sometimes', 'boolean'],
+            'price' => ['required', 'numeric', 'min:0'],
+            'branch_id' => ['required', 'uuid', Rule::exists('branches', 'id')->where('business_id', auth()->user()->business_id)],
+            'is_active' => ['sometimes', 'boolean'],
         ]);
 
         $service = Service::create([
-            'business_id'      => auth()->user()->business_id,
-            'branch_id'        => $validated['branch_id'],
-            'name'             => $validated['name'],
-            'description'      => $validated['description'] ?? null,
+            'business_id' => auth()->user()->business_id,
+            'branch_id' => $validated['branch_id'],
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
             'duration_minutes' => $validated['duration_minutes'],
-            'price'            => $validated['price'],
-            'is_active'        => $validated['is_active'] ?? true,
+            'price' => $validated['price'],
+            'is_active' => $validated['is_active'] ?? true,
         ]);
 
         return response()->json(['data' => new ServiceResource($service)], 201);
@@ -76,11 +77,11 @@ class ServiceController extends Controller
             ->findOrFail($id);
 
         $validated = $request->validate([
-            'name'             => ['sometimes', 'string', 'min:2', 'max:100'],
-            'description'      => ['nullable', 'string', 'max:500'],
+            'name' => ['sometimes', 'string', 'min:2', 'max:100'],
+            'description' => ['nullable', 'string', 'max:500'],
             'duration_minutes' => ['sometimes', 'integer', 'min:5', 'max:480'],
-            'price'            => ['sometimes', 'numeric', 'min:0'],
-            'is_active'        => ['sometimes', 'boolean'],
+            'price' => ['sometimes', 'numeric', 'min:0'],
+            'is_active' => ['sometimes', 'boolean'],
         ]);
 
         $service->update($validated);

@@ -21,9 +21,9 @@ class DueRemindersController extends Controller
      */
     public function index(): ResourceCollection
     {
-        $now        = now('Africa/Cairo');
+        $now = now('Africa/Cairo');
         $windowFrom = $now->copy()->addMinutes(60);
-        $windowTo   = $now->copy()->addMinutes(75);
+        $windowTo = $now->copy()->addMinutes(75);
 
         $bookings = Booking::withoutGlobalScopes()
             ->with(['customer', 'service', 'staff', 'branch'])

@@ -4,6 +4,7 @@ namespace Tests\Feature\Authorization;
 
 use App\Enums\SubscriptionStatus;
 use App\Models\Business;
+use App\Models\Service;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -29,14 +30,14 @@ class ExpiredSubscriptionPreventsBookingTest extends TestCase
         $this->actingAs($customer);
 
         $bookingData = [
-            'service_id' => \App\Models\Service::factory()->create(['business_id' => $business->id])->id,
+            'service_id' => Service::factory()->create(['business_id' => $business->id])->id,
             'starts_at' => now()->addHour()->toDateTimeString(),
         ];
 
         $response = $this->postJson('/api/v1/public/bookings', $bookingData);
 
         // Expected: 403 Forbidden or 422 Unprocessable
-        $response->assertStatus([403, 422]);
+        $this->assertContains($response->status(), [403, 422]);
     }
 
     /**
@@ -49,7 +50,7 @@ class ExpiredSubscriptionPreventsBookingTest extends TestCase
             'subscription_status' => SubscriptionStatus::ACTIVE,
         ]);
 
-        $service = \App\Models\Service::factory()->create(['business_id' => $business->id]);
+        $service = Service::factory()->create(['business_id' => $business->id]);
         $customer = User::factory()->create();
 
         // Try to create a booking
@@ -63,6 +64,6 @@ class ExpiredSubscriptionPreventsBookingTest extends TestCase
         $response = $this->postJson('/api/v1/public/bookings', $bookingData);
 
         // Should succeed (200 or 201)
-        $response->assertStatus([200, 201]);
+        $this->assertContains($response->status(), [200, 201]);
     }
 }

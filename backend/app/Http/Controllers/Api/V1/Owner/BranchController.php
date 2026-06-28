@@ -37,13 +37,13 @@ class BranchController extends Controller
     public function store(StoreBranchRequest $request): JsonResponse
     {
         $branch = Branch::create([
-            'business_id'     => auth()->user()->business_id,
-            'name'            => $request->validated('name'),
-            'address'         => $request->validated('address'),
-            'city'            => $request->validated('city'),
+            'business_id' => auth()->user()->business_id,
+            'name' => $request->validated('name'),
+            'address' => $request->validated('address'),
+            'city' => $request->validated('city'),
             'whatsapp_number' => $request->validated('whatsapp_number'),
-            'slug'            => $request->validated('slug'),
-            'is_active'       => true,
+            'slug' => $request->validated('slug'),
+            'is_active' => true,
         ]);
 
         return response()->json(['data' => new BranchResource($branch)], 201);
@@ -112,9 +112,9 @@ class BranchController extends Controller
         // Create new hours
         foreach ($request->validated('working_hours') as $hours) {
             BranchWorkingHour::create([
-                'branch_id'  => $branch->id,
-                'weekday'    => $hours['weekday'],
-                'open_time'  => $hours['open_time'] ?? null,
+                'branch_id' => $branch->id,
+                'weekday' => $hours['weekday'],
+                'open_time' => $hours['open_time'] ?? null,
                 'close_time' => $hours['close_time'] ?? null,
             ]);
         }

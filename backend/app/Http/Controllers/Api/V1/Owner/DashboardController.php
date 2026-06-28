@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Api\V1\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 
 class DashboardController extends Controller
@@ -18,7 +17,7 @@ class DashboardController extends Controller
     public function index(): JsonResponse
     {
         $business = auth()->user()->business;
-        $today    = now('Africa/Cairo')->startOfDay();
+        $today = now('Africa/Cairo')->startOfDay();
 
         // Today's bookings
         $todayBookings = Booking::where('business_id', $business->id)
@@ -54,16 +53,16 @@ class DashboardController extends Controller
             'data' => [
                 'today_bookings' => $todayBookings,
                 'month_bookings' => $monthBookings,
-                'no_show_rate'   => $noShowRate,
-                'next_booking'   => $nextBooking ? [
-                    'id'            => $nextBooking->id,
+                'no_show_rate' => $noShowRate,
+                'next_booking' => $nextBooking ? [
+                    'id' => $nextBooking->id,
                     'customer_name' => $nextBooking->customer->name,
-                    'starts_at'     => $nextBooking->starts_at->setTimezone('Africa/Cairo'),
-                    'service_name'  => $nextBooking->service->name,
+                    'starts_at' => $nextBooking->starts_at->setTimezone('Africa/Cairo'),
+                    'service_name' => $nextBooking->service->name,
                 ] : null,
                 'subscription' => [
-                    'status'        => $business->subscription_status->value,
-                    'expires_at'    => $business->subscription_expires_at,
+                    'status' => $business->subscription_status->value,
+                    'expires_at' => $business->subscription_expires_at,
                     'days_remaining' => max(0, $daysUntilExpiry),
                 ],
             ],

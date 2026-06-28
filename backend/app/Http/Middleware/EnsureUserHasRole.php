@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Enums\UserRole;
 use Closure;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
@@ -17,7 +16,7 @@ final class EnsureUserHasRole
         $user = $request->user();
 
         if (! $user) {
-            throw new AuthenticationException();
+            throw new AuthenticationException;
         }
 
         $allowedRoles = array_map('strtolower', $roles);

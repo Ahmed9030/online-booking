@@ -9,4 +9,5 @@ enum UserRole: string
     case Owner = 'owner';
     case Staff = 'staff';
     case Admin = 'admin';
+    case Customer = 'customer';
 }

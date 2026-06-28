@@ -27,7 +27,7 @@ class ScheduleController extends Controller
      */
     public function index(): ResourceCollection
     {
-        $user  = auth()->user();
+        $user = auth()->user();
         $staff = Staff::where('user_id', $user->id)->firstOrFail();
 
         $bookings = Booking::where('staff_id', $staff->id)
@@ -45,7 +45,7 @@ class ScheduleController extends Controller
      */
     public function show(string $date): ResourceCollection
     {
-        $user  = auth()->user();
+        $user = auth()->user();
         $staff = Staff::where('user_id', $user->id)->firstOrFail();
 
         $bookings = Booking::where('staff_id', $staff->id)
@@ -63,7 +63,7 @@ class ScheduleController extends Controller
      */
     public function markCompleted(string $id): JsonResponse
     {
-        $user  = auth()->user();
+        $user = auth()->user();
         $staff = Staff::where('user_id', $user->id)->firstOrFail();
 
         $booking = Booking::where('staff_id', $staff->id)->findOrFail($id);
@@ -79,7 +79,7 @@ class ScheduleController extends Controller
      */
     public function markNoShow(string $id): JsonResponse
     {
-        $user  = auth()->user();
+        $user = auth()->user();
         $staff = Staff::where('user_id', $user->id)->firstOrFail();
 
         $booking = Booking::where('staff_id', $staff->id)->findOrFail($id);

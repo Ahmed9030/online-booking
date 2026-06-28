@@ -12,6 +12,7 @@ use App\Policies\BranchPolicy;
 use App\Policies\BusinessPolicy;
 use App\Policies\ServicePolicy;
 use App\Policies\StaffPolicy;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -49,7 +50,7 @@ class AppServiceProvider extends ServiceProvider
     protected function registerPolicies(): void
     {
         foreach ($this->policies as $model => $policy) {
-            \Illuminate\Support\Facades\Gate::policy($model, $policy);
+            Gate::policy($model, $policy);
         }
     }
 }

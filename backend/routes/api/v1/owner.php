@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Api\V1\Owner\BranchController;
 use App\Http\Controllers\Api\V1\Owner\BookingController;
+use App\Http\Controllers\Api\V1\Owner\BranchController;
 use App\Http\Controllers\Api\V1\Owner\CustomerController;
 use App\Http\Controllers\Api\V1\Owner\DashboardController;
 use App\Http\Controllers\Api\V1\Owner\ServiceController;

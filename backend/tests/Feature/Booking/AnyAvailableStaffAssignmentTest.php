@@ -6,8 +6,8 @@ namespace Tests\Feature\Booking;
 
 use App\Actions\Bookings\CreateBookingAction;
 use App\Data\CreateBookingData;
-use App\Enums\BookingStatus;
 use App\Enums\BookingSource;
+use App\Enums\BookingStatus;
 use App\Exceptions\SlotNotAvailableException;
 use App\Models\Booking;
 use App\Models\Branch;
@@ -17,7 +17,6 @@ use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Staff;
 use App\Models\StaffWorkingHour;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -26,12 +25,19 @@ class AnyAvailableStaffAssignmentTest extends TestCase
     use RefreshDatabase;
 
     protected Business $business;
+
     protected Branch $branch;
+
     protected Staff $staff1;
+
     protected Staff $staff2;
+
     protected Staff $staff3;
+
     protected Service $service;
+
     protected Customer $customer;
+
     protected CreateBookingAction $action;
 
     protected function setUp(): void

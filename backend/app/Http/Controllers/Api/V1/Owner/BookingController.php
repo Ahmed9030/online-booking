@@ -11,10 +11,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\BookingResource;
 use App\Models\Booking;
 use App\Models\Customer;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Validation\Rule;
 
 class BookingController extends Controller
 {
@@ -48,23 +50,31 @@ class BookingController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'branch_id'      => ['required', 'uuid', 'exists:branches,id'],
-            'service_id'     => ['required', 'uuid', 'exists:services,id'],
-            'staff_id'       => ['nullable', 'uuid', 'exists:staff,id'],
-            'customer_name'  => ['required', 'string', 'min:2', 'max:100'],
-            'customer_phone' => ['required', 'string'],
-            'starts_at'      => ['required', 'date', 'after:now'],
-            'ends_at'        => ['required', 'date', 'after:starts_at'],
-            'notes'          => ['nullable', 'string', 'max:500'],
-        ]);
-
         $business = auth()->user()->business;
+
+        $validated = $request->validate([
+            'branch_id' => ['required', 'uuid', Rule::exists('branches', 'id')->where('business_id', $business->id)],
+            'service_id' => ['required', 'uuid', Rule::exists('services', 'id')->where('business_id', $business->id)],
+            'staff_id' => ['nullable', 'uuid', Rule::exists('staff', 'id')->where('business_id', $business->id)],
+            'customer_name' => ['required', 'string', 'min:2', 'max:100'],
+            'customer_phone' => ['required', 'string'],
+            'starts_at' => ['required', 'date', 'after:now'],
+            'ends_at' => ['required', 'date', 'after:starts_at'],
+            'notes' => ['nullable', 'string', 'max:500'],
+        ]);
 
         $customer = Customer::firstOrCreate(
             ['business_id' => $business->id, 'phone' => $validated['customer_phone']],
             ['name' => $validated['customer_name']],
         );
+
+        if ($customer->user_id === null) {
+            $user = User::where('phone', $customer->phone)->where('role', 'customer')->first();
+            if ($user !== null) {
+                $customer->user()->associate($user);
+                $customer->saveQuietly();
+            }
+        }
 
         $data = new CreateBookingData(
             businessId: $business->id,
@@ -113,7 +123,11 @@ class BookingController extends Controller
         ]);
 
         if ($request->input('status') === 'cancelled') {
-            $this->cancelBooking->handle($booking);
+            try {
+                $this->cancelBooking->handle($booking->id);
+            } catch (\InvalidArgumentException $e) {
+                return response()->json(['message' => $e->getMessage()], 422);
+            }
         } else {
             $booking->update(['status' => $request->input('status')]);
         }

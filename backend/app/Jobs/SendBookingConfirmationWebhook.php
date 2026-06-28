@@ -14,9 +14,7 @@ final class SendBookingConfirmationWebhook implements ShouldQueue
 {
     use Dispatchable, Queueable, SerializesModels;
 
-    public function __construct(public readonly Booking $booking)
-    {
-    }
+    public function __construct(public readonly Booking $booking) {}
 
     public function handle(): void
     {

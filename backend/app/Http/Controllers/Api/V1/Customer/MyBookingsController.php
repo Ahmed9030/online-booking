@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\BookingResource;
 use App\Models\Booking;
 use App\Models\Customer;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
@@ -18,14 +19,19 @@ class MyBookingsController extends Controller
         private readonly CancelBookingAction $cancelBooking,
     ) {}
 
+    private function getCustomer(): Customer
+    {
+        return auth()->user()->customer
+            ?? throw new ModelNotFoundException('Customer record not found for authenticated user.');
+    }
+
     /**
      * List own bookings.
      * GET /api/v1/customer/my-bookings
      */
     public function index(): ResourceCollection
     {
-        $user     = auth()->user();
-        $customer = Customer::where('phone', $user->phone)->firstOrFail();
+        $customer = $this->getCustomer();
 
         $bookings = Booking::where('customer_id', $customer->id)
             ->with(['service', 'staff', 'branch'])
@@ -41,8 +47,7 @@ class MyBookingsController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $user     = auth()->user();
-        $customer = Customer::where('phone', $user->phone)->firstOrFail();
+        $customer = $this->getCustomer();
 
         $booking = Booking::where('customer_id', $customer->id)
             ->with(['service', 'staff', 'branch'])
@@ -57,8 +62,7 @@ class MyBookingsController extends Controller
      */
     public function cancel(string $id): JsonResponse
     {
-        $user     = auth()->user();
-        $customer = Customer::where('phone', $user->phone)->firstOrFail();
+        $customer = $this->getCustomer();
 
         $booking = Booking::where('customer_id', $customer->id)->findOrFail($id);
 
@@ -67,7 +71,11 @@ class MyBookingsController extends Controller
             return response()->json(['message' => 'Cannot cancel a past booking.'], 422);
         }
 
-        $this->cancelBooking->handle($booking);
+        try {
+            $this->cancelBooking->handle($booking->id);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
 
         return response()->json(['message' => 'Booking cancelled.']);
     }

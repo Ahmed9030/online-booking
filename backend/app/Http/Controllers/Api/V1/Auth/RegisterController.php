@@ -40,19 +40,19 @@ class RegisterController extends Controller
 
             // Create owner user
             $user = User::create([
-                'name'      => $validated['name'],
-                'email'     => $validated['email'],
-                'password'  => Hash::make($validated['password']),
-                'role'      => UserRole::Owner,
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role' => UserRole::Owner,
                 'is_active' => true,
             ]);
 
             // Create business
             $business = Business::create([
-                'owner_user_id'          => $user->id,
-                'name'                   => $validated['business_name'],
-                'slug'                   => Str::slug($validated['business_name']) . '-' . Str::random(6),
-                'subscription_status'    => 'trial',
+                'owner_user_id' => $user->id,
+                'name' => $validated['business_name'],
+                'slug' => Str::slug($validated['business_name']).'-'.Str::random(6),
+                'subscription_status' => 'trial',
                 'subscription_expires_at' => now()->addDays(14),
             ]);
 
@@ -62,11 +62,11 @@ class RegisterController extends Controller
             // Create first branch
             Branch::create([
                 'business_id' => $business->id,
-                'name'        => $validated['branch_name'],
-                'address'     => $validated['branch_address'],
-                'city'        => $validated['city'] ?? 'Cairo',
-                'slug'        => 'main',
-                'is_active'   => true,
+                'name' => $validated['branch_name'],
+                'address' => $validated['branch_address'],
+                'city' => $validated['city'] ?? 'Cairo',
+                'slug' => 'main',
+                'is_active' => true,
             ]);
 
             // Create token
@@ -74,11 +74,11 @@ class RegisterController extends Controller
 
             return response()->json([
                 'data' => [
-                    'user'     => new UserResource($user),
+                    'user' => new UserResource($user),
                     'business' => [
-                        'id'                     => $business->id,
-                        'name'                   => $business->name,
-                        'slug'                   => $business->slug,
+                        'id' => $business->id,
+                        'name' => $business->name,
+                        'slug' => $business->slug,
                         'subscription_expires_at' => $business->subscription_expires_at,
                     ],
                     'token' => $token,

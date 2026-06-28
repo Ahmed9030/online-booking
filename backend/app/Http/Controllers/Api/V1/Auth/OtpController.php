@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\V1\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\SendOtpRequest;
 use App\Http\Requests\Auth\VerifyOtpRequest;
+use App\Models\Customer;
 use App\Models\User;
 use App\Services\OtpService;
 use Illuminate\Http\JsonResponse;
@@ -62,10 +63,10 @@ class OtpController extends Controller
     public function verify(VerifyOtpRequest $request): JsonResponse
     {
         $phone = $request->validated('phone');
-        $code  = $request->validated('code');
+        $code = $request->validated('code');
 
         // Verify OTP
-        if (!$this->otpService->verifyOtp($phone, $code)) {
+        if (! $this->otpService->verifyOtp($phone, $code)) {
             return response()->json([
                 'message' => 'Invalid or expired OTP.',
             ], 422);
@@ -75,10 +76,13 @@ class OtpController extends Controller
         $user = User::firstOrCreate(
             ['phone' => $phone, 'role' => 'customer'],
             [
-                'name'     => 'Customer',
+                'name' => 'Customer',
                 'password' => bcrypt(uniqid()),
             ],
         );
+
+        // Link any existing Customer records to this user
+        Customer::where('phone', $phone)->whereNull('user_id')->update(['user_id' => $user->id]);
 
         // Create token
         $token = $user->createToken('otp')->plainTextToken;

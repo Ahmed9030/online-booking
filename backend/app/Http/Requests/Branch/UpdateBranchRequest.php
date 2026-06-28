@@ -16,12 +16,12 @@ class UpdateBranchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'            => ['sometimes', 'string', 'min:3', 'max:100'],
-            'address'         => ['sometimes', 'string', 'min:5'],
-            'city'            => ['sometimes', 'string', 'max:50'],
+            'name' => ['sometimes', 'string', 'min:3', 'max:100'],
+            'address' => ['sometimes', 'string', 'min:5'],
+            'city' => ['sometimes', 'string', 'max:50'],
             'whatsapp_number' => ['sometimes', 'string'],
-            'is_active'       => ['sometimes', 'boolean'],
-            'slug'            => [
+            'is_active' => ['sometimes', 'boolean'],
+            'slug' => [
                 'sometimes',
                 'string',
                 'regex:/^[a-z0-9\-]+$/',

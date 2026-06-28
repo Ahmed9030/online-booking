@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Actions\Bookings;
 
 use App\Enums\BookingStatus;
-use App\Models\Booking;
 use App\Events\BookingCompleted;
+use App\Models\Booking;
 use Illuminate\Support\Facades\DB;
 
 final class MarkBookingCompletedAction

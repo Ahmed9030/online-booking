@@ -7,14 +7,18 @@ namespace App\Models;
 use App\Enums\BookingSource;
 use App\Enums\BookingStatus;
 use App\Models\Scopes\BusinessScope;
+use Database\Factories\BookingFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Booking extends Model
 {
-    use HasUuids, SoftDeletes;
+    /** @use HasFactory<BookingFactory> */
+    use HasFactory, HasUuids, SoftDeletes;
 
     protected $fillable = [
         'business_id',
@@ -75,7 +79,7 @@ final class Booking extends Model
         return $this->belongsTo(User::class, 'created_by_user_id');
     }
 
-    public function notificationLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function notificationLogs(): HasMany
     {
         return $this->hasMany(NotificationLog::class);
     }
