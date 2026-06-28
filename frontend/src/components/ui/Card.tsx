@@ -13,6 +13,14 @@ function Card({ className, children, hover, ...props }: CardProps) {
         hover && 'cursor-pointer hover:scale-[1.01]',
         className,
       )}
+      role={hover ? 'button' : undefined}
+      tabIndex={hover ? 0 : undefined}
+      onKeyDown={hover ? (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          e.currentTarget.click()
+        }
+      } : undefined}
       {...props}
     >
       {children}

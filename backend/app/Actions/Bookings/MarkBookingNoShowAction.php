@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\DB;
 
 final class MarkBookingNoShowAction
 {
+    /**
+     * Mark a confirmed booking as no-show.
+     *
+     * @throws \InvalidArgumentException If the booking is not in confirmed status.
+     */
     public function handle(string $bookingId): Booking
     {
         return DB::transaction(function () use ($bookingId) {

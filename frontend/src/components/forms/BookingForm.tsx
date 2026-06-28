@@ -1,31 +1,47 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { bookingSchema, BookingFormData } from '@/lib/validations'
 import { useBookingStore } from '@/store/booking'
+import { useShallow } from 'zustand/react/shallow'
 import { useCreateBooking } from '@/features/bookings/hooks/useCreateBooking'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/Input'
 import { useTranslations } from 'next-intl'
 import { ServiceSelector } from '@/components/booking/ServiceSelector'
-import { Service } from '@/types'
+import { Branch, Service } from '@/types'
 
+/** Props for the BookingForm component. */
 interface BookingFormProps {
+  /** Branch data to hydrate into the booking store */
+  branch: Branch
+  /** Array of services available for booking */
   services: Service[]
 }
 
-export function BookingForm({ services }: BookingFormProps) {
+/**
+ * Complete booking form that orchestrates the multi-step booking flow.
+ * Renders the appropriate step component (ServiceSelector or form)
+ * based on the current step in the booking store, and handles form submission.
+ */
+export function BookingForm({ branch, services }: BookingFormProps) {
   const t = useTranslations()
+  useEffect(() => {
+    useBookingStore.setState({ branch })
+  }, [branch])
   const step = useBookingStore((s) => s.step)
-  const basket = useBookingStore((s) => ({
-    branch: s.branch,
-    service: s.service,
-    staff: s.staff,
-    selectedSlot: s.selectedSlot,
-    customerName: s.customerName,
-    customerPhone: s.customerPhone,
-  }))
+  const basket = useBookingStore(
+    useShallow((s) => ({
+      branch: s.branch,
+      service: s.service,
+      staff: s.staff,
+      selectedSlot: s.selectedSlot,
+      customerName: s.customerName,
+      customerPhone: s.customerPhone,
+    })),
+  )
   const createBooking = useCreateBooking()
 
   const form = useForm<BookingFormData>({
@@ -40,14 +56,41 @@ export function BookingForm({ services }: BookingFormProps) {
         ? new Date(basket.selectedSlot.starts_at).toISOString().split('T')[0]
         : '',
       time: basket.selectedSlot?.starts_at
-        ? new Date(basket.selectedSlot.starts_at).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', hour12: false })
+        ? (() => {
+            const d = new Date(basket.selectedSlot.starts_at)
+            return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+          })()
         : '',
     },
   })
+  const { reset } = form
+
+  useEffect(() => {
+    reset({
+      branch_id: basket.branch?.id || '',
+      service_id: basket.service?.id || '',
+      staff_id: basket.staff?.id || null,
+      customer_name: basket.customerName,
+      customer_phone: basket.customerPhone,
+      date: basket.selectedSlot?.starts_at
+        ? new Date(basket.selectedSlot.starts_at).toISOString().split('T')[0]
+        : '',
+      time: basket.selectedSlot?.starts_at
+        ? (() => {
+            const d = new Date(basket.selectedSlot.starts_at)
+            return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+          })()
+        : '',
+    })
+  }, [basket, reset])
 
   const onSubmit = async (data: BookingFormData) => {
     const starts_at = basket.selectedSlot?.starts_at || `${data.date}T${data.time}:00`
-    const ends_at = basket.selectedSlot?.ends_at || `${data.date}T${data.time}:00`
+    const ends_at = basket.selectedSlot?.ends_at || (() => {
+      const [h, m] = data.time.split(':').map(Number)
+      const total = h * 60 + m + (basket.service?.duration_minutes || 30)
+      return `${data.date}T${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}:00`
+    })()
 
     await createBooking.mutateAsync({
       branch_id: data.branch_id,

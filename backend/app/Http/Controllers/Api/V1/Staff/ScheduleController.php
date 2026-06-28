@@ -16,6 +16,10 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class ScheduleController extends Controller
 {
+    /**
+     * @param  MarkBookingCompletedAction  $markCompleted  Service to mark bookings as completed.
+     * @param  MarkBookingNoShowAction     $markNoShow     Service to mark bookings as no-show.
+     */
     public function __construct(
         private readonly MarkBookingCompletedAction $markCompleted,
         private readonly MarkBookingNoShowAction $markNoShow,

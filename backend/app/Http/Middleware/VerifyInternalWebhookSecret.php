@@ -10,6 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class VerifyInternalWebhookSecret
 {
+    /**
+     * Verify the X-Internal-Secret header matches the configured webhook secret.
+     */
     public function handle(Request $request, Closure $next): Response
     {
         $headerSecret = $request->header('X-Internal-Secret');

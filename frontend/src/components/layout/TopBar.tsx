@@ -3,21 +3,22 @@
 import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@/store/auth'
 import { useUiStore } from '@/store/ui'
+import { useLogout } from '@/features/auth/hooks/useLogout'
 import { Button } from '@/components/ui/button'
-import { useRouter } from '@/i18n/routing'
 
+/**
+ * Dashboard top bar component displaying the current user's name,
+ * role, and logout button. Includes a mobile hamburger menu toggle.
+ * Uses the useLogout hook for proper API call and state cleanup.
+ */
 export function TopBar() {
   const t = useTranslations()
   const user = useAuthStore((s) => s.user)
   const business = useAuthStore((s) => s.business)
-  const logout = useAuthStore((s) => s.logout)
+  const logout = useLogout()
   const toggleSidebar = useUiStore((s) => s.toggleSidebar)
-  const router = useRouter()
 
-  const handleLogout = () => {
-    logout()
-    router.push('/login')
-  }
+  if (!user) return null
 
   return (
     <header className="h-14 bg-surface border-b border-border flex items-center justify-between px-4 lg:px-6 shrink-0">
@@ -31,8 +32,16 @@ export function TopBar() {
       </div>
 
       <div className="flex items-center gap-3">
-        <span className="text-sm text-text-secondary hidden sm:block">{user?.name}</span>
-        <Button variant="ghost" size="sm" onClick={handleLogout}>
+        <div className="text-left">
+          <div className="text-sm font-semibold text-text-primary">{user.name}</div>
+          <div className="text-xs text-text-secondary">{t(`role.${user.role}`)}</div>
+        </div>
+        <Button
+          variant="danger"
+          size="sm"
+          onClick={() => logout.mutate()}
+          disabled={logout.isPending}
+        >
           {t('auth.logout')}
         </Button>
       </div>

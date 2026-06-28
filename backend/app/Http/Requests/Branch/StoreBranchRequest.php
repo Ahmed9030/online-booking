@@ -8,11 +8,20 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreBranchRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to create a branch.
+     * Only authenticated owners can create branches.
+     */
     public function authorize(): bool
     {
         return auth()->check() && auth()->user()->role->value === 'owner';
     }
 
+    /**
+     * Get the validation rules for storing a new branch.
+     *
+     * @return array<string, array<int, string>>
+     */
     public function rules(): array
     {
         return [

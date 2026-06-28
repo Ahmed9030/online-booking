@@ -20,15 +20,37 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link href="/login" className="w-full sm:w-auto">
-            <Button variant="primary" className="w-full sm:px-8">
-              {t('auth.login')}
-            </Button>
-          </Link>
-          <Link href="/register" className="w-full sm:w-auto">
-            <Button variant="default" className="w-full sm:px-8">
-              {t('auth.register')}
+        <div className="space-y-3">
+          <p className="text-sm text-text-secondary font-medium">
+            {t('common.owner_entry')}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link href="/login" className="w-full sm:w-auto">
+              <Button variant="default" className="w-full sm:px-8">
+                {t('auth.login')}
+              </Button>
+            </Link>
+            <Link href="/register" className="w-full sm:w-auto">
+              <Button variant="default" className="w-full sm:px-8">
+                {t('auth.register')}
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="flex-1 h-px bg-text-muted" />
+          <span className="text-xs text-text-secondary">{t('common.or')}</span>
+          <div className="flex-1 h-px bg-text-muted" />
+        </div>
+
+        <div className="space-y-3">
+          <p className="text-sm text-text-secondary font-medium">
+            {t('common.customer_entry')}
+          </p>
+          <Link href="/find-business">
+            <Button variant="primary" className="w-full">
+              {t('auth.book_now')}
             </Button>
           </Link>
         </div>

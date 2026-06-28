@@ -380,6 +380,9 @@ use Illuminate\Http\JsonResponse;
 
 class AvailabilityController extends Controller
 {
+    /**
+     * @param AvailabilityService $availability Service for checking available time slots.
+     */
     public function __construct(
         private readonly AvailabilityService $availability,
     ) {}
@@ -442,6 +445,9 @@ use Illuminate\Http\JsonResponse;
 
 class BookingController extends Controller
 {
+    /**
+     * @param CreateBookingAction $createBooking Action for creating new bookings.
+     */
     public function __construct(
         private readonly CreateBookingAction $createBooking,
     ) {}
@@ -594,6 +600,9 @@ use Illuminate\Support\Facades\RateLimiter;
 
 class OtpController extends Controller
 {
+    /**
+     * @param OtpService $otpService Service for generating and verifying OTP codes.
+     */
     public function __construct(
         private readonly OtpService $otpService,
     ) {}
@@ -1017,11 +1026,20 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StorePublicBookingRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     * Public endpoint — no authentication required.
+     */
     public function authorize(): bool
     {
         return true; // Public endpoint
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, array<int, string>>
+     */
     public function rules(): array
     {
         return [
@@ -1039,6 +1057,11 @@ class StorePublicBookingRequest extends FormRequest
         ];
     }
 
+    /**
+     * Get custom validation messages in Arabic.
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [
@@ -1064,11 +1087,20 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class CheckAvailabilityRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     * Public endpoint — no authentication required.
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * Get the validation rules for checking slot availability.
+     *
+     * @return array<string, array<int, string>>
+     */
     public function rules(): array
     {
         return [
@@ -1096,11 +1128,20 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class LoginRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     * Public endpoint — no authentication required.
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * Get the validation rules for login credentials.
+     *
+     * @return array<string, array<int, string>>
+     */
     public function rules(): array
     {
         return [
@@ -1127,11 +1168,20 @@ use Illuminate\Validation\Rules\Password;
 
 class RegisterRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     * Public endpoint — no authentication required.
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * Get the validation rules for owner registration.
+     *
+     * @return array<string, array<int, string>>
+     */
     public function rules(): array
     {
         return [
@@ -1145,6 +1195,11 @@ class RegisterRequest extends FormRequest
         ];
     }
 
+    /**
+     * Get custom validation messages in Arabic.
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [
@@ -1169,11 +1224,20 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class SendOtpRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     * Public endpoint — no authentication required.
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * Get the validation rules for sending an OTP.
+     *
+     * @return array<string, array<int, string>>
+     */
     public function rules(): array
     {
         return [
@@ -1202,11 +1266,20 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class VerifyOtpRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     * Public endpoint — no authentication required.
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * Get the validation rules for verifying an OTP code.
+     *
+     * @return array<string, array<int, string>>
+     */
     public function rules(): array
     {
         return [
@@ -1236,11 +1309,20 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreBranchRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to create a branch.
+     * Only authenticated owners can create branches.
+     */
     public function authorize(): bool
     {
         return auth()->check() && auth()->user()->role->value === 'owner';
     }
 
+    /**
+     * Get the validation rules for storing a new branch.
+     *
+     * @return array<string, array<int, string>>
+     */
     public function rules(): array
     {
         return [
@@ -1279,6 +1361,11 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class BranchResource extends JsonResource
 {
+    /**
+     * Transform the branch resource into an array.
+     *
+     * @return array<string, mixed>
+     */
     public function toArray(Request $request): array
     {
         return [
@@ -1318,6 +1405,11 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class BookingResource extends JsonResource
 {
+    /**
+     * Transform the booking resource into an array.
+     *
+     * @return array<string, mixed>
+     */
     public function toArray(Request $request): array
     {
         return [
@@ -1353,6 +1445,11 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
 {
+    /**
+     * Transform the user resource into an array.
+     *
+     * @return array<string, mixed>
+     */
     public function toArray(Request $request): array
     {
         return [

@@ -3,6 +3,10 @@ import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
+/**
+ * Button variant styles using class-variance-authority.
+ * Supports default, primary, ghost, danger, and outline variants with multiple sizes.
+ */
 const buttonVariants = cva(
   `inline-flex items-center justify-center whitespace-nowrap rounded-xl
    text-sm font-medium transition-all focus-visible:outline-none
@@ -31,12 +35,19 @@ const buttonVariants = cva(
   },
 )
 
+/** Props for the Button component combining HTML button attributes with variant options. */
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
+  /** When true, renders the button as a child element using Radix Slot */
   asChild?: boolean
 }
 
+/**
+ * Neumorphism-styled button component with multiple variants and sizes.
+ * Supports primary, default, ghost, danger, and outline color schemes.
+ * Can be rendered as a child component using the asChild prop.
+ */
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button'

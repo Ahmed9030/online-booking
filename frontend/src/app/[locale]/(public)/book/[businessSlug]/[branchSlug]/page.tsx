@@ -2,10 +2,16 @@ import { api } from '@/services/api'
 import { Branch, Service } from '@/types'
 import { BookingForm } from '@/components/forms/BookingForm'
 
+/** Props for the booking page route. */
 interface BookingPageProps {
   params: Promise<{ locale: string; businessSlug: string; branchSlug: string }>
 }
 
+/**
+ * Server-side rendered booking page that fetches branch details and
+ * services for the given business and branch slugs.
+ * Renders the BookingForm component with the fetched services.
+ */
 export default async function BookingPage({ params }: BookingPageProps) {
   const { businessSlug, branchSlug } = await params
 
@@ -26,7 +32,7 @@ export default async function BookingPage({ params }: BookingPageProps) {
           <h1 className="text-2xl font-bold text-text-primary">{branch.name}</h1>
           <p className="text-sm text-text-secondary mt-1">{branch.address}</p>
         </div>
-        <BookingForm services={services} />
+        <BookingForm branch={branch} services={services} />
       </div>
     </div>
   )

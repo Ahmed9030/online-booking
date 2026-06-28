@@ -22,6 +22,13 @@ interface RootLayoutProps {
   params: Promise<{ locale: string }>
 }
 
+/**
+ * Root layout component that sets up internationalization, RTL/LTR direction,
+ * custom fonts (Cairo + Tajawal), and TanStack Query provider.
+ *
+ * @param children - The child components to render within the layout.
+ * @param params - Route parameters containing the locale.
+ */
 export default async function RootLayout({
   children,
   params,

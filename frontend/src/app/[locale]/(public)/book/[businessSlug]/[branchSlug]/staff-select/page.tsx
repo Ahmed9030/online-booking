@@ -5,10 +5,16 @@ import { useRouter } from '@/i18n/routing'
 import { useBookingStore } from '@/store/booking'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/services/api'
+import { useParams } from 'next/navigation'
 
+/**
+ * Staff selection page allowing the user to choose a specific staff member
+ * or opt for "any available" auto-assignment.
+ */
 export default function StaffSelectPage() {
   const t = useTranslations()
   const router = useRouter()
+  const { businessSlug } = useParams()
   const branch = useBookingStore((s) => s.branch)
   const service = useBookingStore((s) => s.service)
   const selectStaff = useBookingStore((s) => s.selectStaff)
@@ -27,12 +33,12 @@ export default function StaffSelectPage() {
 
   const handleAnyAvailable = () => {
     selectStaff(null)
-    router.push(`/book/${branch?.slug}/${branch?.slug}/time-select`)
+    router.push(`/book/${businessSlug}/${branch?.slug}/time-select`)
   }
 
   const handleSelect = (s: { id: string; name: string }) => {
     selectStaff({ id: s.id, name: s.name, is_active: true, services: [] })
-    router.push(`/book/${branch?.slug}/${branch?.slug}/time-select`)
+    router.push(`/book/${businessSlug}/${branch?.slug}/time-select`)
   }
 
   if (!branch || !service) {

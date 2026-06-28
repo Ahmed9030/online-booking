@@ -40,21 +40,33 @@ final class Service extends Model
         self::addGlobalScope(new BusinessScope);
     }
 
+    /**
+     * @return BelongsTo<Business, Service>
+     */
     public function business(): BelongsTo
     {
         return $this->belongsTo(Business::class);
     }
 
+    /**
+     * @return BelongsTo<Branch, Service>
+     */
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
     }
 
+    /**
+     * @return BelongsToMany<Staff>
+     */
     public function staff(): BelongsToMany
     {
         return $this->belongsToMany(Staff::class, 'staff_services');
     }
 
+    /**
+     * @return HasMany<Booking>
+     */
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);

@@ -13,5 +13,8 @@ final class BookingCancelled
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    /**
+     * @param  Booking  $booking  The booking that was cancelled.
+     */
     public function __construct(public readonly Booking $booking) {}
 }

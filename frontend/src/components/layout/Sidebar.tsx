@@ -17,6 +17,11 @@ const navItems = [
   { href: '/dashboard/settings', key: 'settings' },
 ] as const
 
+/**
+ * Dashboard sidebar navigation component.
+ * Displays menu items for all dashboard sections.
+ * Responsive — collapses on mobile unless toggled.
+ */
 export function Sidebar() {
   const t = useTranslations()
   const token = useAuthStore((s) => s.token)
@@ -65,6 +70,11 @@ export function Sidebar() {
   )
 }
 
+/**
+ * Renders a sidebar navigation icon by name.
+ *
+ * @param name - The name of the nav item to get an icon for.
+ */
 function NavIcon({ name }: { name: string }) {
   const icons: Record<string, string> = {
     dashboard: '▦',

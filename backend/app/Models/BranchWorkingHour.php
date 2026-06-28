@@ -32,6 +32,9 @@ final class BranchWorkingHour extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Branch, BranchWorkingHour>
+     */
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);

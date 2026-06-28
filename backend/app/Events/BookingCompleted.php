@@ -13,5 +13,8 @@ class BookingCompleted
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    /**
+     * @param  Booking  $booking  The booking that was completed.
+     */
     public function __construct(public readonly Booking $booking) {}
 }

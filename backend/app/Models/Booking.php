@@ -49,36 +49,57 @@ final class Booking extends Model
         self::addGlobalScope(new BusinessScope);
     }
 
+    /**
+     * @return BelongsTo<Business, Booking>
+     */
     public function business(): BelongsTo
     {
         return $this->belongsTo(Business::class);
     }
 
+    /**
+     * @return BelongsTo<Branch, Booking>
+     */
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
     }
 
+    /**
+     * @return BelongsTo<Customer, Booking>
+     */
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
     }
 
+    /**
+     * @return BelongsTo<Staff, Booking>
+     */
     public function staff(): BelongsTo
     {
         return $this->belongsTo(Staff::class);
     }
 
+    /**
+     * @return BelongsTo<Service, Booking>
+     */
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
     }
 
+    /**
+     * @return BelongsTo<User, Booking>
+     */
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by_user_id');
     }
 
+    /**
+     * @return HasMany<NotificationLog>
+     */
     public function notificationLogs(): HasMany
     {
         return $this->hasMany(NotificationLog::class);

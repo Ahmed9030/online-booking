@@ -9,6 +9,17 @@ use Illuminate\Http\Request;
 
 final class CreateBookingData
 {
+    /**
+     * @param  string       $businessId  The business UUID.
+     * @param  string       $branchId    The branch UUID.
+     * @param  string       $serviceId   The service UUID.
+     * @param  string       $customerId  The customer UUID.
+     * @param  Carbon       $startsAt    Booking start datetime (Cairo timezone).
+     * @param  Carbon       $endsAt      Booking end datetime (Cairo timezone).
+     * @param  string|null  $staffId     Optional staff UUID.
+     * @param  string       $source      Booking source (online|manual).
+     * @param  string|null  $notes       Optional booking notes.
+     */
     public function __construct(
         public readonly string $businessId,
         public readonly string $branchId,
@@ -21,6 +32,12 @@ final class CreateBookingData
         public readonly ?string $notes = null,
     ) {}
 
+    /**
+     * Create a CreateBookingData instance from a validated request.
+     *
+     * @param  Request  $request  The validated incoming request.
+     * @return self
+     */
     public static function fromRequest(Request $request): self
     {
         return new self(

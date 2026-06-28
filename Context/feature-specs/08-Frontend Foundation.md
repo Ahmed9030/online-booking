@@ -210,6 +210,11 @@ Axios instance with interceptors:
 ```typescript
 import axios, { AxiosError } from 'axios'
 
+/**
+ * Axios instance configured with base URL and default headers.
+ * Automatically attaches the auth token from localStorage and handles
+ * 401 responses by clearing auth state and redirecting to login.
+ */
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1',
   headers: {
@@ -218,7 +223,10 @@ export const api = axios.create({
   },
 })
 
-// Add token to requests
+/**
+ * Request interceptor that attaches the Bearer token from localStorage
+ * to every outgoing request if a token exists.
+ */
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('auth_token')
   if (token) {
@@ -227,17 +235,18 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Handle errors
+/**
+ * Response interceptor that handles 401 errors by clearing the stored
+ * auth token and redirecting the user to the login page.
+ */
 api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
-    // If 401, clear auth and redirect to login
     if (error.response?.status === 401) {
       localStorage.removeItem('auth_token')
-      window.location.href = '/ar/login' // Redirect to Arabic login
+      window.location.href = '/ar/login'
     }
 
-    // Re-throw for caller to handle
     return Promise.reject(error)
   },
 )
@@ -325,27 +334,46 @@ Zustand auth store:
 import { create } from 'zustand'
 import { User, Business } from '@/types'
 
+/**
+ * Authentication store interface managing user session state.
+ * Tracks the authenticated user, their business, auth token, and loading state.
+ */
 interface AuthStore {
+  /** Currently authenticated user */
   user: User | null
+  /** Business associated with the authenticated user */
   business: Business | null
+  /** Sanctum API token */
   token: string | null
+  /** Loading state for auth operations */
   isLoading: boolean
 
+  /** Set the authenticated user */
   setUser: (user: User | null) => void
+  /** Set the current business */
   setBusiness: (business: Business | null) => void
+  /** Set the auth token and persist to localStorage */
   setToken: (token: string | null) => void
+  /** Set the loading state */
   setIsLoading: (loading: boolean) => void
 
-  // Convenience methods
+  /** Check if a user is authenticated (has a token) */
   isAuthenticated: () => boolean
+  /** Check if the current user has the owner role */
   isOwner: () => boolean
+  /** Check if the current user has the staff role */
   isStaff: () => boolean
+  /** Check if the current user has the admin role */
   isAdmin: () => boolean
 
-  // Clear all
+  /** Clear all auth state and remove token from localStorage */
   logout: () => void
 }
 
+/**
+ * Zustand store for managing authentication state and user session.
+ * Persists the auth token to localStorage and provides role-checking helpers.
+ */
 export const useAuthStore = create<AuthStore>((set, get) => ({
   user: null,
   business: null,
@@ -384,33 +412,58 @@ Zustand booking flow state:
 import { create } from 'zustand'
 import { Branch, Service, Staff, AvailabilitySlot } from '@/types'
 
+/**
+ * Booking flow store interface managing the multi-step booking process.
+ * Tracks selections across steps 1-5: branch, service, staff, date/time, and customer info.
+ */
 interface BookingStore {
-  step: number // 1-5 for booking flow steps
+  /** Current step in the booking flow (1-5) */
+  step: number
+  /** Selected branch */
   branch: Branch | null
+  /** Selected service */
   service: Service | null
+  /** Selected staff member (null for any available) */
   staff: Staff | null
+  /** Selected booking date (YYYY-MM-DD) */
   selectedDate: string | null
+  /** Selected time slot */
   selectedSlot: AvailabilitySlot | null
+  /** Available time slots for the current selection */
   availableSlots: AvailabilitySlot[]
+  /** Customer's name */
   customerName: string
+  /** Customer's phone number */
   customerPhone: string
+  /** Loading state for availability checks */
   isLoading: boolean
 
-  // Step setters
+  /** Navigate to a specific step in the booking flow */
   goToStep: (step: number) => void
+  /** Select a branch and advance to step 2 */
   selectBranch: (branch: Branch) => void
+  /** Select a service and advance to step 3 */
   selectService: (service: Service) => void
+  /** Select a staff member (or null for any) */
   selectStaff: (staff: Staff | null) => void
+  /** Select a date for the booking */
   selectDate: (date: string) => void
+  /** Set the list of available time slots */
   setAvailableSlots: (slots: AvailabilitySlot[]) => void
+  /** Select a specific time slot and advance to step 4 */
   selectSlot: (slot: AvailabilitySlot) => void
+  /** Set customer name and phone for step 4 */
   setCustomerInfo: (name: string, phone: string) => void
+  /** Set the loading state */
   setIsLoading: (loading: boolean) => void
-
-  // Reset
+  /** Reset all booking state back to step 1 */
   reset: () => void
 }
 
+/**
+ * Zustand store for managing the multi-step booking flow state.
+ * Tracks user selections across all steps and provides reset capability.
+ */
 export const useBookingStore = create<BookingStore>((set) => ({
   step: 1,
   branch: null,
@@ -454,35 +507,46 @@ UI state (modals, notifications, etc.):
 ```typescript
 import { create } from 'zustand'
 
+/**
+ * UI state store interface for managing modals, notifications, and sidebar.
+ */
 interface UiStore {
-  // Modals
+  /** Whether the login modal is open */
   isLoginModalOpen: boolean
+  /** Whether the register modal is open */
   isRegisterModalOpen: boolean
+  /** Whether the OTP modal is open */
   isOtpModalOpen: boolean
-
-  // Notifications
+  /** Current toast notification message */
   toastMessage: string | null
+  /** Toast notification type for styling */
   toastType: 'success' | 'error' | 'info'
-
-  // Side effects
+  /** Whether the sidebar is expanded */
   isSidebarOpen: boolean
 
-  // Methods
+  /** Open the login modal */
   openLoginModal: () => void
+  /** Close the login modal */
   closeLoginModal: () => void
-
+  /** Open the register modal */
   openRegisterModal: () => void
+  /** Close the register modal */
   closeRegisterModal: () => void
-
+  /** Open the OTP modal */
   openOtpModal: () => void
+  /** Close the OTP modal */
   closeOtpModal: () => void
-
+  /** Show a toast notification */
   showToast: (message: string, type: 'success' | 'error' | 'info') => void
+  /** Clear the current toast notification */
   clearToast: () => void
-
+  /** Toggle the sidebar open/closed */
   toggleSidebar: () => void
 }
 
+/**
+ * Zustand store for managing global UI state including modals, toast notifications, and sidebar.
+ */
 export const useUiStore = create<UiStore>((set) => ({
   isLoginModalOpen: false,
   isRegisterModalOpen: false,
@@ -523,6 +587,13 @@ import { LoginFormData, AuthResponse } from '@/types'
 import { useRouter } from 'next/navigation'
 import { useUiStore } from '@/store/ui'
 
+/**
+ * Custom hook for owner/staff login with password-based authentication.
+ * On success, stores the user and token in the auth store and redirects
+ * based on the user's role. On error, displays a toast notification.
+ *
+ * @returns A TanStack mutation object for triggering the login request.
+ */
 export function useLogin() {
   const router = useRouter()
   const setUser = useAuthStore((s) => s.setUser)
@@ -565,6 +636,12 @@ import { api } from '@/services/api'
 import { CreateBookingRequest, Booking, ApiResponse } from '@/types'
 import { useUiStore } from '@/store/ui'
 
+/**
+ * Custom hook for creating a public booking via the API.
+ * Displays a success toast on completion or an error toast on failure.
+ *
+ * @returns A TanStack mutation object for triggering the booking creation.
+ */
 export function useCreateBooking() {
   const showToast = useUiStore((s) => s.showToast)
 
@@ -603,6 +680,13 @@ interface CheckAvailabilityRequest {
   date: string
 }
 
+/**
+ * Custom hook for checking available booking time slots.
+ * Automatically enabled when params are provided.
+ *
+ * @param params - The branch, service, optional staff, and date to check availability for.
+ * @returns A TanStack query result containing an array of available slots.
+ */
 export function useAvailability(params?: CheckAvailabilityRequest) {
   return useQuery({
     queryKey: ['availability', params],
@@ -629,6 +713,12 @@ import { useMutation } from '@tanstack/react-query'
 import { api } from '@/services/api'
 import { useUiStore } from '@/store/ui'
 
+/**
+ * Custom hook for sending an OTP code to a customer's phone via WhatsApp.
+ * Displays a success or error toast based on the result.
+ *
+ * @returns A TanStack mutation object for triggering the OTP send.
+ */
 export function useSendOtp() {
   const showToast = useUiStore((s) => s.showToast)
 
@@ -645,6 +735,12 @@ export function useSendOtp() {
   })
 }
 
+/**
+ * Custom hook for verifying an OTP code and obtaining an auth token.
+ * Displays an error toast on failure.
+ *
+ * @returns A TanStack mutation object for triggering the OTP verification.
+ */
 export function useVerifyOtp() {
   const showToast = useUiStore((s) => s.showToast)
 
@@ -674,6 +770,10 @@ import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
+/**
+ * Button variant styles using class-variance-authority.
+ * Supports default, primary, ghost, and danger variants with multiple sizes.
+ */
 const buttonVariants = cva(
   `neu-btn inline-flex items-center justify-center whitespace-nowrap rounded-md 
    text-sm font-medium ring-offset-background transition-all focus-visible:outline-none 
@@ -701,12 +801,19 @@ const buttonVariants = cva(
   },
 )
 
+/** Props for the Button component combining HTML button attributes with variant options. */
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
+  /** When true, renders the button as a child element using Radix Slot */
   asChild?: boolean
 }
 
+/**
+ * Neumorphism-styled button component with multiple variants and sizes.
+ * Supports primary, default, ghost, and danger color schemes.
+ * Can be rendered as a child component using the asChild prop.
+ */
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button'
@@ -736,10 +843,16 @@ import { Button } from '@/components/ui/button'
 import { useBookingStore } from '@/store/booking'
 import { useTranslations } from 'next-intl'
 
+/** Props for the ServiceSelector component. */
 interface ServiceSelectorProps {
+  /** Array of available services to display */
   services: Service[]
 }
 
+/**
+ * Step 1 of the booking flow: displays available services and allows
+ * the user to select one, which advances the booking store to step 2.
+ */
 export function ServiceSelector({ services }: ServiceSelectorProps) {
   const selectService = useBookingStore((s) => s.selectService)
   const t = useTranslations()
@@ -785,10 +898,16 @@ import { Button } from '@/components/ui/button'
 import { useBookingStore } from '@/store/booking'
 import { useTranslations } from 'next-intl'
 
+/** Props for the TimeSlotPicker component. */
 interface TimeSlotPickerProps {
+  /** Array of available time slots to display */
   slots: AvailabilitySlot[]
 }
 
+/**
+ * Step 3 of the booking flow: displays available time slots in a grid
+ * and allows the user to select one, advancing the booking store to step 4.
+ */
 export function TimeSlotPicker({ slots }: TimeSlotPickerProps) {
   const selectSlot = useBookingStore((s) => s.selectSlot)
   const selectedSlot = useBookingStore((s) => s.selectedSlot)
@@ -845,10 +964,17 @@ import { useTranslations } from 'next-intl'
 import { ServiceSelector } from '@/components/booking/ServiceSelector'
 import { TimeSlotPicker } from '@/components/booking/TimeSlotPicker'
 
+/** Props for the BookingForm component. */
 interface BookingFormProps {
+  /** Array of services available for booking */
   services: any[]
 }
 
+/**
+ * Complete booking form that orchestrates the multi-step booking flow.
+ * Renders the appropriate step component (ServiceSelector, TimeSlotPicker, or form)
+ * based on the current step in the booking store, and handles form submission.
+ */
 export function BookingForm({ services }: BookingFormProps) {
   const t = useTranslations()
   const step = useBookingStore((s) => s.step)
@@ -963,6 +1089,7 @@ import { api } from '@/services/api'
 import { Branch, Service } from '@/types'
 import { BookingForm } from '@/components/forms/BookingForm'
 
+/** Props for the booking page route. */
 interface BookingPageProps {
   params: {
     locale: string
@@ -971,6 +1098,11 @@ interface BookingPageProps {
   }
 }
 
+/**
+ * Server-side rendered booking page that fetches branch details and
+ * services for the given business and branch slugs.
+ * Renders the BookingForm component with the fetched services.
+ */
 export default async function BookingPage({ params }: BookingPageProps) {
   // Fetch branch and services server-side (SSR)
   const branchResponse = await api.get<{ data: Branch }>(
@@ -1010,6 +1142,11 @@ import { Input } from '@/components/ui/input'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 
+/**
+ * Owner/staff login page with form validation using Zod.
+ * Renders email/username and password fields and handles
+ * authentication via the useLogin hook.
+ */
 export default function LoginPage() {
   const t = useTranslations()
   const login = useLogin()
@@ -1073,16 +1210,28 @@ import { Button } from '@/components/ui/button'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 
+/** Dashboard overview statistics returned from the API. */
 interface DashboardStats {
+  /** Number of confirmed bookings for today */
   today_bookings: number
+  /** Total non-cancelled bookings this month */
   month_bookings: number
+  /** Percentage of no-show bookings this month */
   no_show_rate: number
+  /** Current subscription details */
   subscription: {
+    /** Subscription status (trial, active, expired, suspended) */
     status: string
+    /** Days remaining until subscription expires */
     days_remaining: number
   }
 }
 
+/**
+ * Owner dashboard overview page displaying key metrics:
+ * today's bookings, monthly bookings, no-show rate, and subscription status.
+ * Fetches data from the dashboard API endpoint on mount.
+ */
 export default function DashboardPage() {
   const t = useTranslations()
   const { data: stats, isLoading } = useQuery({
@@ -1155,10 +1304,17 @@ Next.js 16 proxy (replaces middleware.ts):
 import { NextRequest, NextResponse } from 'next/server'
 import { routing } from './i18n/routing'
 
+/**
+ * Next.js 16 proxy middleware (replaces middleware.ts) that handles locale routing.
+ * Checks if the incoming request path already contains a supported locale prefix.
+ * If not, redirects to the default locale (Arabic).
+ *
+ * @param request - The incoming Next.js request object.
+ * @returns A NextResponse either passing through or redirecting to the localized path.
+ */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Check if path is already localized
   const pathnameHasLocale = routing.locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
   )
@@ -1167,7 +1323,6 @@ export function proxy(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Redirect to default locale
   request.nextUrl.pathname = `/${routing.defaultLocale}${pathname}`
   return NextResponse.redirect(request.nextUrl)
 }
@@ -1192,6 +1347,11 @@ I18n routing configuration:
 import { defineRouting } from 'next-intl/routing'
 import { createNavigation } from 'next-intl/navigation'
 
+/**
+ * Internationalization routing configuration for next-intl.
+ * Supports Arabic and English with Arabic as the default locale.
+ * All routes require an explicit locale prefix.
+ */
 export const routing = defineRouting({
   locales: ['ar', 'en'],
   defaultLocale: 'ar',
@@ -1223,6 +1383,13 @@ interface RootLayoutProps {
   params: { locale: string }
 }
 
+/**
+ * Root layout component that sets up internationalization, RTL/LTR direction,
+ * and TanStack Query provider for the entire application.
+ *
+ * @param children - The child components to render within the layout.
+ * @param params - Route parameters containing the locale.
+ */
 export default async function RootLayout({
   children,
   params: { locale },
@@ -1258,10 +1425,17 @@ import { useEffect } from 'react'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { TopBar } from '@/components/layout/TopBar'
 
+/** Props for the dashboard layout wrapper. */
 interface DashboardLayoutProps {
+  /** Child page components to render within the dashboard shell */
   children: ReactNode
 }
 
+/**
+ * Dashboard layout component providing authenticated owner access.
+ * Checks for a valid auth token and owner role, redirecting to login
+ * if unauthorized. Renders the Sidebar, TopBar, and main content area.
+ */
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter()
   const token = useAuthStore((s) => s.token)

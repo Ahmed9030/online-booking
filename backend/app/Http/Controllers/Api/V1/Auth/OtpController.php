@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\RateLimiter;
 
 class OtpController extends Controller
 {
+    /**
+     * @param  OtpService  $otpService  Service to send and verify OTP codes.
+     */
     public function __construct(
         private readonly OtpService $otpService,
     ) {}

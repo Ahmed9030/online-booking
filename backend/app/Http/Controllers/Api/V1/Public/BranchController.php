@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\V1\Public;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BranchResource;
+use App\Http\Resources\BusinessResource;
 use App\Http\Resources\ServiceResource;
 use App\Models\Branch;
 use App\Models\Business;
@@ -14,6 +15,19 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class BranchController extends Controller
 {
+    /**
+     * List all active businesses.
+     * GET /api/v1/public/businesses
+     */
+    public function index(): ResourceCollection
+    {
+        $businesses = Business::where('subscription_status', '!=', 'suspended')
+            ->orderBy('name')
+            ->get();
+
+        return BusinessResource::collection($businesses);
+    }
+
     /**
      * Get business and all its branches by slug.
      * GET /api/v1/public/business/{slug}

@@ -9,6 +9,9 @@ use App\Jobs\SendBookingConfirmationWebhook;
 
 final class DispatchBookingConfirmationJob
 {
+    /**
+     * Dispatch the booking confirmation webhook job on the notifications queue.
+     */
     public function handle(BookingCreated $event): void
     {
         dispatch(new SendBookingConfirmationWebhook($event->booking))

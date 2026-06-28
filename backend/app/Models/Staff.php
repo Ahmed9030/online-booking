@@ -40,31 +40,49 @@ final class Staff extends Model
         self::addGlobalScope(new BusinessScope);
     }
 
+    /**
+     * @return BelongsTo<Business, Staff>
+     */
     public function business(): BelongsTo
     {
         return $this->belongsTo(Business::class);
     }
 
+    /**
+     * @return BelongsTo<Branch, Staff>
+     */
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
     }
 
+    /**
+     * @return BelongsTo<User, Staff>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    /**
+     * @return BelongsToMany<Service>
+     */
     public function services(): BelongsToMany
     {
         return $this->belongsToMany(Service::class, 'staff_services');
     }
 
+    /**
+     * @return HasMany<Booking>
+     */
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
     }
 
+    /**
+     * @return HasMany<StaffWorkingHour>
+     */
     public function workingHours(): HasMany
     {
         return $this->hasMany(StaffWorkingHour::class);

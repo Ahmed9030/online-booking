@@ -8,11 +8,20 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class CheckAvailabilityRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     * Public endpoint — no authentication required.
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * Get the validation rules for checking slot availability.
+     *
+     * @return array<string, array<int, string>>
+     */
     public function rules(): array
     {
         return [

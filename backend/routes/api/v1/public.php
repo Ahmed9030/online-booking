@@ -8,6 +8,9 @@ use App\Http\Controllers\Api\V1\Public\BranchController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('throttle:60,1')->group(function () {
+    // List all active businesses
+    Route::get('businesses', [BranchController::class, 'index']);
+
     // Get business + branches by slug
     Route::get('business/{slug}', [BranchController::class, 'showBusiness']);
     Route::get('business/{businessSlug}/branches/{branchSlug}', [BranchController::class, 'show']);

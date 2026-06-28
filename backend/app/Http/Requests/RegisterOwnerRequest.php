@@ -6,11 +6,20 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class RegisterOwnerRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to register as an owner.
+     * Public endpoint — no authentication required.
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * Get the validation rules for registering a new owner account.
+     *
+     * @return array<string, string>
+     */
     public function rules(): array
     {
         return [
@@ -20,6 +29,11 @@ class RegisterOwnerRequest extends FormRequest
         ];
     }
 
+    /**
+     * Get custom validation messages.
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [
