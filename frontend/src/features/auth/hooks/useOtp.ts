@@ -56,8 +56,9 @@ export function useVerifyOtp() {
       return response.data.data
     },
     onSuccess: (data) => {
+      const store = useAuthStore.getState()
+      store.setBusiness(null)
       setToken(data.token)
-      localStorage.setItem('auth_token', data.token)
 
       const customerUser = {
         id: 'temp-customer',

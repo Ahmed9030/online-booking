@@ -17,13 +17,28 @@ class BusinessController extends Controller
      * List all businesses on the platform.
      * GET /api/v1/admin/businesses
      */
-    public function index(): ResourceCollection
+    public function index(Request $request): ResourceCollection
     {
-        $businesses = Business::withoutGlobalScopes()
-            ->orderByDesc('created_at')
-            ->paginate(15);
+        $query = Business::withoutGlobalScopes()
+            ->with('owner')
+            ->withCount(['branches', 'staff', 'services', 'bookings'])
+            ->orderByDesc('created_at');
 
-        return BusinessResource::collection($businesses);
+        if ($request->filled('subscription_status')) {
+            $query->where('subscription_status', $request->input('subscription_status'));
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('slug', 'like', "%{$search}%");
+            });
+        }
+
+        return BusinessResource::collection(
+            $query->paginate(min((int) ($request->input('per_page', 15)), 100))
+        );
     }
 
     /**
@@ -32,7 +47,10 @@ class BusinessController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $business = Business::withoutGlobalScopes()->findOrFail($id);
+        $business = Business::withoutGlobalScopes()
+            ->with('owner')
+            ->withCount(['branches', 'staff', 'services', 'bookings'])
+            ->findOrFail($id);
 
         return response()->json(['data' => new BusinessResource($business)]);
     }

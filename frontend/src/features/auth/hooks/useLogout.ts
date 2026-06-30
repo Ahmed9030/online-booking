@@ -3,7 +3,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { api } from '@/services/api'
 import { useAuthStore } from '@/store/auth'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useUiStore } from '@/store/ui'
 
 /**
@@ -16,6 +16,7 @@ import { useUiStore } from '@/store/ui'
  */
 export function useLogout() {
   const router = useRouter()
+  const pathname = usePathname()
   const logout = useAuthStore((s) => s.logout)
   const showToast = useUiStore((s) => s.showToast)
 
@@ -24,24 +25,19 @@ export function useLogout() {
       await api.post('/auth/logout')
     },
     onSuccess: () => {
+      const locale = pathname.split('/')[1] || 'ar'
       logout()
-
-      localStorage.removeItem('auth_token')
-      localStorage.removeItem('auth_user')
-      localStorage.removeItem('auth_business')
 
       showToast('تم تسجيل الخروج بنجاح', 'success')
 
       setTimeout(() => {
-        router.push('/ar')
+        router.push(`/${locale}`)
       }, 500)
     },
     onError: () => {
+      const locale = pathname.split('/')[1] || 'ar'
       logout()
-      localStorage.removeItem('auth_token')
-      localStorage.removeItem('auth_user')
-      localStorage.removeItem('auth_business')
-      router.push('/ar')
+      router.push(`/${locale}`)
     },
   })
 }

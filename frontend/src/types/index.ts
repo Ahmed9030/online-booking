@@ -3,6 +3,7 @@ export interface User {
   name: string
   email?: string
   phone?: string
+  username?: string
   role: 'owner' | 'staff' | 'admin' | 'customer'
   business_id?: string
 }
@@ -32,7 +33,8 @@ export interface Business {
   slug: string
   logo_url?: string
   subscription_status: 'trial' | 'active' | 'expired' | 'suspended'
-  subscription_expires_at: string
+  subscription_expires_at?: string
+  subscription_days_remaining?: number
 }
 
 export interface Branch {
@@ -48,8 +50,14 @@ export interface Branch {
 
 export interface WorkingHour {
   weekday: number // 0-6 (Sunday-Saturday)
-  open_time: string // "09:00"
-  close_time: string // "18:00"
+  open_time: string | null // "09:00" or null for day off
+  close_time: string | null // "18:00" or null for day off
+}
+
+export interface StaffWorkingHour {
+  weekday: number
+  start_time: string | null
+  end_time: string | null
 }
 
 export interface Staff {
@@ -57,7 +65,9 @@ export interface Staff {
   name: string
   photo_url?: string
   is_active: boolean
+  branch_id?: string
   services?: Service[]
+  working_hours?: StaffWorkingHour[]
 }
 
 export interface Service {
@@ -66,6 +76,7 @@ export interface Service {
   duration_minutes: number
   price: number
   is_active: boolean
+  branch_id?: string
 }
 
 export interface Booking {
@@ -132,4 +143,89 @@ export interface BookingFormData {
   time: string // HH:MM
   customer_name: string
   customer_phone: string
+}
+
+// =================== Admin Domain Types ===================
+
+export interface AdminOverview {
+  businesses: {
+    total: number
+    active: number
+    trial: number
+  }
+  customers: number
+  bookings_total: number
+  bookings_month: number
+}
+
+export interface AdminBusiness extends Business {
+  description?: string
+  owner?: {
+    id: string
+    name: string
+    email: string
+    phone?: string
+  }
+  branches_count?: number
+  staff_count?: number
+  services_count?: number
+  bookings_count?: number
+  created_at: string
+}
+
+export interface AdminUser {
+  id: string
+  name: string
+  email: string
+  phone?: string
+  role: 'owner' | 'staff' | 'admin' | 'customer'
+  business_id?: string
+  is_active: boolean
+  created_at: string
+  business?: {
+    id: string
+    name: string
+    slug: string
+    subscription_status: string
+  }
+}
+
+export interface Subscription {
+  id: string
+  name: string
+  slug: string
+  logo_url?: string
+  subscription_status: string
+  subscription_expires_at?: string
+  owner?: {
+    id: string
+    name: string
+    email: string
+  }
+  branches_count?: number
+  staff_count?: number
+  bookings_count?: number
+  created_at: string
+}
+
+export interface AdminAnalytics {
+  revenue: {
+    total: number
+    this_month: number
+    monthly: { month: string; revenue: number }[]
+  }
+  users: {
+    total: number
+    this_month: number
+    monthly: { month: string; count: number }[]
+  }
+  bookings: {
+    total: number
+    by_status: Record<string, number>
+    monthly: { month: string; count: number }[]
+  }
+  businesses: {
+    total: number
+    by_subscription: Record<string, number>
+  }
 }

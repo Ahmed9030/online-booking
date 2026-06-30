@@ -37,9 +37,11 @@ export function proxy(request: NextRequest) {
     '/my-bookings',
   ]
 
-  const isProtectedPath = protectedPaths.some((path) =>
-    pathWithoutLocale.startsWith(path),
-  )
+  const isProtectedPath = protectedPaths.some((path) => {
+    if (pathWithoutLocale === path) return true
+    if (pathWithoutLocale.startsWith(path + '/')) return true
+    return false
+  })
 
   if (isProtectedPath && !token) {
     request.nextUrl.pathname = `/${locale}/login`

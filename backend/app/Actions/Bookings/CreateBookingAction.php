@@ -59,6 +59,9 @@ final class CreateBookingAction
                 if ($staff->branch_id !== $branch->id) {
                     throw new \InvalidArgumentException('Staff member does not belong to the selected branch.');
                 }
+                if (!$staff->services()->where('service_id', $service->id)->exists()) {
+                    throw new \InvalidArgumentException('Staff member cannot perform the selected service.');
+                }
             } else {
                 $staff = $this->assignStaff->handle(
                     $branch,

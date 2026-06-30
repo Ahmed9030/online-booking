@@ -58,8 +58,8 @@ class BookingController extends Controller
 
         $validated = $request->validate([
             'branch_id' => ['required', 'uuid', Rule::exists('branches', 'id')->where('business_id', $business->id)],
-            'service_id' => ['required', 'uuid', Rule::exists('services', 'id')->where('business_id', $business->id)->where('branch_id', $request->input('branch_id'))],
-            'staff_id' => ['nullable', 'uuid', Rule::exists('staff', 'id')->where('business_id', $business->id)->where('branch_id', $request->input('branch_id'))],
+            'service_id' => ['required', 'uuid', Rule::exists('services', 'id')->where('business_id', $business->id)->where('branch_id', $validated['branch_id'] ?? $request->input('branch_id'))],
+            'staff_id' => ['nullable', 'uuid', Rule::exists('staff', 'id')->where('business_id', $business->id)->where('branch_id', $validated['branch_id'] ?? $request->input('branch_id'))],
             'customer_name' => ['required', 'string', 'min:2', 'max:100'],
             'customer_phone' => ['required', 'string'],
             'starts_at' => ['required', 'date', 'after:now'],

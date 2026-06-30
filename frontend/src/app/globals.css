@@ -52,6 +52,11 @@
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
   --color-danger: #e74c3c;
+  --color-confirmed: var(--confirmed);
+  --color-pending: var(--pending);
+  --color-cancelled: var(--cancelled);
+  --color-no-show: var(--no-show);
+  --color-completed: var(--completed);
 }
 
 :root {
@@ -61,7 +66,7 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: #c8963e;
+  --primary: #b8862a;
   --primary-foreground: #ffffff;
   --secondary: oklch(0.97 0.01 72);
   --secondary-foreground: oklch(0.205 0 0);
@@ -72,8 +77,8 @@
   --destructive: #dc2626;
   --border: oklch(0.88 0.01 72);
   --input: oklch(0.88 0.01 72);
-  --ring: #c8963e;
-  --chart-1: #c8963e;
+  --ring: #b8862a;
+  --chart-1: #b8862a;
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
@@ -88,15 +93,20 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 
-  --bg: #cfd4de;
-  --surface: #f0f3f7;
-  --surface-hover: #e6eaf0;
-  --text-primary: #1e2024;
+  --bg: #eef1f5;
+  --surface: #ffffff;
+  --surface-hover: #f5f7fa;
+  --text-primary: #1a1d23;
   --text-secondary: #6b7280;
   --text-muted: #9ca3af;
+  --confirmed: #059669;
+  --pending: #b8862a;
+  --cancelled: #dc2626;
+  --no-show: #9ca3af;
+  --completed: #2563eb;
   --neu-highlight: rgba(255, 255, 255, 0.95);
-  --neu-shadow: rgba(0, 0, 0, 0.12);
-  --neu-shadow-strong: rgba(0, 0, 0, 0.18);
+  --neu-shadow: rgba(0, 0, 0, 0.08);
+  --neu-shadow-strong: rgba(0, 0, 0, 0.14);
 }
 
 .dark {
@@ -138,6 +148,11 @@
   --text-primary: #e5e7eb;
   --text-secondary: #9ca3af;
   --text-muted: #6b7280;
+  --confirmed: #10b981;
+  --pending: #d4a84b;
+  --cancelled: #ef4444;
+  --no-show: #6b7280;
+  --completed: #3b82f6;
   --neu-highlight: rgba(255, 255, 255, 0.06);
   --neu-shadow: rgba(0, 0, 0, 0.45);
   --neu-shadow-strong: rgba(0, 0, 0, 0.55);
@@ -211,13 +226,42 @@
   box-shadow:
     calc(-1 * var(--neu-depth, 6px)) calc(-1 * var(--neu-depth, 6px)) calc(var(--neu-depth, 6px) * 2) var(--neu-highlight),
     var(--neu-depth, 6px) var(--neu-depth, 6px) calc(var(--neu-depth, 6px) * 2) var(--neu-shadow);
-  border: none;
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   transition: all 0.15s ease;
 }
 
 .neu-card:hover {
   --neu-shadow: var(--neu-shadow-strong);
+}
+
+.neu-card-elevated {
+  background: var(--surface);
+  box-shadow:
+    calc(-1 * var(--neu-depth, 8px)) calc(-1 * var(--neu-depth, 8px)) calc(var(--neu-depth, 8px) * 2) var(--neu-highlight),
+    var(--neu-depth, 8px) var(--neu-depth, 8px) calc(var(--neu-depth, 8px) * 2) var(--neu-shadow);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  transition: all 0.15s ease;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+}
+
+.detail-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .neu-input {
@@ -259,4 +303,112 @@
     inset 2px 2px 4px rgba(0,0,0,0.15),
     inset -2px -2px 4px rgba(255,255,255,0.15);
   transform: scale(0.95);
+}
+
+/* ===== LANDING PAGE ANIMATIONS ===== */
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(20px);
+  }
+}
+
+@keyframes float-delayed {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes bounce-slow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 6s ease-in-out infinite;
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 3s ease-in-out infinite;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.6s ease-out forwards;
+}
+
+/* ===== NEUMORPHISM HOVER EFFECTS ===== */
+
+.neu-card-hover {
+  box-shadow: 8px 8px 16px rgba(200, 205, 211, 1),
+              -8px -8px 16px rgba(255, 255, 255, 1);
+}
+
+/* ===== GRADIENTS ===== */
+
+.bg-gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 768px) {
+  .animate-fade-in-up {
+    animation-delay: 0s !important;
+  }
 }

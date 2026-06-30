@@ -47,7 +47,7 @@ class DashboardController extends Controller
             ->first();
 
         // Subscription status
-        $daysUntilExpiry = $business->subscription_expires_at?->diffInDays(now()) ?? 0;
+        $daysUntilExpiry = $business->subscription_expires_at?->diffInDays(now(), false) ?? 0;
 
         return response()->json([
             'data' => [

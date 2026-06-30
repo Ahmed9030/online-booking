@@ -36,10 +36,6 @@ export function useRegister() {
       setBusiness(business ?? null)
       setToken(token)
 
-      localStorage.setItem('auth_user', JSON.stringify(user))
-      localStorage.setItem('auth_business', JSON.stringify(business))
-      localStorage.setItem('auth_token', token)
-
       showToast('تم إنشاء الحساب بنجاح! مرحباً بك', 'success')
 
       setTimeout(() => {

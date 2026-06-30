@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/Input'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
+import { useParams } from 'next/navigation'
+import { useState } from 'react'
 
 /**
  * Login page for owners and staff with email/username and password form.
@@ -18,7 +20,11 @@ import { Link } from '@/i18n/routing'
  */
 export default function LoginPage() {
   const t = useTranslations()
+  const params = useParams()
+  const locale = (params.locale as string) || 'ar'
+  const isRtl = locale === 'ar'
   const login = useLogin()
+  const [rememberMe, setRememberMe] = useState(false)
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -28,12 +34,33 @@ export default function LoginPage() {
     },
   })
 
+  const errorMessage =
+    login.error instanceof Error
+      ? login.error.message
+      : typeof login.error === 'string'
+        ? login.error
+        : null
+
+  const onSubmit = (data: LoginFormData) => {
+    login.mutate({ ...data, remember_me: rememberMe } as LoginFormData)
+  }
+
   return (
     <div
       className="min-h-screen bg-bg flex items-center justify-center p-4"
-      dir="rtl"
+      dir={isRtl ? 'rtl' : 'ltr'}
     >
-      <div className="neu-card w-full max-w-md p-8">
+      <div className="neu-card w-full max-w-md p-8 relative">
+        <Link
+          href="/"
+          className={`absolute top-4 ${isRtl ? 'right-4' : 'left-4'} w-9 h-9 rounded-xl neu-btn flex items-center justify-center text-text-secondary hover:text-primary transition-colors`}
+          aria-label="Back to home"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d={isRtl ? 'M15 18l-6-6 6-6' : 'M9 18l6-6-6-6'} />
+          </svg>
+        </Link>
+
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-primary mb-2">
             {t('auth.login')}
@@ -44,7 +71,7 @@ export default function LoginPage() {
         </div>
 
         <form
-          onSubmit={form.handleSubmit((data) => login.mutate(data))}
+          onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-4"
         >
           <div>
@@ -52,7 +79,7 @@ export default function LoginPage() {
               {t('auth.email_or_username')}
             </label>
             <Input
-              placeholder="البريد الإلكتروني أو اسم المستخدم"
+              placeholder={t('auth.email_or_username_placeholder')}
               {...form.register('email_or_username')}
               error={form.formState.errors.email_or_username?.message}
               disabled={login.isPending}
@@ -65,7 +92,7 @@ export default function LoginPage() {
             </label>
             <Input
               type="password"
-              placeholder="كلمة المرور"
+              placeholder={t('auth.password_placeholder')}
               {...form.register('password')}
               error={form.formState.errors.password?.message}
               disabled={login.isPending}
@@ -74,7 +101,7 @@ export default function LoginPage() {
 
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center gap-2 text-text-secondary">
-              <input type="checkbox" className="w-4 h-4" />
+              <input type="checkbox" className="w-4 h-4" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} />
               {t('auth.remember_me')}
             </label>
             <Link
@@ -84,6 +111,12 @@ export default function LoginPage() {
               {t('auth.forgot_password')}
             </Link>
           </div>
+
+          {errorMessage && (
+            <div className="rounded-xl bg-danger/10 border border-danger/20 px-4 py-3 text-sm text-danger">
+              {errorMessage}
+            </div>
+          )}
 
           <Button
             type="submit"

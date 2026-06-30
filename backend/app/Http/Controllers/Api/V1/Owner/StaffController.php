@@ -25,6 +25,7 @@ class StaffController extends Controller
     public function index(): ResourceCollection
     {
         $staff = Staff::where('business_id', auth()->user()->business_id)
+            ->with(['services', 'workingHours'])
             ->orderBy('name')
             ->paginate(15);
 
@@ -60,6 +61,7 @@ class StaffController extends Controller
     public function show(string $id): JsonResponse
     {
         $staff = Staff::where('business_id', auth()->user()->business_id)
+            ->with(['services', 'workingHours'])
             ->findOrFail($id);
 
         return response()->json(['data' => new StaffResource($staff)]);
@@ -108,21 +110,21 @@ class StaffController extends Controller
         $staff = Staff::where('business_id', auth()->user()->business_id)
             ->findOrFail($id);
 
-        $request->validate([
+        $validated = $request->validate([
             'working_hours' => ['required', 'array', 'min:1'],
             'working_hours.*.weekday' => ['required', 'integer', 'between:0,6'],
-            'working_hours.*.open_time' => ['nullable', 'date_format:H:i'],
-            'working_hours.*.close_time' => ['nullable', 'date_format:H:i'],
+            'working_hours.*.start_time' => ['nullable', 'date_format:H:i'],
+            'working_hours.*.end_time' => ['nullable', 'date_format:H:i'],
         ]);
 
         $staff->workingHours()->delete();
 
-        foreach ($request->validated()['working_hours'] as $hours) {
+        foreach ($validated['working_hours'] as $hours) {
             StaffWorkingHour::create([
                 'staff_id' => $staff->id,
                 'weekday' => $hours['weekday'],
-                'open_time' => $hours['open_time'] ?? null,
-                'close_time' => $hours['close_time'] ?? null,
+                'start_time' => $hours['start_time'] ?? null,
+                'end_time' => $hours['end_time'] ?? null,
             ]);
         }
 
@@ -138,12 +140,12 @@ class StaffController extends Controller
         $staff = Staff::where('business_id', auth()->user()->business_id)
             ->findOrFail($id);
 
-        $request->validate([
+        $validated = $request->validate([
             'service_ids' => ['required', 'array'],
-            'service_ids.*' => ['uuid', Rule::exists('services', 'id')->where('business_id', auth()->user()->business_id)],
+            'service_ids.*' => ['uuid', Rule::exists('services', 'id')->where('business_id', auth()->user()->business_id)->where('branch_id', $staff->branch_id)],
         ]);
 
-        $staff->services()->sync($request->input('service_ids'));
+        $staff->services()->sync($validated['service_ids']);
 
         return response()->json(['message' => 'Services assigned.']);
     }
@@ -157,7 +159,7 @@ class StaffController extends Controller
         $staff = Staff::where('business_id', auth()->user()->business_id)
             ->findOrFail($id);
 
-        $request->validate([
+        $validated = $request->validate([
             'username' => ['required', 'string', 'min:3', 'unique:users,username'],
             'password' => ['required', 'string', 'min:8'],
         ]);
@@ -167,8 +169,8 @@ class StaffController extends Controller
             ['id' => $staff->user_id],
             [
                 'name' => $staff->name,
-                'username' => $request->input('username'),
-                'password' => Hash::make($request->input('password')),
+                'username' => $validated['username'],
+                'password' => Hash::make($validated['password']),
                 'role' => UserRole::Staff,
                 'business_id' => $staff->business_id,
                 'is_active' => true,
