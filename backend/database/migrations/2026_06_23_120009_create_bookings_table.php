@@ -10,8 +10,16 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::getConnection()->getDriverName() === 'pgsql') {
-            DB::statement("CREATE TYPE booking_status AS ENUM ('confirmed', 'completed', 'no_show', 'cancelled')");
-            DB::statement("CREATE TYPE booking_source AS ENUM ('online', 'manual')");
+            DB::statement("DO $$ BEGIN
+                CREATE TYPE booking_status AS ENUM ('confirmed', 'completed', 'no_show', 'cancelled');
+            EXCEPTION
+                WHEN duplicate_object THEN NULL;
+            END $$;");
+            DB::statement("DO $$ BEGIN
+                CREATE TYPE booking_source AS ENUM ('online', 'manual');
+            EXCEPTION
+                WHEN duplicate_object THEN NULL;
+            END $$;");
         }
 
         Schema::create('bookings', function (Blueprint $table) {

@@ -38,6 +38,9 @@ final class NotificationLog extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Booking, NotificationLog>
+     */
     public function booking(): BelongsTo
     {
         return $this->belongsTo(Booking::class);

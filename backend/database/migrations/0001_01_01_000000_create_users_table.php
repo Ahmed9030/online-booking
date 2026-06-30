@@ -13,7 +13,11 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::getConnection()->getDriverName() === 'pgsql') {
-            DB::statement("CREATE TYPE user_role AS ENUM ('owner', 'staff', 'admin')");
+            DB::statement("DO $$ BEGIN
+                CREATE TYPE user_role AS ENUM ('owner', 'staff', 'admin');
+            EXCEPTION
+                WHEN duplicate_object THEN NULL;
+            END $$;");
         }
 
         Schema::create('users', function (Blueprint $table) {

@@ -10,6 +10,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -53,23 +54,35 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * @return BelongsTo<Business, User>
+     */
     public function business(): BelongsTo
     {
         return $this->belongsTo(Business::class);
     }
 
+    /**
+     * @return HasOne<Staff>
+     */
     public function staff(): HasOne
     {
         return $this->hasOne(Staff::class);
     }
 
+    /**
+     * @return HasOne<Business>
+     */
     public function ownedBusiness(): HasOne
     {
         return $this->hasOne(Business::class, 'owner_user_id');
     }
 
-    public function customer(): HasOne
+    /**
+     * @return HasMany<Customer>
+     */
+    public function customers(): HasMany
     {
-        return $this->hasOne(Customer::class);
+        return $this->hasMany(Customer::class);
     }
 }

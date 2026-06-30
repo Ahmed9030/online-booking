@@ -8,11 +8,20 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StorePublicBookingRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     * Public endpoint — no authentication required.
+     */
     public function authorize(): bool
     {
         return true; // Public endpoint
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, array<int, string>>
+     */
     public function rules(): array
     {
         return [
@@ -30,6 +39,11 @@ class StorePublicBookingRequest extends FormRequest
         ];
     }
 
+    /**
+     * Get custom validation messages in Arabic.
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [

@@ -40,16 +40,25 @@ final class Customer extends Model
         self::addGlobalScope(new BusinessScope);
     }
 
+    /**
+     * @return BelongsTo<User, Customer>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<Business, Customer>
+     */
     public function business(): BelongsTo
     {
         return $this->belongsTo(Business::class);
     }
 
+    /**
+     * @return HasMany<Booking>
+     */
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);

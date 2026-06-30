@@ -8,21 +8,22 @@ use App\Actions\Bookings\CancelBookingAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BookingResource;
 use App\Models\Booking;
-use App\Models\Customer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class MyBookingsController extends Controller
 {
+    /**
+     * @param  CancelBookingAction  $cancelBooking  Service to cancel bookings.
+     */
     public function __construct(
         private readonly CancelBookingAction $cancelBooking,
     ) {}
 
-    private function getCustomer(): Customer
+    private function customerIds(): array
     {
-        return auth()->user()->customer
-            ?? throw new ModelNotFoundException('Customer record not found for authenticated user.');
+        return auth()->user()->customers()->pluck('id')->toArray();
     }
 
     /**
@@ -31,9 +32,7 @@ class MyBookingsController extends Controller
      */
     public function index(): ResourceCollection
     {
-        $customer = $this->getCustomer();
-
-        $bookings = Booking::where('customer_id', $customer->id)
+        $bookings = Booking::whereIn('customer_id', $this->customerIds())
             ->with(['service', 'staff', 'branch'])
             ->orderByDesc('starts_at')
             ->paginate(15);
@@ -47,9 +46,7 @@ class MyBookingsController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $customer = $this->getCustomer();
-
-        $booking = Booking::where('customer_id', $customer->id)
+        $booking = Booking::whereIn('customer_id', $this->customerIds())
             ->with(['service', 'staff', 'branch'])
             ->findOrFail($id);
 
@@ -62,9 +59,7 @@ class MyBookingsController extends Controller
      */
     public function cancel(string $id): JsonResponse
     {
-        $customer = $this->getCustomer();
-
-        $booking = Booking::where('customer_id', $customer->id)->findOrFail($id);
+        $booking = Booking::whereIn('customer_id', $this->customerIds())->findOrFail($id);
 
         // Customers can only cancel future bookings
         if ($booking->starts_at->isPast()) {

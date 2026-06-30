@@ -15,6 +15,9 @@ use Illuminate\Http\JsonResponse;
 
 class AvailabilityController extends Controller
 {
+    /**
+     * @param  AvailabilityService  $availability  Service to check slot availability.
+     */
     public function __construct(
         private readonly AvailabilityService $availability,
     ) {}

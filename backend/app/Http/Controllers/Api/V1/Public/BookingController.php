@@ -17,6 +17,9 @@ use Illuminate\Http\JsonResponse;
 
 class BookingController extends Controller
 {
+    /**
+     * @param  CreateBookingAction  $createBooking  Service to create bookings.
+     */
     public function __construct(
         private readonly CreateBookingAction $createBooking,
     ) {}

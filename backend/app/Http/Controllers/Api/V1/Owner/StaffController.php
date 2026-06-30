@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class StaffController extends Controller
 {
@@ -38,7 +39,7 @@ class StaffController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'min:2', 'max:100'],
-            'branch_id' => ['required', 'uuid', 'exists:branches,id'],
+            'branch_id' => ['required', 'uuid', Rule::exists('branches', 'id')->where('business_id', auth()->user()->business_id)],
             'is_active' => ['sometimes', 'boolean'],
         ]);
 
@@ -75,7 +76,7 @@ class StaffController extends Controller
 
         $validated = $request->validate([
             'name' => ['sometimes', 'string', 'min:2', 'max:100'],
-            'branch_id' => ['sometimes', 'uuid', 'exists:branches,id'],
+            'branch_id' => ['sometimes', 'uuid', Rule::exists('branches', 'id')->where('business_id', auth()->user()->business_id)],
             'is_active' => ['sometimes', 'boolean'],
         ]);
 
@@ -139,7 +140,7 @@ class StaffController extends Controller
 
         $request->validate([
             'service_ids' => ['required', 'array'],
-            'service_ids.*' => ['uuid', 'exists:services,id'],
+            'service_ids.*' => ['uuid', Rule::exists('services', 'id')->where('business_id', auth()->user()->business_id)],
         ]);
 
         $staff->services()->sync($request->input('service_ids'));

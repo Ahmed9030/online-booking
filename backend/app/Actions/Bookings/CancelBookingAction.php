@@ -10,6 +10,12 @@ use App\Models\Booking;
 
 final class CancelBookingAction
 {
+    /**
+     * Cancel a booking if it is not already completed or cancelled.
+     * Fires the BookingCancelled event after a successful cancellation.
+     *
+     * @throws \InvalidArgumentException If the booking is already completed or cancelled.
+     */
     public function handle(string $bookingId): Booking
     {
         $booking = Booking::findOrFail($bookingId);

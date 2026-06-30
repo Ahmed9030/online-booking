@@ -8,6 +8,11 @@ use Exception;
 
 final class SlotNotAvailableException extends Exception
 {
+    /**
+     * Render the exception as a JSON response.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function render()
     {
         return response()->json([

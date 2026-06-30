@@ -12,8 +12,15 @@ use Carbon\Carbon;
 
 final class AssignAvailableStaffAction
 {
+    /**
+     * @param  AvailabilityRepository  $repository  Repository for checking staff conflicts.
+     */
     public function __construct(private readonly AvailabilityRepository $repository) {}
 
+    /**
+     * Find the first available staff member for a given service at the requested time.
+     * Returns null if all qualified staff have conflicting bookings.
+     */
     public function handle(
         Branch $branch,
         Service $service,

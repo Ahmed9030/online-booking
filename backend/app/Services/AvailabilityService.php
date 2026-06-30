@@ -14,8 +14,20 @@ use Illuminate\Support\Collection as SupportCollection;
 
 final class AvailabilityService
 {
+    /**
+     * @param  AvailabilityRepository  $repository  Repository for querying booking conflicts.
+     */
     public function __construct(private readonly AvailabilityRepository $repository) {}
 
+    /**
+     * Get available time slots for a branch, service, optional staff, and date.
+     *
+     * @param  Branch        $branch   The branch to check availability for.
+     * @param  ServiceModel  $service  The requested service.
+     * @param  Staff|null    $staff    Specific staff member (null for any available).
+     * @param  Carbon        $date     The target date.
+     * @return SupportCollection<int, array{id: string, starts_at: Carbon, ends_at: Carbon, staff_id: string, staff_name: string}>
+     */
     public function getAvailableSlots(
         Branch $branch,
         ServiceModel $service,
@@ -37,6 +49,11 @@ final class AvailabilityService
         return $this->getSlotsForAnyAvailableStaff($branch, $service, $date);
     }
 
+    /**
+     * Assert that a time slot is not already booked for the given staff member.
+     *
+     * @throws SlotNotAvailableException If the slot conflicts with an existing booking.
+     */
     public function assertSlotAvailable(string $staffId, Carbon $startsAt, Carbon $endsAt): void
     {
         $conflict = $this->repository->findConflictingBooking($staffId, $startsAt, $endsAt);

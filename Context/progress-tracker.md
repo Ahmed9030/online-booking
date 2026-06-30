@@ -11,9 +11,9 @@
 
 ## Current Status
 
-**Phase:** 4 — Frontend Foundation ✅ Complete
-**Active Feature:** Phase 4 — Frontend Foundation
-**Last Session:** Implemented all core setup files, hooks, UI components, booking components, layouts, pages, i18n, and proxy per `08-Frontend Foundation.md`. Verified build and lint pass cleanly.
+**Phase:** 4 — Frontend Foundation 🟡 In Progress
+**Active Feature:** 09-Authentication.md — Login, Registration, OTP, Auth Hooks, Protected Routes
+**Last Session:** Implemented full Authentication system per `09-Authentication.md`: auth store updates, types/validations, all 7 auth hooks (useLogin, useRegister, useSendOtp, useVerifyOtp, useLogout, useProtectedRoute, useAuthPersist), 3 pages (login, register 2-step, OTP), proxy.ts with auth protection, TopBar with useLogout hook, and complete translation keys.
 **Build Week:** 5 of 8
 
 ---
@@ -42,12 +42,10 @@
 ---
 
 ## Next Up
-1. Complete remaining Phase 4 pages (register, customer my-bookings, public booking flow sub-pages)
-2. Write feature tests for all new frontend components
-3. Setup frontend Next.js project with TypeScript, TailwindCSS, and next-intl (Phase 4)
-4. Build auth screens: `/login`, `/register`
-5. Build public booking flow: service selection → staff → slot picker → confirm (OTP) → success
-6. Dashboard layout + overview page
+1. Phase 5 Dashboard Frontend: Calendar, bookings list, customer list, manual booking modal
+2. Phase 6 Owner Management Screens: CRUD for branches, staff, services, settings
+3. Phase 7 n8n / WhatsApp Integration
+4. Phase 8 Polish + First Onboarding
 
 
 ---
@@ -224,10 +222,24 @@ applied, auth screens working, public booking flow complete.
 - [x] Create `api-client.ts` (Axios instance, base URL, token interceptor)
 - [x] Create `query-client.ts` (TanStack Query)
 - [x] Create Arabic locale messages file (`ar.json`) — all UI strings
-- [x] Create middleware.ts (route protection + locale detection)
-- [x] Auth screens:
-  - [x] `/login` — owner/staff login
-  - [x] `/register` — owner registration
+- [x] Create proxy.ts (route protection + locale detection)
+- [x] Auth screens (per 09-Authentication.md):
+  - [x] Types: `VerifyOtpResponse`, `LoginFormData`, `RegisterFormData`, `SendOtpFormData`, `VerifyOtpFormData`
+  - [x] Validations: `loginSchema`, `registerSchema`, `sendOtpSchema`, `verifyOtpSchema`
+  - [x] Auth store: `setUser`, `setToken`, `setBusiness`, `logout` (with localStorage persistence)
+  - [x] `useLogin()` hook — role-based routing (owner→/dashboard, staff→/staff/schedule, admin→/admin/overview, customer→/my-bookings)
+  - [x] `useRegister()` hook — 2-step form, creates business + branch
+  - [x] `useSendOtp()` hook — send OTP via WhatsApp
+  - [x] `useVerifyOtp()` hook — verify OTP, store auth state
+  - [x] `useLogout()` hook — clear auth + localStorage, redirect
+  - [x] `useProtectedRoute()` hook — role-based route guard
+  - [x] `useAuthPersist()` hook — restore auth on page load
+  - [x] `/login` page — owner/staff login with labels, remember me, forgot password, customer alternative
+  - [x] `/register` page — 2-step owner registration (account → business info)
+  - [x] `/book/.../otp` page — customer OTP verification (phone input → code verify with timer)
+  - [x] `proxy.ts` — auth protection for /dashboard, /staff, /admin, /my-bookings
+  - [x] `TopBar.tsx` — useLogout hook, user name + role display
+  - [x] Translation keys — all auth, booking OTP, and role keys in ar.json + en.json
 - [x] Public booking flow:
   - [x] `/book/[businessSlug]/[branchSlug]` — service selection
   - [x] `/book/.../staff` — barber selection
@@ -357,3 +369,4 @@ all functional and connected to the real API.
 | 2026-06-24 | Implemented BookingCompleted event + UpdateCustomerVisitStats listener, registered in EventServiceProvider, updated MarkBookingCompletedAction to dispatch event, and added feature/unit tests for Phase 2. | [backend/app/Events/BookingCompleted.php](backend/app/Events/BookingCompleted.php), [backend/app/Listeners/UpdateCustomerVisitStats.php](backend/app/Listeners/UpdateCustomerVisitStats.php), [backend/app/Providers/EventServiceProvider.php](backend/app/Providers/EventServiceProvider.php), [backend/app/Actions/Bookings/MarkBookingCompletedAction.php](backend/app/Actions/Bookings/MarkBookingCompletedAction.php), [backend/tests/Feature/Booking/CreateBookingTest.php](backend/tests/Feature/Booking/CreateBookingTest.php), [backend/tests/Feature/Booking/AvailabilityConflictTest.php](backend/tests/Feature/Booking/AvailabilityConflictTest.php), [backend/tests/Feature/Booking/AnyAvailableStaffAssignmentTest.php](backend/tests/Feature/Booking/AnyAvailableStaffAssignmentTest.php), [backend/tests/Unit/AvailabilityServiceTest.php](backend/tests/Unit/AvailabilityServiceTest.php) |
 | 2026-06-24 | Implemented all Phase 3 API controllers & endpoints per `07-Controller & Endpoint.md`. Created 19 controllers, replaced 7 route file stubs, added 9 Form Requests in namespaced subdirs, added UserResource, updated BranchResource & BookingResource, implemented OtpService, added notificationLogs relation to Booking. All 56 routes verified via `php artisan route:list`. | [routes/api/v1/*.php](backend/routes/api/v1/), [Controllers/Api/V1/**](backend/app/Http/Controllers/Api/V1/), [Services/OtpService.php](backend/app/Services/OtpService.php), [Requests/Auth/](backend/app/Http/Requests/Auth/), [Requests/Booking/](backend/app/Http/Requests/Booking/), [Requests/Branch/](backend/app/Http/Requests/Branch/), [Resources/UserResource.php](backend/app/Http/Resources/UserResource.php), [Models/Booking.php](backend/app/Models/Booking.php) |
 | 2026-06-26 | Implemented `08-Frontend Foundation.md`: Created Next.js 16 frontend with TypeScript strict mode, next-intl v4 (Arabic RTL), TailwindCSS v4 with Neumorphism, shadcn/ui, TanStack Query, Zustand, Zod, React Hook Form. Built core types, API client, query client, validations, auth/booking/ui stores, 4 TanStack Query hooks, UI components (Button, Input, Card), booking components (ServiceSelector, TimeSlotPicker, BookingForm), layout components (Sidebar, TopBar), route groups (public/auth/dashboard/customer/admin), pages (landing, login, register, dashboard, my-bookings, booking flow with staff/time/confirm/success), i18n routing, and Next.js 16 proxy. Verified `npm run build` and `npm run lint` pass cleanly. | [progress-tracker.md](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/Context/progress-tracker.md), [frontend/src/types/index.ts](frontend/src/types/index.ts), [frontend/src/services/api.ts](frontend/src/services/api.ts), [frontend/src/services/query-client.ts](frontend/src/services/query-client.ts), [frontend/src/lib/validations/index.ts](frontend/src/lib/validations/index.ts), [frontend/src/store/auth.ts](frontend/src/store/auth.ts), [frontend/src/store/booking.ts](frontend/src/store/booking.ts), [frontend/src/store/ui.ts](frontend/src/store/ui.ts), [frontend/src/features/**](frontend/src/features/), [frontend/src/components/**](frontend/src/components/), [frontend/src/app/[locale]/**](frontend/src/app/[locale]/), [frontend/src/i18n/**](frontend/src/i18n/), [frontend/src/proxy.ts](frontend/src/proxy.ts), [frontend/src/app/globals.css](frontend/src/app/globals.css) |
+| 2026-06-28 | Implemented `09-Authentication.md`: Full authentication system — updated types (VerifyOtpResponse), validations (sendOtpSchema, SendOtpFormData), auth store, all 7 auth hooks (useLogin with role-based routing, useRegister 2-step, useSendOtp, useVerifyOtp with auth state, useLogout, useProtectedRoute, useAuthPersist), 3 pages (login with full spec UI, register 2-step with city dropdown, OTP with timer), proxy.ts with auth protection, TopBar with useLogout hook, and complete translation keys for auth/booking/roles. | [progress-tracker.md](file:///Users/ahmedgomaa/Documents/Projects/Onlin%20Booking/Context/progress-tracker.md), [frontend/src/types/index.ts](frontend/src/types/index.ts), [frontend/src/lib/validations/index.ts](frontend/src/lib/validations/index.ts), [frontend/src/store/auth.ts](frontend/src/store/auth.ts), [frontend/src/features/auth/hooks/useLogin.ts](frontend/src/features/auth/hooks/useLogin.ts), [frontend/src/features/auth/hooks/useRegister.ts](frontend/src/features/auth/hooks/useRegister.ts), [frontend/src/features/auth/hooks/useOtp.ts](frontend/src/features/auth/hooks/useOtp.ts), [frontend/src/features/auth/hooks/useLogout.ts](frontend/src/features/auth/hooks/useLogout.ts), [frontend/src/features/auth/hooks/useProtectedRoute.ts](frontend/src/features/auth/hooks/useProtectedRoute.ts), [frontend/src/features/auth/hooks/useAuthPersist.ts](frontend/src/features/auth/hooks/useAuthPersist.ts), [frontend/src/app/[locale]/(auth)/login/page.tsx](frontend/src/app/[locale]/(auth)/login/page.tsx), [frontend/src/app/[locale]/(auth)/register/page.tsx](frontend/src/app/[locale]/(auth)/register/page.tsx), [frontend/src/app/[locale]/(public)/book/[businessSlug]/[branchSlug]/otp/page.tsx](frontend/src/app/[locale]/(public)/book/[businessSlug]/[branchSlug]/otp/page.tsx), [frontend/src/proxy.ts](frontend/src/proxy.ts), [frontend/src/components/layout/TopBar.tsx](frontend/src/components/layout/TopBar.tsx), [frontend/src/i18n/messages/ar.json](frontend/src/i18n/messages/ar.json), [frontend/src/i18n/messages/en.json](frontend/src/i18n/messages/en.json) |

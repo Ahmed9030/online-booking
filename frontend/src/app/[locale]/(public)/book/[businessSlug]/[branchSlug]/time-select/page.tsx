@@ -5,18 +5,33 @@ import { useRouter } from '@/i18n/routing'
 import { useBookingStore } from '@/store/booking'
 import { useAvailability } from '@/features/bookings/hooks/useAvailability'
 import { TimeSlotPicker } from '@/components/booking/TimeSlotPicker'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
 
+/**
+ * Time selection page where the user picks a date and views available time slots.
+ * Uses the AvailabilityService to fetch slots for the selected branch/service/staff.
+ */
 export default function TimeSelectPage() {
   const t = useTranslations()
   const router = useRouter()
+  const params = useParams()
+  const businessSlug = params.businessSlug as string
+  const branchSlug = params.branchSlug as string
   const branch = useBookingStore((s) => s.branch)
   const service = useBookingStore((s) => s.service)
   const staff = useBookingStore((s) => s.staff)
   const selectDate = useBookingStore((s) => s.selectDate)
   const selectedDate = useBookingStore((s) => s.selectedDate)
-  const today = new Date().toISOString().split('T')[0]
-  const [date, setDate] = useState(selectedDate || today)
+  const selectedSlot = useBookingStore((s) => s.selectedSlot)
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' })
+  const [date, setDate] = useState(() => {
+    const initial = selectedDate || today
+    if (!selectedDate) {
+      selectDate(initial)
+    }
+    return initial
+  })
 
   const { data: slots, isLoading } = useAvailability({
     branch_id: branch?.id || '',
@@ -24,6 +39,12 @@ export default function TimeSelectPage() {
     staff_id: staff?.id || null,
     date: branch ? date : '',
   })
+
+  useEffect(() => {
+    if (selectedSlot && businessSlug && branchSlug) {
+      router.push(`/book/${businessSlug}/${branchSlug}/otp`)
+    }
+  }, [selectedSlot, businessSlug, branchSlug, router])
 
   if (!branch || !service) {
     router.push('/')

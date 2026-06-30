@@ -6,16 +6,24 @@ import { Button } from '@/components/ui/button'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
 
+/** Dashboard overview statistics returned from the API. */
 interface DashboardStats {
+  /** Number of confirmed bookings for today */
   today_bookings: number
+  /** Total non-cancelled bookings this month */
   month_bookings: number
+  /** Percentage of no-show bookings this month */
   no_show_rate: number
+  /** Current subscription details */
   subscription: {
+    /** Subscription status (trial, active, expired, suspended) */
     status: string
+    /** Days remaining until subscription expires */
     days_remaining: number
   }
 }
 
+/** Loading skeleton card used while dashboard stats are being fetched. */
 function SkeletonCard() {
   return (
     <div className="neu-card p-6 animate-pulse">
@@ -26,6 +34,11 @@ function SkeletonCard() {
   )
 }
 
+/**
+ * Owner dashboard overview page displaying key metrics:
+ * today's bookings, monthly bookings, no-show rate, and subscription status.
+ * Fetches data from the dashboard API endpoint on mount.
+ */
 export default function DashboardPage() {
   const t = useTranslations()
   const { data: stats, isLoading } = useQuery({

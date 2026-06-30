@@ -8,11 +8,20 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class SendOtpRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     * Public endpoint — no authentication required.
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * Get the validation rules for sending an OTP.
+     *
+     * @return array<string, array<int, string>>
+     */
     public function rules(): array
     {
         return [

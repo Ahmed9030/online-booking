@@ -8,11 +8,20 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateBranchRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to update a branch.
+     * Only authenticated owners can update branches.
+     */
     public function authorize(): bool
     {
         return auth()->check() && auth()->user()->role->value === 'owner';
     }
 
+    /**
+     * Get the validation rules for updating a branch.
+     *
+     * @return array<string, string|string[]>
+     */
     public function rules(): array
     {
         return [

@@ -7,6 +7,11 @@ export interface User {
   business_id?: string
 }
 
+export interface VerifyOtpResponse {
+  token: string
+  phone: string
+}
+
 export interface LoginCredentials {
   email_or_username: string
   password: string

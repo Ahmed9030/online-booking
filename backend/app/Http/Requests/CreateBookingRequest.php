@@ -6,11 +6,20 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class CreateBookingRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to create a booking.
+     * Public endpoint — no authentication required.
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * Get the validation rules for creating a booking.
+     *
+     * @return array<string, string>
+     */
     public function rules(): array
     {
         return [
@@ -20,6 +29,11 @@ class CreateBookingRequest extends FormRequest
         ];
     }
 
+    /**
+     * Get custom validation messages.
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [

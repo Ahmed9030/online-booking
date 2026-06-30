@@ -10,7 +10,11 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::getConnection()->getDriverName() === 'pgsql') {
-            DB::statement("CREATE TYPE subscription_status AS ENUM ('trial', 'active', 'expired', 'suspended')");
+            DB::statement("DO $$ BEGIN
+                CREATE TYPE subscription_status AS ENUM ('trial', 'active', 'expired', 'suspended');
+            EXCEPTION
+                WHEN duplicate_object THEN NULL;
+            END $$;");
         }
 
         Schema::create('businesses', function (Blueprint $table) {

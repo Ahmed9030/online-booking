@@ -7,6 +7,11 @@ import { useEffect } from 'react'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { TopBar } from '@/components/layout/TopBar'
 
+/**
+ * Dashboard layout component providing authenticated access.
+ * Checks for a valid auth token, redirecting to login if unauthorized.
+ * Renders the Sidebar, TopBar, and main content area.
+ */
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const router = useRouter()
   const token = useAuthStore((s) => s.token)

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Authorization;
 
 use App\Enums\SubscriptionStatus;
+use App\Models\Branch;
 use App\Models\Business;
 use App\Models\Service;
 use App\Models\User;
@@ -23,6 +24,9 @@ class ExpiredSubscriptionPreventsBookingTest extends TestCase
             'subscription_status' => SubscriptionStatus::EXPIRED,
         ]);
 
+        $branch = Branch::factory()->create(['business_id' => $business->id]);
+        $service = Service::factory()->create(['business_id' => $business->id]);
+
         // Create a customer user
         $customer = User::factory()->create();
 
@@ -30,14 +34,18 @@ class ExpiredSubscriptionPreventsBookingTest extends TestCase
         $this->actingAs($customer);
 
         $bookingData = [
-            'service_id' => Service::factory()->create(['business_id' => $business->id])->id,
+            'branch_id' => $branch->id,
+            'service_id' => $service->id,
+            'customer_name' => 'أحمد محمد',
+            'customer_phone' => '01012345678',
             'starts_at' => now()->addHour()->toDateTimeString(),
+            'ends_at' => now()->addHours(2)->toDateTimeString(),
         ];
 
         $response = $this->postJson('/api/v1/public/bookings', $bookingData);
 
-        // Expected: 403 Forbidden or 422 Unprocessable
-        $this->assertContains($response->status(), [403, 422]);
+        // Expected: 403 Forbidden (subscription expired)
+        $response->assertStatus(403);
     }
 
     /**
@@ -50,6 +58,7 @@ class ExpiredSubscriptionPreventsBookingTest extends TestCase
             'subscription_status' => SubscriptionStatus::ACTIVE,
         ]);
 
+        $branch = Branch::factory()->create(['business_id' => $business->id]);
         $service = Service::factory()->create(['business_id' => $business->id]);
         $customer = User::factory()->create();
 
@@ -57,13 +66,17 @@ class ExpiredSubscriptionPreventsBookingTest extends TestCase
         $this->actingAs($customer);
 
         $bookingData = [
+            'branch_id' => $branch->id,
             'service_id' => $service->id,
+            'customer_name' => 'أحمد محمد',
+            'customer_phone' => '01012345678',
             'starts_at' => now()->addHour()->toDateTimeString(),
+            'ends_at' => now()->addHours(2)->toDateTimeString(),
         ];
 
         $response = $this->postJson('/api/v1/public/bookings', $bookingData);
 
-        // Should succeed (200 or 201)
-        $this->assertContains($response->status(), [200, 201]);
+        // Should succeed (201 Created)
+        $response->assertStatus(201);
     }
 }

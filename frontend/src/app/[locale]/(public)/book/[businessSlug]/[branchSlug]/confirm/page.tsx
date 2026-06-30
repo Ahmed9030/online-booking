@@ -4,15 +4,21 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { useRouter } from '@/i18n/routing'
 import { useBookingStore } from '@/store/booking'
+import { useParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { bookingSchema, BookingFormData } from '@/lib/validations'
 import { useCreateBooking } from '@/features/bookings/hooks/useCreateBooking'
 import { Input } from '@/components/ui/Input'
 
+/**
+ * Confirmation page where the user reviews their booking details
+ * and enters their name/phone before submitting.
+ */
 export default function ConfirmPage() {
   const t = useTranslations()
   const router = useRouter()
+  const { businessSlug } = useParams()
   const bookingStore = useBookingStore()
   const createBooking = useCreateBooking()
 
@@ -26,7 +32,10 @@ export default function ConfirmPage() {
       customer_phone: bookingStore.customerPhone,
       date: bookingStore.selectedDate || '',
       time: bookingStore.selectedSlot?.starts_at
-        ? new Date(bookingStore.selectedSlot.starts_at).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', hour12: false })
+        ? (() => {
+            const d = new Date(bookingStore.selectedSlot.starts_at)
+            return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+          })()
         : '',
     },
   })
@@ -49,7 +58,7 @@ export default function ConfirmPage() {
       ends_at: endTime,
     })
 
-    router.push(`/book/${bookingStore.branch?.slug}/success`)
+    router.push(`/book/${businessSlug}/${bookingStore.branch?.slug}/success`)
   }
 
   if (!bookingStore.branch || !bookingStore.service) {

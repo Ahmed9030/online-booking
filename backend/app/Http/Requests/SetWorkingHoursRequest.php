@@ -6,11 +6,20 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class SetWorkingHoursRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to set working hours.
+     * Only authenticated owners can set working hours.
+     */
     public function authorize(): bool
     {
         return auth()->check() && auth()->user()->hasRole('owner');
     }
 
+    /**
+     * Get the validation rules for setting working hours.
+     *
+     * @return array<string, string>
+     */
     public function rules(): array
     {
         return [
@@ -20,6 +29,11 @@ class SetWorkingHoursRequest extends FormRequest
         ];
     }
 
+    /**
+     * Get custom validation messages.
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [

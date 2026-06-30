@@ -10,9 +10,21 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::getConnection()->getDriverName() === 'pgsql') {
-            DB::statement("CREATE TYPE notification_type AS ENUM ('confirmation', 'reminder', 'cancellation')");
-            DB::statement("CREATE TYPE notification_channel AS ENUM ('whatsapp', 'sms', 'email')");
-            DB::statement("CREATE TYPE notification_status AS ENUM ('queued', 'sent', 'failed')");
+            DB::statement("DO $$ BEGIN
+                CREATE TYPE notification_type AS ENUM ('confirmation', 'reminder', 'cancellation');
+            EXCEPTION
+                WHEN duplicate_object THEN NULL;
+            END $$;");
+            DB::statement("DO $$ BEGIN
+                CREATE TYPE notification_channel AS ENUM ('whatsapp', 'sms', 'email');
+            EXCEPTION
+                WHEN duplicate_object THEN NULL;
+            END $$;");
+            DB::statement("DO $$ BEGIN
+                CREATE TYPE notification_status AS ENUM ('queued', 'sent', 'failed');
+            EXCEPTION
+                WHEN duplicate_object THEN NULL;
+            END $$;");
         }
 
         Schema::create('notifications_log', function (Blueprint $table) {

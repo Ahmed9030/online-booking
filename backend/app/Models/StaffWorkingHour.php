@@ -32,6 +32,9 @@ final class StaffWorkingHour extends Model
         self::addGlobalScope(new BusinessScope);
     }
 
+    /**
+     * @return BelongsTo<Staff, StaffWorkingHour>
+     */
     public function staff(): BelongsTo
     {
         return $this->belongsTo(Staff::class);

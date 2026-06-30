@@ -12,6 +12,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class EnsureSubscriptionActive
 {
+    /**
+     * Verify that the authenticated user's business has an active subscription.
+     * Admin users are exempt from subscription checks.
+     */
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
