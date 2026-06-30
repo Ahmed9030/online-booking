@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { useRouter } from '@/i18n/routing'
 import { api } from '@/services/api'
 import { useBookingStore } from '@/store/booking'
 import { Branch } from '@/types'
+import { useParams } from 'next/navigation'
 
 interface BusinessItem {
   id: string
@@ -19,7 +20,10 @@ interface BusinessItem {
 export default function FindBusinessPage() {
   const t = useTranslations()
   const router = useRouter()
+  const params = useParams()
+  const locale = (params.locale as string) || 'ar'
   const selectBranch = useBookingStore((s) => s.selectBranch)
+  const latestSlugRef = useRef<string>('')
 
   const [businesses, setBusinesses] = useState<BusinessItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -41,16 +45,23 @@ export default function FindBusinessPage() {
     setSelectedBranch('')
     setBranches([])
     if (!slug) return
+    latestSlugRef.current = slug
     setBranchesLoading(true)
     try {
       const res = await api.get<{
         data: { business: BusinessItem; branches: Branch[] }
       }>(`/public/business/${slug}`)
-      setBranches(res.data.data.branches)
+      if (latestSlugRef.current === slug) {
+        setBranches(res.data.data.branches)
+      }
     } catch {
-      setBranches([])
+      if (latestSlugRef.current === slug) {
+        setBranches([])
+      }
     } finally {
-      setBranchesLoading(false)
+      if (latestSlugRef.current === slug) {
+        setBranchesLoading(false)
+      }
     }
   }
 
@@ -58,7 +69,7 @@ export default function FindBusinessPage() {
     const branch = branches.find((b) => b.id === selectedBranch)
     if (!branch || !selectedBusiness) return
     selectBranch(branch)
-    router.push(`/book/${selectedBusiness}/${branch.slug}`)
+    router.push(`/${locale}/book/${selectedBusiness}/${branch.slug}`)
   }
 
   if (loading) {
@@ -70,7 +81,7 @@ export default function FindBusinessPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg flex items-center justify-center p-4" dir="rtl">
+    <div className="min-h-screen bg-bg flex items-center justify-center p-4" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
       <div className="neu-card w-full max-w-md p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-primary mb-2">

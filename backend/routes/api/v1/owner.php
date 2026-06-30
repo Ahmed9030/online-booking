@@ -44,4 +44,5 @@ Route::middleware(['auth:sanctum', 'role:owner', 'subscription.active'])->group(
     // Settings
     Route::get('settings', [SettingsController::class, 'show']);
     Route::patch('settings', [SettingsController::class, 'update']);
+    Route::patch('settings/password', [SettingsController::class, 'updatePassword']);
 });

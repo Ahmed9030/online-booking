@@ -41,6 +41,10 @@ export default function TimeSelectPage() {
   })
 
   useEffect(() => {
+    useBookingStore.setState({ selectedSlot: null })
+  }, [])
+
+  useEffect(() => {
     if (selectedSlot && businessSlug && branchSlug) {
       router.push(`/book/${businessSlug}/${branchSlug}/otp`)
     }

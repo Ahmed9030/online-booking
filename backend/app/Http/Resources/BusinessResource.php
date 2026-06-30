@@ -19,7 +19,23 @@ class BusinessResource extends JsonResource
             'name' => $this->name,
             'slug' => $this->slug,
             'logo_url' => $this->logo_url,
-            'subscription_status' => $this->subscription_status,
+            'description' => $this->description,
+            'subscription_status' => $this->subscription_status?->value,
+            'subscription_expires_at' => $this->subscription_expires_at?->toIso8601String(),
+            'subscription_days_remaining' => $this->subscription_expires_at
+                ? max(0, $this->subscription_expires_at->diffInDays(now(), false))
+                : 0,
+            'owner' => $this->whenLoaded('owner', fn () => [
+                'id' => $this->owner->id,
+                'name' => $this->owner->name,
+                'email' => $this->owner->email,
+                'phone' => $this->owner->phone,
+            ]),
+            'branches_count' => $this->whenCounted('branches'),
+            'staff_count' => $this->whenCounted('staff'),
+            'services_count' => $this->whenCounted('services'),
+            'bookings_count' => $this->whenCounted('bookings'),
+            'created_at' => $this->created_at->toIso8601String(),
         ];
     }
 }

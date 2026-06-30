@@ -22,15 +22,11 @@ export function useAuthPersist() {
         const user = JSON.parse(savedUser)
         const business = savedBusiness ? JSON.parse(savedBusiness) : null
 
-        useAuthStore.setState({
-          token: savedToken,
-          user,
-          business,
-        })
+        useAuthStore.getState().setToken(savedToken)
+        useAuthStore.getState().setUser(user)
+        useAuthStore.getState().setBusiness(business)
       } catch {
-        localStorage.removeItem('auth_token')
-        localStorage.removeItem('auth_user')
-        localStorage.removeItem('auth_business')
+        useAuthStore.getState().logout()
       }
     }
   }, [])

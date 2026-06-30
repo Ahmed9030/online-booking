@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -31,9 +31,12 @@ export default function OtpPage() {
   const t = useTranslations()
   const router = useRouter()
   const params = useParams()
+  const locale = (params.locale as string) || 'ar'
+  const isRtl = locale === 'ar'
   const [step, setStep] = useState<Step>('phone')
   const [phone, setPhone] = useState('')
   const [timeRemaining, setTimeRemaining] = useState(0)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const sendOtp = useSendOtp()
   const verifyOtp = useVerifyOtp()
@@ -48,6 +51,14 @@ export default function OtpPage() {
     defaultValues: { phone: '', code: '' },
   })
 
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [])
+
   const onSendOtp = async (data: SendOtpFormData) => {
     try {
       await sendOtp.mutateAsync(data.phone)
@@ -55,10 +66,17 @@ export default function OtpPage() {
       setStep('verify')
       setTimeRemaining(300)
 
-      const interval = setInterval(() => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+
+      intervalRef.current = setInterval(() => {
         setTimeRemaining((prev) => {
           if (prev <= 1) {
-            clearInterval(interval)
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current)
+              intervalRef.current = null
+            }
             return 0
           }
           return prev - 1
@@ -80,9 +98,9 @@ export default function OtpPage() {
       if (bookingStep === 4) {
         const businessSlug = params.businessSlug as string
         const branchSlug = params.branchSlug as string
-        router.push(`/ar/book/${businessSlug}/${branchSlug}/confirm`)
+        router.push(`/${locale}/book/${businessSlug}/${branchSlug}/confirm`)
       } else {
-        router.push('/ar/my-bookings')
+        router.push(`/${locale}/my-bookings`)
       }
     } catch {
       // Error handled by hook
@@ -92,7 +110,7 @@ export default function OtpPage() {
   return (
     <div
       className="min-h-screen bg-bg flex items-center justify-center p-4"
-      dir="rtl"
+      dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div className="neu-card w-full max-w-md p-8">
         <div className="text-center mb-8">

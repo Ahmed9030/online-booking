@@ -23,7 +23,7 @@ class BranchController extends Controller
     {
         $businesses = Business::where('subscription_status', '!=', 'suspended')
             ->orderBy('name')
-            ->get();
+            ->paginate(20);
 
         return BusinessResource::collection($businesses);
     }

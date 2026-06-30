@@ -29,7 +29,17 @@ interface BookingFormProps {
 export function BookingForm({ branch, services }: BookingFormProps) {
   const t = useTranslations()
   useEffect(() => {
-    useBookingStore.setState({ branch })
+    useBookingStore.setState({
+      branch,
+      step: 1,
+      service: null,
+      staff: null,
+      selectedDate: null,
+      selectedSlot: null,
+      availableSlots: [],
+      customerName: '',
+      customerPhone: '',
+    })
   }, [branch])
   const step = useBookingStore((s) => s.step)
   const basket = useBookingStore(
@@ -85,17 +95,20 @@ export function BookingForm({ branch, services }: BookingFormProps) {
   }, [basket, reset])
 
   const onSubmit = async (data: BookingFormData) => {
-    const starts_at = basket.selectedSlot?.starts_at || `${data.date}T${data.time}:00`
-    const ends_at = basket.selectedSlot?.ends_at || (() => {
+    const slot = basket.selectedSlot
+    if (!basket.branch?.id || !basket.service?.id) return
+
+    const starts_at = slot?.starts_at || `${data.date}T${data.time}:00`
+    const ends_at = slot?.ends_at || (() => {
       const [h, m] = data.time.split(':').map(Number)
       const total = h * 60 + m + (basket.service?.duration_minutes || 30)
       return `${data.date}T${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}:00`
     })()
 
     await createBooking.mutateAsync({
-      branch_id: data.branch_id,
-      service_id: data.service_id,
-      staff_id: data.staff_id,
+      branch_id: basket.branch.id,
+      service_id: basket.service.id,
+      staff_id: basket.staff?.id || null,
       customer_name: data.customer_name,
       customer_phone: data.customer_phone,
       starts_at,
@@ -114,6 +127,12 @@ export function BookingForm({ branch, services }: BookingFormProps) {
         placeholder={t('booking.enter_details')}
         {...form.register('customer_name')}
         error={form.formState.errors.customer_name?.message}
+      />
+      <Input
+        label={t('booking.customer_phone')}
+        placeholder={t('booking.enter_phone')}
+        {...form.register('customer_phone')}
+        error={form.formState.errors.customer_phone?.message}
       />
       <Button type="submit" variant="primary" className="w-full">
         {t('common.confirm')}
