@@ -28,13 +28,22 @@ export function useProtectedRoute(options?: UseProtectedRouteOptions) {
   const user = useAuthStore((s) => s.user)
 
   useEffect(() => {
+    const locale = pathname.split('/')[1] || 'ar'
+
     if (!token) {
-      router.push('/ar/auth/login')
+      router.push(`/${locale}/login`)
       return
     }
 
     if (options?.requiredRole && user?.role !== options.requiredRole) {
-      router.push('/ar/dashboard')
+      const fallbackRoutes: Record<string, string> = {
+        owner: '/dashboard',
+        staff: '/dashboard',
+        admin: '/admin/overview',
+        customer: '/my-bookings',
+      }
+      const fallback = user?.role ? fallbackRoutes[user.role] || '/' : '/'
+      router.push(`/${locale}${fallback}`)
       return
     }
   }, [token, user, router, pathname, options?.requiredRole])

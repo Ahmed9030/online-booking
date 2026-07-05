@@ -56,6 +56,7 @@ class BranchController extends Controller
     public function show(string $id): JsonResponse
     {
         $branch = Branch::where('business_id', auth()->user()->business_id)
+            ->with('workingHours')
             ->findOrFail($id);
 
         return response()->json(['data' => new BranchResource($branch)]);

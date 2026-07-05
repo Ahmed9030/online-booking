@@ -2165,36 +2165,36 @@ export const queryClient = new QueryClient({
 ## Part 7: Implementation Checklist
 
 ### Phase 5 Hooks (API Integration)
-- [ ] `useDashboardBookings` — list, detail, update status, delete
-- [ ] `useStaff` — list, detail, create, update, delete, working hours
-- [ ] `useBranches` — list, detail, create, update, delete, working hours
-- [ ] `useCustomers` — list, detail, bookings history
-- [ ] `useServices` — list, detail, create, update, delete
+- [x] `useDashboardBookings` — list, detail, update status, delete
+- [x] `useStaff` — list, detail, create, update, delete, working hours
+- [x] `useBranches` — list, detail, create, update, delete, working hours
+- [x] `useCustomers` — list, detail, bookings history
+- [x] `useServices` — list, detail, create, update, delete
 
 ### Dashboard Pages
-- [ ] `calendar/page.tsx` — FullCalendar integration
-- [ ] `bookings/page.tsx` — list with filters
-- [ ] `bookings/[id]/page.tsx` — detail and actions
-- [ ] `staff/page.tsx` — staff list
-- [ ] `staff/[id]/page.tsx` — staff detail and edit
-- [ ] `branches/page.tsx` — branches list
-- [ ] `customers/page.tsx` — customers list
+- [x] `calendar/page.tsx` — FullCalendar integration
+- [x] `bookings/page.tsx` — list with filters
+- [x] `bookings/[id]/page.tsx` — detail and actions
+- [x] `staff/page.tsx` — staff list
+- [x] `staff/[id]/page.tsx` — staff detail and edit
+- [x] `branches/page.tsx` — branches list
+- [x] `customers/page.tsx` — customers list
 - [ ] `customers/[id]/page.tsx` — customer detail (optional Phase 5.5)
-- [ ] `services/page.tsx` — services list
+- [x] `services/page.tsx` — services list
 - [ ] `services/[id]/page.tsx` — service edit (optional)
 - [ ] `settings/page.tsx` — business settings
 
 ### Modals & Forms
-- [ ] `StaffModal` — create/edit
-- [ ] `BranchModal` — create/edit
-- [ ] `ServiceModal` — create/edit
+- [x] `StaffModal` — create/edit
+- [x] `BranchModal` — create/edit
+- [x] `ServiceModal` — create/edit
 - [ ] `BookingModal` — create manual booking
-- [ ] `WorkingHoursEditor` — edit hours
+- [x] `WorkingHoursEditor` — edit hours
 
 ### Layout Components
-- [ ] `Sidebar` — navigation
-- [ ] `TopBar` — user info
-- [ ] `BookingStatusBadge` — status display
+- [x] `Sidebar` — navigation
+- [x] `TopBar` — user info
+- [x] `BookingStatusBadge` — status display
 
 ### Styling & UX
 - [ ] Verify Neumorphism on all dashboard cards
@@ -2205,11 +2205,11 @@ export const queryClient = new QueryClient({
 - [ ] Test filters (status, date range)
 
 ### API Integration
-- [ ] All endpoints called via custom hooks
-- [ ] Request/response fully typed
+- [x] All endpoints called via custom hooks
+- [x] Request/response fully typed
 - [ ] Error handling with toasts
-- [ ] Loading states on buttons/forms
-- [ ] Query invalidation on mutations
+- [x] Loading states on buttons/forms
+- [x] Query invalidation on mutations
 - [ ] Optimistic updates (optional Phase 5.5)
 
 ### Testing

@@ -32,7 +32,7 @@ class MyBookingsController extends Controller
      */
     public function index(): ResourceCollection
     {
-        $bookings = Booking::whereIn('customer_id', $this->customerIds())
+        $bookings = Booking::query()->whereIn('customer_id', $this->customerIds())
             ->with(['service', 'staff', 'branch'])
             ->orderByDesc('starts_at')
             ->paginate(15);
@@ -46,7 +46,7 @@ class MyBookingsController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $booking = Booking::whereIn('customer_id', $this->customerIds())
+        $booking = Booking::query()->whereIn('customer_id', $this->customerIds())
             ->with(['service', 'staff', 'branch'])
             ->findOrFail($id);
 
@@ -59,7 +59,7 @@ class MyBookingsController extends Controller
      */
     public function cancel(string $id): JsonResponse
     {
-        $booking = Booking::whereIn('customer_id', $this->customerIds())->findOrFail($id);
+        $booking = Booking::query()->whereIn('customer_id', $this->customerIds())->findOrFail($id);
 
         // Customers can only cancel future bookings
         if ($booking->starts_at->isPast()) {

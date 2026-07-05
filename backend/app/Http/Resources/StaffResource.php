@@ -19,7 +19,9 @@ class StaffResource extends JsonResource
             'name' => $this->name,
             'photo_url' => $this->photo_url,
             'is_active' => $this->is_active,
-            'working_hours' => $this->workingHours,
+            'branch_id' => $this->branch_id,
+            'services' => $this->whenLoaded('services'),
+            'working_hours' => $this->whenLoaded('workingHours'),
         ];
     }
 }

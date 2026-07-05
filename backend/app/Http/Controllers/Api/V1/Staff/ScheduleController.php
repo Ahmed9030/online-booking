@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Staff;
 
+use App\Actions\Bookings\CancelBookingAction;
 use App\Actions\Bookings\MarkBookingCompletedAction;
 use App\Actions\Bookings\MarkBookingNoShowAction;
 use App\Http\Controllers\Controller;
@@ -12,6 +13,7 @@ use App\Models\Booking;
 use App\Models\Staff;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class ScheduleController extends Controller
@@ -19,26 +21,35 @@ class ScheduleController extends Controller
     /**
      * @param  MarkBookingCompletedAction  $markCompleted  Service to mark bookings as completed.
      * @param  MarkBookingNoShowAction     $markNoShow     Service to mark bookings as no-show.
+     * @param  CancelBookingAction         $cancelBooking  Service to cancel bookings.
      */
     public function __construct(
         private readonly MarkBookingCompletedAction $markCompleted,
         private readonly MarkBookingNoShowAction $markNoShow,
+        private readonly CancelBookingAction $cancelBooking,
     ) {}
 
     /**
-     * View own schedule (today and upcoming).
+     * View own schedule.
      * GET /api/v1/staff/schedule
+     * Query params: date_from, date_to (optional date range, defaults to today)
      */
-    public function index(): ResourceCollection
+    public function index(Request $request): ResourceCollection
     {
         $user = auth()->user();
         $staff = Staff::where('user_id', $user->id)->firstOrFail();
 
-        $bookings = Booking::where('staff_id', $staff->id)
-            ->with(['customer', 'service', 'branch'])
-            ->whereDate('starts_at', now('Africa/Cairo')->toDateString())
-            ->orderBy('starts_at')
-            ->get();
+        $query = Booking::where('staff_id', $staff->id)
+            ->with(['customer', 'service', 'branch']);
+
+        if ($request->filled('date_from') && $request->filled('date_to')) {
+            $query->whereDate('starts_at', '>=', Carbon::parse($request->input('date_from')))
+                ->whereDate('starts_at', '<=', Carbon::parse($request->input('date_to')));
+        } else {
+            $query->whereDate('starts_at', now('Africa/Cairo')->toDateString());
+        }
+
+        $bookings = $query->orderBy('starts_at')->get();
 
         return BookingResource::collection($bookings);
     }
@@ -59,6 +70,53 @@ class ScheduleController extends Controller
             ->get();
 
         return BookingResource::collection($bookings);
+    }
+
+    /**
+     * List all bookings for the staff member (paginated, filterable).
+     * GET /api/v1/staff/bookings
+     */
+    public function listBookings(Request $request): ResourceCollection
+    {
+        $user = auth()->user();
+        $staff = Staff::where('user_id', $user->id)->firstOrFail();
+
+        $query = Booking::where('staff_id', $staff->id)
+            ->with(['customer', 'service', 'branch']);
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('starts_at', '>=', Carbon::parse($request->input('date_from')));
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('starts_at', '<=', Carbon::parse($request->input('date_to')));
+        }
+
+        $perPage = min((int) $request->input('per_page', 15), 100);
+
+        $bookings = $query->orderBy('starts_at', 'desc')->paginate($perPage);
+
+        return BookingResource::collection($bookings);
+    }
+
+    /**
+     * Cancel a booking.
+     * PATCH /api/v1/staff/bookings/{id}/cancelled
+     */
+    public function markCancelled(string $id): JsonResponse
+    {
+        $user = auth()->user();
+        $staff = Staff::where('user_id', $user->id)->firstOrFail();
+
+        $booking = Booking::where('staff_id', $staff->id)->findOrFail($id);
+
+        $this->cancelBooking->handle($booking->id);
+
+        return response()->json(['data' => new BookingResource($booking->fresh())]);
     }
 
     /**

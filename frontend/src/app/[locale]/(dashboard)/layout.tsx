@@ -2,27 +2,48 @@
 
 import { ReactNode } from 'react'
 import { useAuthStore } from '@/store/auth'
-import { useRouter } from '@/i18n/routing'
+import { useRouter, usePathname } from 'next/navigation'
 import { useEffect } from 'react'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { TopBar } from '@/components/layout/TopBar'
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs'
 
-/**
- * Dashboard layout component providing authenticated access.
- * Checks for a valid auth token, redirecting to login if unauthorized.
- * Renders the Sidebar, TopBar, and main content area.
- */
+const ownerOnlyPaths = ['/customers', '/staff', '/services', '/branches', '/bookings/create']
+
+function isOwnerOnlyPath(pathname: string): boolean {
+  const path = pathname.replace(/^\/[a-z]{2}/, '') // strip locale
+  return ownerOnlyPaths.some((p) => path === p || path.startsWith(p + '/'))
+}
+
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const router = useRouter()
+  const pathname = usePathname()
   const token = useAuthStore((s) => s.token)
+  const user = useAuthStore((s) => s.user)
+  const isStaff = useAuthStore((s) => s.isStaff())
 
   useEffect(() => {
+    const locale = pathname.split('/')[1] || 'ar'
     if (!token) {
-      router.push('/login')
+      router.push(`/${locale}/login`)
+      return
     }
-  }, [token, router])
 
-  if (!token) {
+    if (user && user.role !== 'owner' && user.role !== 'staff') {
+      const roleRoutes: Record<string, string> = {
+        admin: '/admin/overview',
+        customer: '/my-bookings',
+      }
+      router.push(`/${locale}${roleRoutes[user.role] || '/'}`)
+      return
+    }
+
+    if (isStaff && isOwnerOnlyPath(pathname)) {
+      router.push(`/${locale}/dashboard`)
+    }
+  }, [token, user, router, pathname, isStaff])
+
+  if (!token || (user && user.role !== 'owner' && user.role !== 'staff')) {
     return null
   }
 
@@ -33,6 +54,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <TopBar />
         <main className="flex-1 overflow-auto p-4 lg:p-8">
           <div className="mx-auto max-w-6xl">
+            <Breadcrumbs />
             {children}
           </div>
         </main>

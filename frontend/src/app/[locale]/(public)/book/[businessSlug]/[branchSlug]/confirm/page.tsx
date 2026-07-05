@@ -41,21 +41,29 @@ export default function ConfirmPage() {
   })
 
   const onSubmit = async (data: BookingFormData) => {
-    const startTime = bookingStore.selectedSlot?.starts_at
-      ? new Date(bookingStore.selectedSlot.starts_at).toISOString()
-      : `${data.date}T${data.time}:00`
-    const endTime = bookingStore.selectedSlot?.ends_at
-      ? new Date(bookingStore.selectedSlot.ends_at).toISOString()
-      : `${data.date}T${data.time}:00`
+    const slot = bookingStore.selectedSlot
+    if (!bookingStore.branch?.id || !bookingStore.service?.id || !slot) {
+      router.push(`/book/${businessSlug}/${bookingStore.branch?.slug || ''}`)
+      return
+    }
+
+    const starts_at = new Date(slot.starts_at).toISOString()
+    const ends_at = slot.ends_at
+      ? new Date(slot.ends_at).toISOString()
+      : (() => {
+          const end = new Date(slot.starts_at)
+          end.setMinutes(end.getMinutes() + (bookingStore.service?.duration_minutes || 30))
+          return end.toISOString()
+        })()
 
     await createBooking.mutateAsync({
-      branch_id: data.branch_id,
-      service_id: data.service_id,
-      staff_id: data.staff_id,
+      branch_id: bookingStore.branch.id,
+      service_id: bookingStore.service.id,
+      staff_id: bookingStore.staff?.id || null,
       customer_name: data.customer_name,
       customer_phone: data.customer_phone,
-      starts_at: startTime,
-      ends_at: endTime,
+      starts_at,
+      ends_at,
     })
 
     router.push(`/book/${businessSlug}/${bookingStore.branch?.slug}/success`)

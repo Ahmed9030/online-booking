@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/Input'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
 import { useState } from 'react'
-import { useUiStore } from '@/store/ui'
 
 /**
  * Owner registration page with a 2-step form flow.
@@ -23,7 +22,6 @@ export default function RegisterPage() {
   const t = useTranslations()
   const register = useRegister()
   const [step, setStep] = useState(1)
-  const showToast = useUiStore((s) => s.showToast)
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -47,15 +45,7 @@ export default function RegisterPage() {
   }
 
   const onSubmit = async (data: RegisterFormData) => {
-    try {
-      await register.mutateAsync(data)
-    } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } }
-      showToast(
-        err.response?.data?.message || 'فشل إنشاء الحساب',
-        'error',
-      )
-    }
+    register.mutate(data)
   }
 
   return (
@@ -63,7 +53,17 @@ export default function RegisterPage() {
       className="min-h-screen bg-bg flex items-center justify-center p-4"
       dir="rtl"
     >
-      <div className="neu-card w-full max-w-md p-8">
+      <div className="neu-card w-full max-w-md p-8 relative">
+        <Link
+          href="/"
+          className="absolute top-4 right-4 w-9 h-9 rounded-xl neu-btn flex items-center justify-center text-text-secondary hover:text-primary transition-colors"
+          aria-label="Back to home"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </Link>
+
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-primary mb-2">
             {t('auth.create_account')}
@@ -85,7 +85,7 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        <form onSubmit={step === 2 ? form.handleSubmit(onSubmit) : undefined} className="space-y-4">
+        <form onSubmit={step === 2 ? form.handleSubmit(onSubmit) : (e) => e.preventDefault()} className="space-y-4">
           {step === 1 && (
             <>
               <div>
