@@ -11,7 +11,7 @@ import { useServicesList } from '@/features/services/hooks/useServices'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/Input'
 import { useTranslations } from 'next-intl'
-import { useState, use, useEffect } from 'react'
+import { useState, use, useEffect, useMemo, useCallback, useRef } from 'react'
 import { WorkingHoursEditor } from '@/components/dashboard/WorkingHoursEditor'
 import { useUiStore } from '@/store/ui'
 
@@ -43,6 +43,31 @@ export default function StaffDetailPage({ params }: StaffDetailPageProps) {
   const [password, setPassword] = useState('')
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
+
+  const stableStaffId = useRef(staff?.id)
+  stableStaffId.current = staff?.id ?? stableStaffId.current
+
+  const editorInitialHours = useMemo(
+    () =>
+      staff?.working_hours?.map((h) => ({
+        weekday: h.weekday,
+        open_time: h.start_time,
+        close_time: h.end_time,
+      })) ?? [],
+    [staff?.working_hours],
+  )
+
+  const editorOnUpdate = useCallback(
+    (hours: Array<{ weekday: number; start_time?: string | null; end_time?: string | null }>) =>
+      updateWorkingHours.mutate(
+        { id: stableStaffId.current!, working_hours: hours },
+        {
+          onSuccess: () => showToast('تم حفظ مواعيد العمل بنجاح', 'success'),
+          onError: () => showToast('حدث خطأ أثناء الحفظ', 'error'),
+        },
+      ),
+    [updateWorkingHours, showToast],
+  )
 
   useEffect(() => {
     if (staff?.services) {
@@ -141,23 +166,8 @@ export default function StaffDetailPage({ params }: StaffDetailPageProps) {
         <div className="neu-card p-6">
           <WorkingHoursEditor
             staffId={staff.id}
-            initialHours={staff.working_hours?.map((h) => ({
-              weekday: h.weekday,
-              open_time: h.start_time,
-              close_time: h.end_time,
-            }))}
-            onUpdate={(hours) =>
-              updateWorkingHours.mutate(
-                {
-                  id: staff.id,
-                  working_hours: hours,
-                },
-                {
-                  onSuccess: () => showToast('تم حفظ مواعيد العمل بنجاح', 'success'),
-                  onError: () => showToast('حدث خطأ أثناء الحفظ', 'error'),
-                },
-              )
-            }
+            initialHours={editorInitialHours}
+            onUpdate={editorOnUpdate}
           />
         </div>
       </div>
@@ -212,7 +222,7 @@ export default function StaffDetailPage({ params }: StaffDetailPageProps) {
           variant="primary"
           className="mt-4"
           onClick={handleAssignServices}
-          disabled={assignServices.isPending || selectedServiceIds.length === 0}
+          disabled={assignServices.isPending}
         >
           {t('common.save')}
         </Button>

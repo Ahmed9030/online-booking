@@ -29,7 +29,7 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-const authEndpoints = ['/auth/login', '/auth/logout', '/auth/register', '/otp/send', '/otp/verify']
+const authEndpoints = ['/auth/login', '/auth/logout', '/auth/register', '/auth/otp/', '/otp/send', '/otp/verify']
 
 /**
  * Response interceptor that handles 401 errors by clearing the

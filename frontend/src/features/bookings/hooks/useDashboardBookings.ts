@@ -30,9 +30,10 @@ function getBookingsEndpoint(): string {
  */
 export function useDashboardBookings(params?: UseBookingsParams) {
   const endpoint = getBookingsEndpoint()
+  const role = useAuthStore.getState().user?.role
 
   return useQuery({
-    queryKey: ['bookings', params],
+    queryKey: ['bookings', role, params],
     queryFn: async () => {
       const response = await api.get<PaginatedResponse<Booking>>(
         endpoint,
@@ -49,10 +50,13 @@ export function useDashboardBookings(params?: UseBookingsParams) {
  * @param id - The UUID of the booking to fetch.
  */
 export function useBookingDetail(id: string) {
+  const isStaff = useAuthStore.getState().isStaff()
+  const endpoint = isStaff ? `/staff/bookings/${id}` : `/owner/bookings/${id}`
+
   return useQuery({
-    queryKey: ['booking', id],
+    queryKey: ['booking', id, isStaff ? 'staff' : 'owner'],
     queryFn: async () => {
-      const response = await api.get<{ data: Booking }>(`/owner/bookings/${id}`)
+      const response = await api.get<{ data: Booking }>(endpoint)
       return response.data.data
     },
   })

@@ -100,9 +100,11 @@ export function BookingForm({ branch, services }: BookingFormProps) {
 
     const starts_at = slot?.starts_at || `${data.date}T${data.time}:00`
     const ends_at = slot?.ends_at || (() => {
-      const [h, m] = data.time.split(':').map(Number)
-      const total = h * 60 + m + (basket.service?.duration_minutes || 30)
-      return `${data.date}T${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}:00`
+      const start = new Date(starts_at)
+      start.setMinutes(start.getMinutes() + (basket.service?.duration_minutes || 30))
+      const eh = String(start.getHours()).padStart(2, '0')
+      const em = String(start.getMinutes()).padStart(2, '0')
+      return `${data.date}T${eh}:${em}:00`
     })()
 
     await createBooking.mutateAsync({

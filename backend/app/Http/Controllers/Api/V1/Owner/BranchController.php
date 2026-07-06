@@ -23,7 +23,8 @@ class BranchController extends Controller
      */
     public function index(): ResourceCollection
     {
-        $branches = Branch::where('business_id', auth()->user()->business_id)
+        $branches = Branch::with('workingHours')
+            ->where('business_id', auth()->user()->business_id)
             ->orderBy('created_at')
             ->paginate(15);
 

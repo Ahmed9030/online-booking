@@ -15,6 +15,8 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class ScheduleController extends Controller
 {
@@ -36,6 +38,15 @@ class ScheduleController extends Controller
      */
     public function index(Request $request): ResourceCollection
     {
+        $validator = Validator::make($request->all(), [
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
         $user = auth()->user();
         $staff = Staff::where('user_id', $user->id)->firstOrFail();
 
@@ -60,6 +71,14 @@ class ScheduleController extends Controller
      */
     public function show(string $date): ResourceCollection
     {
+        $validator = Validator::make(['date' => $date], [
+            'date' => ['required', 'date'],
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
         $user = auth()->user();
         $staff = Staff::where('user_id', $user->id)->firstOrFail();
 
@@ -78,6 +97,17 @@ class ScheduleController extends Controller
      */
     public function listBookings(Request $request): ResourceCollection
     {
+        $validator = Validator::make($request->all(), [
+            'status' => ['nullable', 'string'],
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
         $user = auth()->user();
         $staff = Staff::where('user_id', $user->id)->firstOrFail();
 
@@ -114,7 +144,11 @@ class ScheduleController extends Controller
 
         $booking = Booking::where('staff_id', $staff->id)->findOrFail($id);
 
-        $this->cancelBooking->handle($booking->id);
+        try {
+            $this->cancelBooking->handle($booking->id);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
 
         return response()->json(['data' => new BookingResource($booking->fresh())]);
     }

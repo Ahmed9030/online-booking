@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState, useEffect } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button'
 import { BookingStatusBadge } from '@/components/bookings/BookingStatusBadge'
 import { Booking, PaginatedResponse } from '@/types'
 import { useAuthStore } from '@/store/auth'
+import { useParams } from 'next/navigation'
 
 const STATUS_COLORS: Record<string, string> = {
   confirmed: '#059669',
@@ -26,9 +27,9 @@ const STATUS_COLORS: Record<string, string> = {
   pending: '#b8862a',
 }
 
-function formatTime(iso: string): string {
+function formatTime(iso: string, locale = 'ar'): string {
   const d = new Date(iso)
-  return d.toLocaleTimeString('ar-EG', { hour: 'numeric', minute: '2-digit', hour12: true })
+  return d.toLocaleTimeString(locale === 'ar' ? 'ar-EG' : 'en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
 }
 
 function BookingModal({
@@ -40,6 +41,8 @@ function BookingModal({
 }) {
   const t = useTranslations()
   const router = useRouter()
+  const params = useParams()
+  const locale = (params.locale as string) || 'ar'
   const updateStatus = useUpdateBookingStatus()
 
   const handleCancel = () => {
@@ -56,7 +59,7 @@ function BookingModal({
 
   return (
     <Modal isOpen onClose={onClose}>
-      <div className="space-y-5" dir="rtl">
+      <div className="space-y-5" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
         {/* Header */}
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-text-primary font-heading">
@@ -103,11 +106,11 @@ function BookingModal({
           </div>
           <div>
             <span className="detail-label">{t('common.starts_at')}</span>
-            <div className="detail-value mt-0.5">{formatTime(booking.starts_at)}</div>
+            <div className="detail-value mt-0.5">{formatTime(booking.starts_at, locale)}</div>
           </div>
           <div>
             <span className="detail-label">{t('common.ends_at')}</span>
-            <div className="detail-value mt-0.5">{formatTime(booking.ends_at)}</div>
+            <div className="detail-value mt-0.5">{formatTime(booking.ends_at, locale)}</div>
           </div>
         </div>
 
@@ -138,7 +141,12 @@ function BookingModal({
 }
 
 function CurrentSessionCard({ bookings }: { bookings: Booking[] }) {
-  const now = useMemo(() => new Date(), [])
+  const [now, setNow] = useState(new Date())
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 30_000)
+    return () => clearInterval(id)
+  }, [])
 
   const current = useMemo(
     () =>
@@ -185,7 +193,12 @@ function CurrentSessionCard({ bookings }: { bookings: Booking[] }) {
 }
 
 function NextBookingCard({ bookings }: { bookings: Booking[] }) {
-  const now = useMemo(() => new Date(), [])
+  const [now, setNow] = useState(new Date())
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 30_000)
+    return () => clearInterval(id)
+  }, [])
 
   const next = useMemo(
     () =>
@@ -231,6 +244,8 @@ function NextBookingCard({ bookings }: { bookings: Booking[] }) {
 
 export default function CalendarPage() {
   const t = useTranslations()
+  const params = useParams()
+  const locale = (params.locale as string) || 'ar'
   const isStaff = useAuthStore((s) => s.isStaff())
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [dateRange, setDateRange] = useState<{ from: string; to: string } | null>(null)
@@ -307,8 +322,8 @@ export default function CalendarPage() {
               eventClick={handleEventClick}
               datesSet={handleDatesSet}
               height="auto"
-              locale="ar"
-              direction="rtl"
+              locale={locale}
+              direction={locale === 'ar' ? 'rtl' : 'ltr'}
               slotLabelFormat={{
                 hour: 'numeric',
                 minute: '2-digit',

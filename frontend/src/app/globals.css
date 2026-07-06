@@ -392,6 +392,19 @@
   animation: slide-in-left 0.6s ease-out forwards;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up,
+  .animate-float,
+  .animate-float-delayed,
+  .animate-bounce-slow,
+  .animate-scale-in,
+  .animate-slide-in-left {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* ===== NEUMORPHISM HOVER EFFECTS ===== */
 
 .neu-card-hover {

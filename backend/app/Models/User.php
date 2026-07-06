@@ -85,4 +85,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(Customer::class);
     }
+
+    /**
+     * @return HasOne<TelegramUser>
+     */
+    public function telegramUser(): HasOne
+    {
+        return $this->hasOne(TelegramUser::class);
+    }
+
+    /**
+     * @return HasMany<Notification>
+     */
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class);
+    }
 }

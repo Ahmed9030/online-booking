@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/Input'
 import { useTranslations } from 'next-intl'
@@ -37,22 +37,24 @@ export function WorkingHoursEditor({ staffId, initialHours, onUpdate }: WorkingH
   const [hours, setHours] = useState<Record<number, { start?: string; end?: string }>>({})
   const [dayOff, setDayOff] = useState<Record<number, boolean>>({})
 
+  const stableInitialHours = useMemo(() => initialHours ?? [], [initialHours])
+
   useEffect(() => {
-    if (initialHours && initialHours.length > 0) {
-      const init: Record<number, { start?: string; end?: string }> = {}
-      const off: Record<number, boolean> = {}
-      for (const h of initialHours) {
-        if (h.open_time && h.close_time) {
-          init[h.weekday] = { start: h.open_time, end: h.close_time }
-          off[h.weekday] = false
-        } else {
-          off[h.weekday] = true
-        }
+    const init: Record<number, { start?: string; end?: string }> = {}
+    const off: Record<number, boolean> = {}
+    const hours = stableInitialHours
+    for (const day of WEEKDAYS) {
+      const h = hours.find((wh) => wh.weekday === day.value)
+      if (h?.open_time && h?.close_time) {
+        init[day.value] = { start: h.open_time.slice(0, 5), end: h.close_time.slice(0, 5) }
+        off[day.value] = false
+      } else {
+        off[day.value] = true
       }
-      setHours(init)
-      setDayOff(off)
     }
-  }, [initialHours])
+    setHours(init)
+    setDayOff(off)
+  }, [stableInitialHours])
 
   /**
    * Updates the local state when a time input changes.
@@ -81,6 +83,13 @@ export function WorkingHoursEditor({ staffId, initialHours, onUpdate }: WorkingH
           delete copy[weekday]
           return copy
         })
+      } else {
+        setHours((h) => {
+          if (!h[weekday]) {
+            return { ...h, [weekday]: { start: '09:00', end: '17:00' } }
+          }
+          return h
+        })
       }
       return next
     })
@@ -107,8 +116,8 @@ export function WorkingHoursEditor({ staffId, initialHours, onUpdate }: WorkingH
       const times = hours[day.value]
       return {
         weekday: day.value,
-        start_time: isOff || !times?.start ? null : times.start,
-        end_time: isOff || !times?.end ? null : times.end,
+        start_time: isOff || !times?.start ? null : times.start.slice(0, 5),
+        end_time: isOff || !times?.end ? null : times.end.slice(0, 5),
       }
     })
     onUpdate(formatted)

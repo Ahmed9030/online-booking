@@ -155,13 +155,13 @@ export default function LandingPage() {
             <Button
               variant="primary"
               size="lg"
-              onClick={() => router.push('/ar/book')}
+              onClick={() => router.push('/ar/find-business')}
               className="neu-btn-primary transform hover:scale-105 transition-transform"
             >
               {t('hero.book_now')} →
             </Button>
 
-            <Link href="/ar/auth/register">
+            <Link href="/ar/register">
               <Button
                 variant="default"
                 size="lg"
@@ -279,7 +279,7 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <Link href="/ar/auth/register">
+            <Link href="/ar/register">
                   <Button variant="primary" className="w-full mt-6">
                     ابدأ الآن - مجاني لمدة 14 يوم
                   </Button>
@@ -381,7 +381,7 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <Link href="/ar/auth/login">
+          <Link href="/ar/login">
                   <Button variant="primary" className="w-full mt-6">
                     دخول الموظف
                   </Button>
@@ -480,7 +480,7 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <Link href="/ar/book">
+                <Link href="/ar/find-business">
                   <Button variant="primary" className="w-full mt-6">
                     احجز الآن مجاناً
                   </Button>
@@ -754,13 +754,13 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col md:flex-row gap-4 justify-center">
-            <Link href="/ar/auth/register">
+            <Link href="/ar/register">
               <Button variant="primary" size="lg" className="transform hover:scale-105">
                 إنشاء حساب مجاني - 14 يوم {t('landing.free')}
               </Button>
             </Link>
 
-            <Link href="/ar/book">
+            <Link href="/ar/find-business">
               <Button variant="default" size="lg" className="transform hover:scale-105">
                 احجز موعد الآن
               </Button>

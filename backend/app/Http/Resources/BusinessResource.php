@@ -23,7 +23,7 @@ class BusinessResource extends JsonResource
             'subscription_status' => $this->subscription_status?->value,
             'subscription_expires_at' => $this->subscription_expires_at?->toIso8601String(),
             'subscription_days_remaining' => $this->subscription_expires_at
-                ? max(0, $this->subscription_expires_at->diffInDays(now(), false))
+                ? max(0, now()->diffInDays($this->subscription_expires_at))
                 : 0,
             'owner' => $this->whenLoaded('owner', fn () => [
                 'id' => $this->owner->id,

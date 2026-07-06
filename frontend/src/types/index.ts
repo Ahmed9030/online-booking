@@ -208,6 +208,31 @@ export interface Subscription {
   created_at: string
 }
 
+// =================== Notification Domain Types ===================
+
+export interface Notification {
+  id: string
+  user_id: string
+  type: string
+  title: string
+  message: string
+  data?: Record<string, unknown>
+  icon?: string
+  action_url?: string
+  is_read: boolean
+  read_at?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface PushSubscription {
+  id: string
+  user_id: string
+  subscription: Record<string, unknown>
+  user_agent?: string
+  is_active: boolean
+}
+
 export interface AdminAnalytics {
   revenue: {
     total: number

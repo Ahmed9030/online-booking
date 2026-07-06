@@ -1,9 +1,8 @@
 'use client'
 
-import { ReactNode } from 'react'
+import { ReactNode, useState, useEffect } from 'react'
 import { useAuthStore } from '@/store/auth'
 import { useRouter, usePathname } from 'next/navigation'
-import { useEffect } from 'react'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { TopBar } from '@/components/layout/TopBar'
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs'
@@ -11,11 +10,17 @@ import { Breadcrumbs } from '@/components/layout/Breadcrumbs'
 const ownerOnlyPaths = ['/customers', '/staff', '/services', '/branches', '/bookings/create']
 
 function isOwnerOnlyPath(pathname: string): boolean {
-  const path = pathname.replace(/^\/[a-z]{2}/, '') // strip locale
+  const path = pathname.replace(/^\/[a-z]{2}/, '').replace(/^\/dashboard/, '') // strip locale + dashboard
   return ownerOnlyPaths.some((p) => path === p || path.startsWith(p + '/'))
 }
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
+  const [isHydrated, setIsHydrated] = useState(false)
+
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
+
   const router = useRouter()
   const pathname = usePathname()
   const token = useAuthStore((s) => s.token)
@@ -23,6 +28,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const isStaff = useAuthStore((s) => s.isStaff())
 
   useEffect(() => {
+    if (!isHydrated) return
+
     const locale = pathname.split('/')[1] || 'ar'
     if (!token) {
       router.push(`/${locale}/login`)
@@ -41,9 +48,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     if (isStaff && isOwnerOnlyPath(pathname)) {
       router.push(`/${locale}/dashboard`)
     }
-  }, [token, user, router, pathname, isStaff])
+  }, [token, user, router, pathname, isStaff, isHydrated])
 
-  if (!token || (user && user.role !== 'owner' && user.role !== 'staff')) {
+  if (!isHydrated || !token || (user && user.role !== 'owner' && user.role !== 'staff')) {
     return null
   }
 

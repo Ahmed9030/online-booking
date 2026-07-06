@@ -10,4 +10,6 @@ Route::prefix('v1')->group(function () {
     Route::prefix('customer')->group(base_path('routes/api/v1/customer.php'));
     Route::prefix('admin')->group(base_path('routes/api/v1/admin.php'));
     Route::prefix('internal')->group(base_path('routes/api/v1/internal.php'));
+    Route::prefix('telegram')->group(base_path('routes/api/v1/telegram.php'));
+    Route::prefix('notifications')->group(base_path('routes/api/v1/notifications.php'));
 });

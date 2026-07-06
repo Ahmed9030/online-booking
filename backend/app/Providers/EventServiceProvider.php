@@ -6,8 +6,10 @@ namespace App\Providers;
 
 use App\Events\BookingCancelled;
 use App\Events\BookingCompleted;
+use App\Events\BookingConfirmed;
 use App\Events\BookingCreated;
 use App\Listeners\DispatchBookingConfirmationJob;
+use App\Listeners\SendBookingConfirmationNotification;
 use App\Listeners\UpdateCustomerVisitStats;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -17,7 +19,9 @@ class EventServiceProvider extends ServiceProvider
         BookingCreated::class => [
             DispatchBookingConfirmationJob::class,
         ],
-        // Booking lifecycle events
+        BookingConfirmed::class => [
+            SendBookingConfirmationNotification::class,
+        ],
         BookingCompleted::class => [
             UpdateCustomerVisitStats::class,
         ],

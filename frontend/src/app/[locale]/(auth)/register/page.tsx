@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/Input'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
+import { useParams } from 'next/navigation'
 import { useState } from 'react'
 
 /**
@@ -20,6 +21,8 @@ import { useState } from 'react'
  */
 export default function RegisterPage() {
   const t = useTranslations()
+  const params = useParams()
+  const locale = (params.locale as string) || 'ar'
   const register = useRegister()
   const [step, setStep] = useState(1)
 
@@ -51,7 +54,7 @@ export default function RegisterPage() {
   return (
     <div
       className="min-h-screen bg-bg flex items-center justify-center p-4"
-      dir="rtl"
+      dir={locale === 'ar' ? 'rtl' : 'ltr'}
     >
       <div className="neu-card w-full max-w-md p-8 relative">
         <Link
