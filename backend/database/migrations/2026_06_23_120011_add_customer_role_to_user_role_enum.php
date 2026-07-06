@@ -18,7 +18,7 @@ return new class extends Migration
         if (Schema::getConnection()->getDriverName() === 'pgsql') {
             $customerCount = DB::table('users')->where('role', 'customer')->count();
             if ($customerCount > 0) {
-                throw new \RuntimeException("Cannot roll back: {$customerCount} user(s) with 'customer' role exist. Remove or reassign them before rolling back this migration.");
+                throw new RuntimeException("Cannot roll back: {$customerCount} user(s) with 'customer' role exist. Remove or reassign them before rolling back this migration.");
             }
 
             DB::statement('ALTER TYPE user_role RENAME TO user_role_old');

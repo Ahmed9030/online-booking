@@ -6,8 +6,9 @@ namespace App\Listeners;
 
 use App\Events\BookingConfirmed;
 use App\Services\NotificationService;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SendBookingConfirmationNotification
+class SendBookingConfirmationNotification implements ShouldQueue
 {
     /**
      * @param  NotificationService  $notificationService  The notification service.

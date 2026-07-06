@@ -2,31 +2,8 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/services/api'
+import type { Notification } from '@/types'
 
-/**
- * Interface representing an in-app notification.
- */
-export interface Notification {
-  id: string
-  user_id: string
-  type: string
-  title: string
-  message: string
-  data?: Record<string, unknown>
-  icon?: string
-  action_url?: string
-  is_read: boolean
-  read_at?: string
-  created_at: string
-  updated_at: string
-}
-
-/**
- * Hook to fetch notifications for the authenticated user.
- * Polls every 10 seconds for real-time updates.
- *
- * @returns The TanStack Query result containing notifications array.
- */
 export function useNotifications() {
   return useQuery({
     queryKey: ['notifications'],

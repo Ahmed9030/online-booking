@@ -21,7 +21,10 @@ class TelegramBotService
      */
     public function __construct()
     {
-        $this->client = new Client;
+        $this->client = new Client([
+            'timeout' => 10,
+            'connect_timeout' => 5,
+        ]);
         $this->botToken = (string) config('services.telegram.bot_token');
         $this->apiUrl = "https://api.telegram.org/bot{$this->botToken}";
     }
@@ -131,10 +134,10 @@ TEXT;
         $text = <<<TEXT
 🆕 <b>حجز جديد!</b>
 
-👤 العميل: <b>{$customerName}</b>
-✂️ الخدمة: <b>{$serviceName}</b>
-⏰ الموقت: <b>{$time}</b>
-💵 السعر: <b>{$price} ج.م</b>
+👤 العميل: <b>{$this->escapeHtml($customerName)}</b>
+✂️ الخدمة: <b>{$this->escapeHtml($serviceName)}</b>
+⏰ الموقت: <b>{$this->escapeHtml($time)}</b>
+💵 السعر: <b>{$this->escapeHtml($price)} ج.م</b>
 
 📱 <a href="https://barber-saas.com/dashboard">فتح اللوحة</a>
 TEXT;
@@ -161,15 +164,17 @@ TEXT;
         $text = <<<TEXT
 📊 <b>الملخص اليومي</b>
 
-📈 إجمالي الحجوزات: <b>{$totalBookings}</b>
-✅ المكتملة: <b>{$completedBookings}</b>
-💰 الإيرادات: <b>{$revenue} ج.م</b>
+📈 إجمالي الحجوزات: <b>{$this->escapeHtml((string) $totalBookings)}</b>
+✅ المكتملة: <b>{$this->escapeHtml((string) $completedBookings)}</b>
+💰 الإيرادات: <b>{$this->escapeHtml((string) $revenue)} ج.م</b>
 TEXT;
 
         if (! empty($topStaff)) {
             $text .= "\n\n⭐ <b>أفضل الموظفين:</b>\n";
             foreach ($topStaff as $staff) {
-                $text .= "• {$staff['name']}: {$staff['bookings']} حجز\n";
+                $name = $this->escapeHtml((string) ($staff['name'] ?? ''));
+                $bookings = $this->escapeHtml((string) ($staff['bookings'] ?? 0));
+                $text .= "• {$name}: {$bookings} حجز\n";
             }
         }
 
@@ -191,8 +196,8 @@ TEXT;
         $text = <<<TEXT
 ⏰ <b>تذكير الموعد</b>
 
-العميل: <b>{$customerName}</b>
-الموقت: <b>{$time}</b>
+العميل: <b>{$this->escapeHtml($customerName)}</b>
+الموقت: <b>{$this->escapeHtml($time)}</b>
 
 سيحضر العميل غداً؟
 TEXT;
@@ -228,5 +233,10 @@ TEXT;
 
 المزيد من الخيارات في لوحة التحكم
 TEXT;
+    }
+
+    private function escapeHtml(string $value): string
+    {
+        return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
     }
 }

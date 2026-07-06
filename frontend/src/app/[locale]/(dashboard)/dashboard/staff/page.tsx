@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useStaffList, useDeleteStaff } from '@/features/staff/hooks/useStaff'
 import { Button } from '@/components/ui/button'
 import { useTranslations } from 'next-intl'
@@ -16,6 +16,12 @@ export default function StaffPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [page, setPage] = useState(1)
   const { data: staffData, isLoading } = useStaffList({ page })
+
+  useEffect(() => {
+    if (staffData?.meta && page > staffData.meta.last_page) {
+      setPage(staffData.meta.last_page)
+    }
+  }, [page, staffData?.meta?.last_page])
   const deleteStaff = useDeleteStaff()
 
   if (isLoading) return <div>{t('common.loading')}</div>

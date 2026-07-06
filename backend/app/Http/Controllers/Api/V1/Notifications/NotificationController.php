@@ -63,12 +63,15 @@ class NotificationController extends Controller
             'subscription.keys.auth' => 'required|string',
         ]);
 
+        $endpoint = $validated['subscription']['endpoint'];
+
         PushSubscription::updateOrCreate(
             [
                 'user_id' => $request->user()->id,
-                'subscription' => $validated['subscription'],
+                'subscription->endpoint' => $endpoint,
             ],
             [
+                'subscription' => $validated['subscription'],
                 'user_agent' => $request->userAgent(),
                 'is_active' => true,
             ]

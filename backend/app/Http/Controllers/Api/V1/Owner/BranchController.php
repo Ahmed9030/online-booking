@@ -13,6 +13,7 @@ use App\Http\Resources\BranchResource;
 use App\Models\Branch;
 use App\Models\BranchWorkingHour;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class BranchController extends Controller
@@ -21,12 +22,14 @@ class BranchController extends Controller
      * List all branches for the owner's business.
      * GET /api/v1/owner/branches
      */
-    public function index(): ResourceCollection
+    public function index(Request $request): ResourceCollection
     {
+        $perPage = min((int) $request->input('per_page', 15), 100);
+
         $branches = Branch::with('workingHours')
             ->where('business_id', auth()->user()->business_id)
             ->orderBy('created_at')
-            ->paginate(15);
+            ->paginate($perPage);
 
         return BranchResource::collection($branches);
     }
@@ -128,14 +131,16 @@ class BranchController extends Controller
      * Get bookings for a branch.
      * GET /api/v1/owner/branches/{id}/bookings
      */
-    public function bookings(string $id): ResourceCollection
+    public function bookings(string $id, Request $request): ResourceCollection
     {
         $branch = Branch::where('business_id', auth()->user()->business_id)
             ->findOrFail($id);
 
+        $perPage = min((int) $request->input('per_page', 15), 100);
+
         $bookings = $branch->bookings()
             ->orderByDesc('starts_at')
-            ->paginate(15);
+            ->paginate($perPage);
 
         return BookingResource::collection($bookings);
     }

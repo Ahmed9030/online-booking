@@ -39,6 +39,8 @@ export default function AdminBusinessDetailPage() {
   const [selectedStatus, setSelectedStatus] = useState('')
   const [expiresAt, setExpiresAt] = useState('')
 
+  const businessId = business?.id
+
   useEffect(() => {
     if (business) {
       setSelectedStatus(business.subscription_status || '')
@@ -48,7 +50,8 @@ export default function AdminBusinessDetailPage() {
           : '',
       )
     }
-  }, [business])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [businessId])
 
   if (isLoading) {
     return (

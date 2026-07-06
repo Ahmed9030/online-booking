@@ -12,6 +12,13 @@ use Minishlink\WebPush\WebPush;
 
 class NotificationService
 {
+    private TelegramBotService $telegramBotService;
+
+    public function __construct(TelegramBotService $telegramBotService)
+    {
+        $this->telegramBotService = $telegramBotService;
+    }
+
     /**
      * Send a booking confirmation notification to the customer.
      *
@@ -82,7 +89,7 @@ class NotificationService
 
         $telegramUser = $staff->telegramUser;
         if ($telegramUser) {
-            app(TelegramBotService::class)->sendBookingNotification(
+            $this->telegramBotService->sendBookingNotification(
                 (string) $telegramUser->telegram_id,
                 $bookingData['customer_name'],
                 $bookingData['service_name'],
@@ -114,7 +121,7 @@ class NotificationService
 
         $telegramUser = $owner->telegramUser;
         if ($telegramUser) {
-            app(TelegramBotService::class)->sendDailySummary(
+            $this->telegramBotService->sendDailySummary(
                 (string) $telegramUser->telegram_id,
                 $summaryData['total_bookings'],
                 $summaryData['completed_bookings'],
@@ -145,12 +152,12 @@ class NotificationService
             ->where('is_active', true)
             ->get();
 
+        $webPush = new WebPush;
+        $webPush->addAuth(config('services.push.auth'));
+
         foreach ($subscriptions as $sub) {
             try {
-                $subscription = json_decode(json_encode($sub->subscription), true);
-
-                $webPush = new WebPush;
-                $webPush->addAuth(config('services.push.auth'));
+                $subscription = json_decode($sub->subscription, true);
 
                 $payload = json_encode([
                     'title' => $title,

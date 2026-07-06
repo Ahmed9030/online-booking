@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/Input'
 import { useTranslations } from 'next-intl'
@@ -38,8 +38,12 @@ export function WorkingHoursEditor({ staffId, initialHours, onUpdate }: WorkingH
   const [dayOff, setDayOff] = useState<Record<number, boolean>>({})
 
   const stableInitialHours = useMemo(() => initialHours ?? [], [initialHours])
+  const hasInitialised = useRef(false)
 
   useEffect(() => {
+    if (hasInitialised.current) return
+    hasInitialised.current = true
+
     const init: Record<number, { start?: string; end?: string }> = {}
     const off: Record<number, boolean> = {}
     const hours = stableInitialHours

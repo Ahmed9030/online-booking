@@ -3,11 +3,13 @@
 import { useEffect } from 'react'
 import { api } from '@/services/api'
 
-/**
- * Hook to register the browser for push notifications.
- * Registers the service worker, requests permission, and sends
- * the push subscription to the backend.
- */
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+  const rawData = window.atob(base64)
+  return Uint8Array.from(rawData.split('').map((char) => char.charCodeAt(0)))
+}
+
 export function usePushNotifications() {
   useEffect(() => {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
@@ -23,9 +25,13 @@ export function usePushNotifications() {
           return
         }
 
+        const applicationServerKey = urlBase64ToUint8Array(
+          process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '',
+        )
+
         const subscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+          applicationServerKey: applicationServerKey as unknown as BufferSource,
         })
 
         await api.post('/notifications/subscribe', {

@@ -5,7 +5,7 @@ import {
   useNotifications,
   useMarkNotificationAsRead,
 } from '@/features/notifications/hooks/useNotifications'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import Link from 'next/link'
 
 /**
@@ -15,6 +15,7 @@ import Link from 'next/link'
  */
 export function NotificationBell() {
   const t = useTranslations()
+  const locale = useLocale()
   const [isOpen, setIsOpen] = useState(false)
   const { data: notifications = [] } = useNotifications()
   const markAsRead = useMarkNotificationAsRead()
@@ -26,6 +27,8 @@ export function NotificationBell() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2 neu-btn hover:neu-card-hover transition-all"
+        aria-label={t('notifications.notifications')}
+        title={t('notifications.notifications')}
       >
         <span className="text-2xl">🔔</span>
         {unreadCount > 0 && (
@@ -70,7 +73,7 @@ export function NotificationBell() {
                           {notification.message}
                         </p>
                         <p className="text-xs text-text-muted mt-2">
-                          {new Date(notification.created_at).toLocaleString('ar-EG')}
+                          {new Date(notification.created_at).toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US')}
                         </p>
                       </div>
                       {!notification.is_read && (

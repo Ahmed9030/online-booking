@@ -38,16 +38,17 @@ return [
     'telegram' => [
         'bot_token' => env('TELEGRAM_BOT_TOKEN'),
         'webhook_url' => env('TELEGRAM_WEBHOOK_URL'),
+        'secret_token' => env('TELEGRAM_SECRET_TOKEN'),
     ],
 
     'push' => [
-        'vapid_public_key' => env('VAPID_PUBLIC_KEY'),
-        'vapid_private_key' => env('VAPID_PRIVATE_KEY'),
+        'vapid_public_key' => $vapidPublic = env('VAPID_PUBLIC_KEY'),
+        'vapid_private_key' => $vapidPrivate = env('VAPID_PRIVATE_KEY'),
         'auth' => [
             'VAPID' => [
                 'subject' => env('VAPID_SUBJECT'),
-                'publicKey' => env('VAPID_PUBLIC_KEY'),
-                'privateKey' => env('VAPID_PRIVATE_KEY'),
+                'publicKey' => $vapidPublic,
+                'privateKey' => $vapidPrivate,
             ],
         ],
     ],

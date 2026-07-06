@@ -12,7 +12,6 @@ final class BranchWorkingHour extends Model
 {
     use HasUuids;
 
-
     protected $fillable = [
         'branch_id',
         'weekday',
