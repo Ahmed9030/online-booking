@@ -33,7 +33,7 @@ interface StaffModalProps {
 export function StaffModal({ isOpen, onClose }: StaffModalProps) {
   const t = useTranslations()
   const createStaff = useCreateStaff()
-  const { data: branchesData } = useBranchesList()
+  const { data: branchesData } = useBranchesList({ per_page: 1000 })
   const form = useForm({
     resolver: zodResolver(staffSchema),
   })

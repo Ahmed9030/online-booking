@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form'
 import { useRouter } from '@/i18n/routing'
 import { WorkingHoursEditor } from '@/components/dashboard/WorkingHoursEditor'
 import { useUiStore } from '@/store/ui'
-import { useEffect, use } from 'react'
+import { useEffect, use, useMemo, useCallback } from 'react'
 
 /** Props for the branch detail page route. */
 interface BranchDetailPageProps {
@@ -23,7 +23,7 @@ interface BranchEditFormData {
   name: string
   address: string
   city: string
-  whatsapp_number: string
+  whatsapp_number?: string
   slug: string
 }
 
@@ -42,13 +42,34 @@ export default function BranchDetailPage({ params }: BranchDetailPageProps) {
   const showToast = useUiStore((s) => s.showToast)
   const { register, handleSubmit, reset, formState: { errors } } = useForm<BranchEditFormData>()
 
+  const editorInitialHours = useMemo(() => branch?.working_hours ?? [], [branch?.working_hours])
+
+  const editorOnUpdate = useCallback(
+    (hours: Array<{ weekday: number; start_time?: string | null; end_time?: string | null }>) =>
+      updateWorkingHours.mutate(
+        {
+          id,
+          working_hours: hours.map((h) => ({
+            weekday: h.weekday,
+            open_time: h.start_time,
+            close_time: h.end_time,
+          })),
+        },
+        {
+          onSuccess: () => showToast('تم حفظ المواعيد بنجاح', 'success'),
+          onError: () => showToast('حدث خطأ أثناء الحفظ', 'error'),
+        },
+      ),
+    [id, updateWorkingHours, showToast],
+  )
+
   useEffect(() => {
     if (branch) {
       reset({
         name: branch.name,
         address: branch.address,
         city: branch.city,
-        whatsapp_number: branch.whatsapp_number,
+        whatsapp_number: branch.whatsapp_number || '',
         slug: branch.slug,
       })
     }
@@ -91,8 +112,7 @@ export default function BranchDetailPage({ params }: BranchDetailPageProps) {
 
             <Input
               label={t('common.whatsapp')}
-              {...register('whatsapp_number', { required: true })}
-              error={errors.whatsapp_number ? 'validation.required' : null}
+              {...register('whatsapp_number')}
             />
 
             <Input
@@ -125,23 +145,8 @@ export default function BranchDetailPage({ params }: BranchDetailPageProps) {
         {/* Working Hours */}
         <div className="neu-card p-6">
           <WorkingHoursEditor
-            initialHours={branch.working_hours}
-            onUpdate={(hours) =>
-              updateWorkingHours.mutate(
-                {
-                  id,
-                  working_hours: hours.map((h) => ({
-                    weekday: h.weekday,
-                    open_time: h.start_time,
-                    close_time: h.end_time,
-                  })),
-                },
-                {
-                  onSuccess: () => showToast('تم حفظ المواعيد بنجاح', 'success'),
-                  onError: () => showToast('حدث خطأ أثناء الحفظ', 'error'),
-                },
-              )
-            }
+            initialHours={editorInitialHours}
+            onUpdate={editorOnUpdate}
           />
         </div>
       </div>

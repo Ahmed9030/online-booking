@@ -69,7 +69,7 @@ export default function FindBusinessPage() {
     const branch = branches.find((b) => b.id === selectedBranch)
     if (!branch || !selectedBusiness) return
     selectBranch(branch)
-    router.push(`/${locale}/book/${selectedBusiness}/${branch.slug}`)
+    router.push(`/book/${selectedBusiness}/${branch.slug}`)
   }
 
   if (loading) {

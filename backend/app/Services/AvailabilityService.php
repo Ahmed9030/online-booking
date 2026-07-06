@@ -88,17 +88,11 @@ final class AvailabilityService
         // Build Carbon datetimes in Cairo timezone
         $startOfDay = $date->clone()->setHour(0)->setMinute(0)->setSecond(0);
 
-        [$openHour, $openMinute] = explode(':', $branchHours->open_time);
-        [$branchCloseHour, $branchCloseMinute] = explode(':', $branchHours->close_time);
+        $openDateTime = $startOfDay->clone()->setTimeFromTimeString($branchHours->open_time);
+        $closeDateTime = $startOfDay->clone()->setTimeFromTimeString($branchHours->close_time);
 
-        [$staffStartHour, $staffStartMinute] = explode(':', $staffHours->start_time);
-        [$staffEndHour, $staffEndMinute] = explode(':', $staffHours->end_time);
-
-        $openDateTime = $startOfDay->clone()->setHour((int) $openHour)->setMinute((int) $openMinute);
-        $closeDateTime = $startOfDay->clone()->setHour((int) $branchCloseHour)->setMinute((int) $branchCloseMinute);
-
-        $staffStartDateTime = $startOfDay->clone()->setHour((int) $staffStartHour)->setMinute((int) $staffStartMinute);
-        $staffEndDateTime = $startOfDay->clone()->setHour((int) $staffEndHour)->setMinute((int) $staffEndMinute);
+        $staffStartDateTime = $startOfDay->clone()->setTimeFromTimeString($staffHours->start_time);
+        $staffEndDateTime = $startOfDay->clone()->setTimeFromTimeString($staffHours->end_time);
 
         $workStart = $openDateTime->greaterThan($staffStartDateTime) ? $openDateTime : $staffStartDateTime;
         $workEnd = $closeDateTime->lessThan($staffEndDateTime) ? $closeDateTime : $staffEndDateTime;
@@ -151,13 +145,17 @@ final class AvailabilityService
             ->orderBy('id')
             ->get();
 
+        $allSlots = collect([]);
+
         foreach ($qualifiedStaff as $staff) {
             $slots = $this->getSlotsForSpecificStaff($branch, $service, $staff, $date);
             if ($slots->isNotEmpty()) {
-                return $slots;
+                $allSlots = $allSlots->concat($slots);
             }
         }
 
-        return collect([]);
+        return $allSlots->unique(function ($item) {
+            return $item['starts_at']->format('H:i');
+        })->sortBy('starts_at')->values();
     }
 }

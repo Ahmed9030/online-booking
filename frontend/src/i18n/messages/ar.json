@@ -215,6 +215,15 @@
     "invalid_time": "الوقت غير صحيح",
     "invalid_slug": "يجب أن يحتوي على أحرف وأرقام وشرطات فقط"
   },
+  "notifications": {
+    "no_notifications": "لا توجد إشعارات",
+    "mark_all_read": "تحديد الكل كمقروء",
+    "notifications": "الإشعارات",
+    "booking_confirmed": "✅ تم تأكيد حجزك",
+    "booking_reminder": "⏰ تذكير موعدك",
+    "booking_assigned": "🆕 حجز جديد",
+    "daily_summary": "📊 الملخص اليومي"
+  },
   "booking": {
     "select_service": "اختر الخدمة",
     "select_staff": "اختر الموظف",

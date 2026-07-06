@@ -215,6 +215,15 @@
     "invalid_time": "Invalid time",
     "invalid_slug": "Only letters, numbers, and hyphens allowed"
   },
+  "notifications": {
+    "no_notifications": "No notifications yet",
+    "mark_all_read": "Mark all as read",
+    "notifications": "Notifications",
+    "booking_confirmed": "✅ Booking Confirmed",
+    "booking_reminder": "⏰ Appointment Reminder",
+    "booking_assigned": "🆕 New Booking",
+    "daily_summary": "📊 Daily Summary"
+  },
   "booking": {
     "select_service": "Select Service",
     "select_staff": "Select Staff",

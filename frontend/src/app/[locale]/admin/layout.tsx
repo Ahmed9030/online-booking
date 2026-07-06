@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode, useEffect } from 'react'
+import { ReactNode, useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@/store/auth'
 import { useUiStore } from '@/store/ui'
@@ -81,6 +81,12 @@ function AdminIcon({ name }: { name: string }) {
  * @returns The admin layout wrapper.
  */
 export default function AdminLayout({ children }: { children: ReactNode }) {
+  const [isHydrated, setIsHydrated] = useState(false)
+
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
+
   const t = useTranslations()
   const pathname = usePathname()
   const router = useRouter()
@@ -94,12 +100,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   useAdminOverview()
 
   useEffect(() => {
+    if (!isHydrated) return
     if (!token || user?.role !== 'admin') {
       router.push('/login')
     }
-  }, [token, user, router])
+  }, [token, user, router, isHydrated])
 
-  if (!token || user?.role !== 'admin') {
+  if (!isHydrated || !token || user?.role !== 'admin') {
     return null
   }
 

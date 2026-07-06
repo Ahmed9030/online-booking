@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@/store/auth'
 import { useUiStore } from '@/store/ui'
 import { useLogout } from '@/features/auth/hooks/useLogout'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { Button } from '@/components/ui/button'
 
 export function TopBar() {
@@ -27,6 +28,7 @@ export function TopBar() {
       </div>
 
       <div className="flex items-center gap-3">
+        <NotificationBell />
         <div className="text-left">
           <div className="text-sm font-semibold text-text-primary">{user.name}</div>
           <div className="text-xs text-text-muted">{t(`role.${user.role}`)}</div>
@@ -36,6 +38,7 @@ export function TopBar() {
           disabled={logout.isPending}
           className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-primary hover:bg-primary/10 transition-all"
           title={t('auth.logout')}
+          aria-label={t('auth.logout')}
         >
           {logout.isPending ? (
             <span className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />

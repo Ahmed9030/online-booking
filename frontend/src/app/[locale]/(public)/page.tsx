@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 
 /**
  * Landing page component for the Booking SaaS barbershop appointment platform.
@@ -18,6 +19,8 @@ import { useRouter } from 'next/navigation'
 export default function LandingPage() {
   const t = useTranslations()
   const router = useRouter()
+  const params = useParams()
+  const locale = (params.locale as string) || 'ar'
   const [scrolled, setScrolled] = useState(false)
   const [activeTab, setActiveTab] = useState<'owner' | 'staff' | 'customer'>('customer')
 
@@ -54,7 +57,7 @@ export default function LandingPage() {
             </a>
           </div>
 
-          <Link href="/ar/login">
+          <Link href={`/${locale}/login`}>
             <Button variant="primary" size="sm">
               {t('auth.login')}
             </Button>
@@ -113,13 +116,13 @@ export default function LandingPage() {
             <Button
               variant="primary"
               size="lg"
-              onClick={() => router.push('/ar/find-business')}
+              onClick={() => router.push(`/${locale}/find-business`)}
               className="neu-btn-primary transform hover:scale-105 transition-transform"
             >
               {t('hero.book_now')} →
             </Button>
 
-            <Link href="/ar/register">
+            <Link href={`/${locale}/register`}>
               <Button
                 variant="default"
                 size="lg"
@@ -237,9 +240,9 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <Link href="/ar/register">
+                <Link href={`/${locale}/register`}>
                   <Button variant="primary" className="w-full mt-6">
-                    ابدأ الآن - مجاني لمدة 14 يوم
+                    {t('hero.get_started')}
                   </Button>
                 </Link>
               </div>
@@ -339,7 +342,7 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <Link href="/ar/login">
+          <Link href={`/${locale}/login`}>
                   <Button variant="primary" className="w-full mt-6">
                     دخول الموظف
                   </Button>
@@ -438,15 +441,15 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <Link href="/ar/find-business">
+                <Link href={`/${locale}/find-business`}>
                   <Button variant="primary" className="w-full mt-6">
-                    احجز الآن مجاناً
+                    {t('booking.find_business')}
                   </Button>
                 </Link>
               </div>
 
               <div className="neu-card p-8 space-y-6">
-                <h4 className="text-lg font-bold text-primary">تجربة الحجز في 2 دقيقة:</h4>
+                <h4 className="text-lg font-bold text-primary">{t('landing.how_it_works')}:</h4>
 
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
@@ -648,12 +651,12 @@ export default function LandingPage() {
                   ))}
                 </ul>
 
-                <Link href="/ar/register">
+                <Link href={`/${locale}/register`}>
                   <Button
                     variant={plan.highlighted ? 'primary' : 'default'}
                     className="w-full"
                   >
-                    ابدأ الآن
+                    {t('hero.get_started')}
                   </Button>
                 </Link>
               </div>
@@ -714,15 +717,15 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col md:flex-row gap-4 justify-center">
-            <Link href="/ar/register">
+            <Link href={`/${locale}/register`}>
               <Button variant="primary" size="lg" className="transform hover:scale-105">
-                إنشاء حساب مجاني - 14 يوم {t('landing.free')}
+                {t('hero.get_started')}
               </Button>
             </Link>
 
-            <Link href="/ar/find-business">
+            <Link href={`/${locale}/find-business`}>
               <Button variant="default" size="lg" className="transform hover:scale-105">
-                احجز موعد الآن
+                {t('hero.book_now')}
               </Button>
             </Link>
           </div>

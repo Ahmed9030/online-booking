@@ -24,11 +24,13 @@ class DashboardController extends Controller
 
         $monthBookings = Booking::where('staff_id', $staff->id)
             ->whereMonth('starts_at', now()->month)
+            ->whereYear('starts_at', now()->year)
             ->where('status', '!=', 'cancelled')
             ->count();
 
         $noShowCount = Booking::where('staff_id', $staff->id)
             ->whereMonth('starts_at', now()->month)
+            ->whereYear('starts_at', now()->year)
             ->where('status', 'no_show')
             ->count();
 

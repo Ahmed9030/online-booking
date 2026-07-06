@@ -72,6 +72,14 @@ function extractLocalDate(isoString: string): string {
   return `${y}-${m}-${day}`
 }
 
+function todayLocal(): string {
+  const d = new Date()
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
 export default function CreateBookingPage() {
   const t = useTranslations()
   const router = useRouter()
@@ -116,12 +124,16 @@ export default function CreateBookingPage() {
     ? new Date(startDate + 'T00:00:00').getDay()
     : -1
 
-  const branchHours = selectedBranch?.working_hours?.find(
-    (wh) => wh.weekday === todayWeekday,
-  )
+  console.log("الفرع المختار وساعاته الحالية:", selectedBranch?.working_hours);
+  console.log("رقم اليوم المحسوب في الفونتد:", todayWeekday);
 
-  const openTime = branchHours?.open_time ?? '08:00'
-  const closeTime = branchHours?.close_time ?? '20:00'
+  const branchHours = selectedBranch?.working_hours?.find((wh) => {
+    const daysMap = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    return wh.weekday === todayWeekday || wh.weekday?.toString().toLowerCase() === daysMap[todayWeekday];
+  })
+
+  const openTime = branchHours?.open_time ?? '00:00'
+  const closeTime = branchHours?.close_time ?? '23:45'
 
   const { data: existingBookings } = useQuery({
     queryKey: [
@@ -132,6 +144,9 @@ export default function CreateBookingPage() {
     ],
     queryFn: async () => {
       const params: Record<string, unknown> = { per_page: 200 }
+      if (startDate) {
+        params.date = startDate
+      }
       if (selectedBranchId) params.branch_id = selectedBranchId
       if (selectedStaffId) params.staff_id = selectedStaffId
       const res = await api.get('/owner/bookings', { params })
@@ -291,7 +306,7 @@ export default function CreateBookingPage() {
                   value={startDate}
                   onChange={setStartDate}
                   error={startDateError}
-                  minDate={new Date().toISOString().split('T')[0]}
+                  minDate={todayLocal()}
                 />
                 <TimePicker
                   label={t('booking.select_time')}
@@ -311,7 +326,7 @@ export default function CreateBookingPage() {
                   value={endDate}
                   onChange={setEndDate}
                   error={endDateError}
-                  minDate={startDate || new Date().toISOString().split('T')[0]}
+                  minDate={startDate || todayLocal()}
                 />
                 <TimePicker
                   label={t('common.end_time')}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import { useRouter } from '@/i18n/routing'
@@ -38,6 +38,17 @@ export default function AdminBusinessDetailPage() {
 
   const [selectedStatus, setSelectedStatus] = useState('')
   const [expiresAt, setExpiresAt] = useState('')
+
+  useEffect(() => {
+    if (business) {
+      setSelectedStatus(business.subscription_status || '')
+      setExpiresAt(
+        business.subscription_expires_at
+          ? business.subscription_expires_at.split('T')[0]
+          : '',
+      )
+    }
+  }, [business])
 
   if (isLoading) {
     return (

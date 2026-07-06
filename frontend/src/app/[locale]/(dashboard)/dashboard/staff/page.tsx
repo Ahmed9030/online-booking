@@ -14,7 +14,8 @@ import { StaffModal } from '@/components/dashboard/StaffModal'
 export default function StaffPage() {
   const t = useTranslations()
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const { data: staffData, isLoading } = useStaffList()
+  const [page, setPage] = useState(1)
+  const { data: staffData, isLoading } = useStaffList({ page })
   const deleteStaff = useDeleteStaff()
 
   if (isLoading) return <div>{t('common.loading')}</div>
@@ -70,6 +71,31 @@ export default function StaffPage() {
           </div>
         ))}
       </div>
+
+      {/* Pagination */}
+      {staffData?.meta && staffData.meta.last_page > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <Button
+            variant="default"
+            size="sm"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            {t('common.previous')}
+          </Button>
+          <span className="text-sm text-text-secondary">
+            {t('common.page')} {staffData.meta.current_page} / {staffData.meta.last_page}
+          </span>
+          <Button
+            variant="default"
+            size="sm"
+            disabled={page >= staffData.meta.last_page}
+            onClick={() => setPage((p) => p + 1)}
+          >
+            {t('common.next')}
+          </Button>
+        </div>
+      )}
 
       {/* Modal */}
       <StaffModal

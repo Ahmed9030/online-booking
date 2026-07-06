@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Staff extends Model
@@ -86,5 +87,13 @@ final class Staff extends Model
     public function workingHours(): HasMany
     {
         return $this->hasMany(StaffWorkingHour::class);
+    }
+
+    /**
+     * @return HasOne<TelegramUser>
+     */
+    public function telegramUser(): HasOne
+    {
+        return $this->hasOne(TelegramUser::class, 'user_id', 'user_id');
     }
 }

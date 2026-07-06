@@ -41,7 +41,7 @@ export default function TimeSelectPage() {
   })
 
   useEffect(() => {
-    useBookingStore.setState({ selectedSlot: null })
+    useBookingStore.setState({ selectedSlot: null, step: 3 })
   }, [])
 
   useEffect(() => {

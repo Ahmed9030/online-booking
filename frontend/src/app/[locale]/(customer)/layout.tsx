@@ -1,16 +1,24 @@
 'use client'
 
-import { ReactNode, useEffect } from 'react'
+import { ReactNode, useState, useEffect } from 'react'
 import { useAuthStore } from '@/store/auth'
 import { useRouter, usePathname } from 'next/navigation'
 
 export default function CustomerLayout({ children }: { children: ReactNode }) {
+  const [isHydrated, setIsHydrated] = useState(false)
+
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
+
   const router = useRouter()
   const pathname = usePathname()
   const token = useAuthStore((s) => s.token)
   const user = useAuthStore((s) => s.user)
 
   useEffect(() => {
+    if (!isHydrated) return
+
     const locale = pathname.split('/')[1] || 'ar'
     if (!token) {
       router.push(`/${locale}/login`)
@@ -25,9 +33,9 @@ export default function CustomerLayout({ children }: { children: ReactNode }) {
       }
       router.push(`/${locale}${roleRoutes[user.role] || '/'}`)
     }
-  }, [token, user, router, pathname])
+  }, [token, user, router, pathname, isHydrated])
 
-  if (!token || (user?.role && user.role !== 'customer')) {
+  if (!isHydrated || !token || (user?.role && user.role !== 'customer')) {
     return null
   }
 

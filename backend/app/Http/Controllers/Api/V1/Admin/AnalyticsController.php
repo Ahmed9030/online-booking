@@ -13,6 +13,20 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Returns a driver-agnostic month-truncation expression for the given column.
+ */
+function monthExpr(string $column): string
+{
+    $driver = DB::connection()->getDriverName();
+
+    return match ($driver) {
+        'pgsql' => "DATE_TRUNC('month', {$column})",
+        'sqlite' => "strftime('%Y-%m-01', {$column})",
+        default => "DATE_FORMAT({$column}, '%Y-%m-01')",
+    };
+}
+
 class AnalyticsController extends Controller
 {
     /**
@@ -54,10 +68,10 @@ class AnalyticsController extends Controller
             ->where('bookings.created_at', '>=', now()->subMonths($monthsBack))
             ->join('services', 'bookings.service_id', '=', 'services.id')
             ->select(
-                DB::raw("DATE_TRUNC('month', bookings.created_at) as month"),
+                DB::raw(monthExpr('bookings.created_at') . ' as month'),
                 DB::raw('SUM(services.price) as revenue')
             )
-            ->groupBy('month')
+            ->groupBy(DB::raw(monthExpr('bookings.created_at')))
             ->orderBy('month')
             ->get()
             ->map(fn ($row) => [
@@ -86,10 +100,10 @@ class AnalyticsController extends Controller
         $monthlyGrowth = User::withoutGlobalScopes()
             ->where('created_at', '>=', now()->subMonths($monthsBack))
             ->select(
-                DB::raw("DATE_TRUNC('month', created_at) as month"),
+                DB::raw(monthExpr('created_at') . ' as month'),
                 DB::raw('COUNT(*) as count')
             )
-            ->groupBy('month')
+            ->groupBy(DB::raw(monthExpr('created_at')))
             ->orderBy('month')
             ->get()
             ->map(fn ($row) => [
@@ -121,10 +135,10 @@ class AnalyticsController extends Controller
         $monthlyBookings = Booking::withoutGlobalScopes()
             ->where('created_at', '>=', now()->subMonths($monthsBack))
             ->select(
-                DB::raw("DATE_TRUNC('month', created_at) as month"),
+                DB::raw(monthExpr('created_at') . ' as month'),
                 DB::raw('COUNT(*) as count')
             )
-            ->groupBy('month')
+            ->groupBy(DB::raw(monthExpr('created_at')))
             ->orderBy('month')
             ->get()
             ->map(fn ($row) => [

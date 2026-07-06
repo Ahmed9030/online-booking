@@ -13,6 +13,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
@@ -117,16 +118,18 @@ class StaffController extends Controller
             'working_hours.*.end_time' => ['nullable', 'date_format:H:i'],
         ]);
 
-        $staff->workingHours()->delete();
+        DB::transaction(function () use ($staff, $validated) {
+            $staff->workingHours()->delete();
 
-        foreach ($validated['working_hours'] as $hours) {
-            StaffWorkingHour::create([
-                'staff_id' => $staff->id,
-                'weekday' => $hours['weekday'],
-                'start_time' => $hours['start_time'] ?? null,
-                'end_time' => $hours['end_time'] ?? null,
-            ]);
-        }
+            foreach ($validated['working_hours'] as $hours) {
+                StaffWorkingHour::create([
+                    'staff_id' => $staff->id,
+                    'weekday' => $hours['weekday'],
+                    'start_time' => $hours['start_time'] ?? null,
+                    'end_time' => $hours['end_time'] ?? null,
+                ]);
+            }
+        });
 
         return response()->json(['message' => 'Working hours updated.']);
     }
@@ -160,7 +163,7 @@ class StaffController extends Controller
             ->findOrFail($id);
 
         $validated = $request->validate([
-            'username' => ['required', 'string', 'min:3', 'unique:users,username'],
+            'username' => ['required', 'string', 'min:3', Rule::unique('users', 'username')->ignore($staff->user_id)],
             'password' => ['required', 'string', 'min:8'],
         ]);
 
