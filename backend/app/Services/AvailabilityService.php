@@ -174,10 +174,6 @@ final class AvailabilityService
         $duration = (int) $service->duration_minutes;
 
         foreach ($qualifiedStaff as $staff) {
-            if (! $staff->services()->where('service_id', $service->id)->exists()) {
-                continue;
-            }
-
             $sh = $staffHours->get($staff->id);
             if (! $sh || ! $sh->start_time) {
                 continue;

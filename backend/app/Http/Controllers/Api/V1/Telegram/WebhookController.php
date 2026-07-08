@@ -28,9 +28,14 @@ class WebhookController extends Controller
     public function handle(Request $request): JsonResponse
     {
         $secret = config('services.telegram.secret_token');
-        $token = $request->header('X-Telegram-Bot-Api-Secret-Token');
 
-        if ($secret && $token !== $secret) {
+        if (empty($secret)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $token = (string) $request->header('X-Telegram-Bot-Api-Secret-Token');
+
+        if (! hash_equals($secret, $token)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 

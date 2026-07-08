@@ -21,10 +21,7 @@ class TelegramBotService
      */
     public function __construct()
     {
-        $this->client = new Client([
-            'timeout' => 10,
-            'connect_timeout' => 5,
-        ]);
+        $this->client = app(Client::class);
         $this->botToken = (string) config('services.telegram.bot_token');
         $this->apiUrl = "https://api.telegram.org/bot{$this->botToken}";
     }

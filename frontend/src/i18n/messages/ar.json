@@ -255,5 +255,12 @@
     "search": "بحث",
     "select_business": "اختر المشروع",
     "select_branch": "اختر الفرع"
+  },
+  "calendar": {
+    "live_monitor": "مراقبة الصالون الحية",
+    "current_now": "الجاري الآن",
+    "next_booking": "الحجز القادم",
+    "no_current_sessions": "لا توجد جلسات جارية حالياً",
+    "no_upcoming_bookings": "لا توجد حجوزات قادمة"
   }
 }

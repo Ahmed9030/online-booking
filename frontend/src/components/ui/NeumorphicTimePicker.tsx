@@ -27,7 +27,7 @@ function parse24h(value: string | null): { hour12: number; minute: number; isPM:
 
 function roundStep(value: number, step: number): number {
   const rounded = Math.round(value / step) * step
-  if (rounded >= 60) return 0
+  if (rounded >= 60) return 60 - step
   if (rounded < 0) return 0
   return rounded
 }
