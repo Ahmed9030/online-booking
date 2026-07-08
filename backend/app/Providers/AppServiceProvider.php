@@ -12,6 +12,7 @@ use App\Policies\BranchPolicy;
 use App\Policies\BusinessPolicy;
 use App\Policies\ServicePolicy;
 use App\Policies\StaffPolicy;
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -33,7 +34,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(Client::class, function () {
+            return new Client([
+                'timeout' => 10,
+                'connect_timeout' => 5,
+            ]);
+        });
     }
 
     /**

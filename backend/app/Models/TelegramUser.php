@@ -62,10 +62,7 @@ final class TelegramUser extends Model
         }
 
         try {
-            $client = new Client([
-                'timeout' => 10,
-                'connect_timeout' => 5,
-            ]);
+            $client = app(\GuzzleHttp\Client::class);
             $botToken = config('services.telegram.bot_token');
             $url = "https://api.telegram.org/bot{$botToken}/sendMessage";
 

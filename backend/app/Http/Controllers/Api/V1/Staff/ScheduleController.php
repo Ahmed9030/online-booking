@@ -48,9 +48,14 @@ class ScheduleController extends Controller
             ->with(['customer', 'service', 'branch']);
 
         if ($validated['date_from'] ?? false) {
-            $query->whereDate('starts_at', '>=', Carbon::parse($validated['date_from']))
-                ->whereDate('starts_at', '<=', Carbon::parse($validated['date_to']));
-        } else {
+            $query->whereDate('starts_at', '>=', Carbon::parse($validated['date_from']));
+        }
+
+        if ($validated['date_to'] ?? false) {
+            $query->whereDate('starts_at', '<=', Carbon::parse($validated['date_to']));
+        }
+
+        if (! ($validated['date_from'] ?? false) && ! ($validated['date_to'] ?? false)) {
             $query->whereDate('starts_at', now('Africa/Cairo')->toDateString());
         }
 
@@ -65,7 +70,11 @@ class ScheduleController extends Controller
      */
     public function show(string $date): ResourceCollection
     {
-        $parsedDate = Carbon::parse($date);
+        try {
+            $parsedDate = Carbon::parse($date);
+        } catch (\Exception) {
+            abort(422, 'Invalid date format.');
+        }
 
         $user = auth()->user();
         $staff = Staff::where('user_id', $user->id)->firstOrFail();

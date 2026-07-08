@@ -10,14 +10,14 @@ import type { EventClickArg } from '@fullcalendar/core'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/services/api'
 import { useDashboardBookings, useUpdateBookingStatus } from '@/features/bookings/hooks/useDashboardBookings'
-import { useTranslations, useLocale } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/routing'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/button'
 import { BookingStatusBadge } from '@/components/bookings/BookingStatusBadge'
 import { Booking, PaginatedResponse } from '@/types'
 import { useAuthStore } from '@/store/auth'
-import { useParams } from 'next/navigation'
+import { useResolvedLocale } from '@/lib/useResolvedLocale'
 
 const STATUS_COLORS: Record<string, string> = {
   confirmed: '#059669',
@@ -40,10 +40,8 @@ function BookingModal({
   onClose: () => void
 }) {
   const t = useTranslations()
-  const localeHook = useLocale()
   const router = useRouter()
-  const params = useParams()
-  const locale = (params.locale as string) || localeHook || 'ar'
+  const locale = useResolvedLocale()
   const updateStatus = useUpdateBookingStatus()
 
   const handleCancel = () => {
@@ -142,6 +140,7 @@ function BookingModal({
 }
 
 function CurrentSessionCard({ bookings, locale }: { bookings: Booking[]; locale: string }) {
+  const t = useTranslations()
   const [now, setNow] = useState(new Date())
 
   useEffect(() => {
@@ -167,7 +166,7 @@ function CurrentSessionCard({ bookings, locale }: { bookings: Booking[]; locale:
             <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
           </svg>
         </div>
-        <p className="text-sm text-text-muted">لا توجد جلسات جارية حالياً</p>
+        <p className="text-sm text-text-muted">{t('calendar.no_current_sessions')}</p>
       </div>
     )
   }
@@ -194,6 +193,7 @@ function CurrentSessionCard({ bookings, locale }: { bookings: Booking[]; locale:
 }
 
 function NextBookingCard({ bookings, locale }: { bookings: Booking[]; locale: string }) {
+  const t = useTranslations()
   const [now, setNow] = useState(new Date())
 
   useEffect(() => {
@@ -217,7 +217,7 @@ function NextBookingCard({ bookings, locale }: { bookings: Booking[]; locale: st
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
           </svg>
         </div>
-        <p className="text-sm text-text-muted">لا توجد حجوزات قادمة</p>
+        <p className="text-sm text-text-muted">{t('calendar.no_upcoming_bookings')}</p>
       </div>
     )
   }
@@ -245,9 +245,7 @@ function NextBookingCard({ bookings, locale }: { bookings: Booking[]; locale: st
 
 export default function CalendarPage() {
   const t = useTranslations()
-  const localeHook = useLocale()
-  const params = useParams()
-  const locale = (params.locale as string) || localeHook || 'ar'
+  const locale = useResolvedLocale()
   const isStaff = useAuthStore((s) => s.isStaff())
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [dateRange, setDateRange] = useState<{ from: string; to: string } | null>(null)
@@ -343,14 +341,14 @@ export default function CalendarPage() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
               </svg>
-              مراقبة الصالون الحية
+              {t('calendar.live_monitor')}
             </h2>
 
             {/* Current Session */}
             <div className="rounded-xl bg-surface-alt/50 p-3 mb-3">
               <h3 className="text-xs font-semibold text-confirmed mb-2 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-confirmed animate-pulse" />
-                الجاري الآن
+                {t('calendar.current_now')}
               </h3>
               <CurrentSessionCard bookings={bookingsData?.data || []} locale={locale} />
             </div>
@@ -359,7 +357,7 @@ export default function CalendarPage() {
             <div className="rounded-xl bg-surface-alt/50 p-3">
               <h3 className="text-xs font-semibold text-primary mb-2 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                الحجز القادم
+                {t('calendar.next_booking')}
               </h3>
               <NextBookingCard bookings={bookingsData?.data || []} locale={locale} />
             </div>

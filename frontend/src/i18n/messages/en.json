@@ -255,5 +255,12 @@
     "search": "Search",
     "select_business": "Select Business",
     "select_branch": "Select Branch"
+  },
+  "calendar": {
+    "live_monitor": "Live Salon Monitor",
+    "current_now": "Current Now",
+    "next_booking": "Next Booking",
+    "no_current_sessions": "No current sessions",
+    "no_upcoming_bookings": "No upcoming bookings"
   }
 }

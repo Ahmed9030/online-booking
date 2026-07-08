@@ -210,7 +210,7 @@ export interface Subscription {
 
 // =================== Notification Domain Types ===================
 
-export interface Notification {
+export interface AppNotification {
   id: string
   user_id: string
   type: string

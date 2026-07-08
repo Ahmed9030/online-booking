@@ -119,7 +119,7 @@ secret, and reject requests that do not match. Keep the actual update processing
 in TelegramBotService::handleUpdate() unchanged except for assuming the request
 has already been authenticated.
 
-In `@frontend/src/app/`[locale]/(dashboard)/dashboard/calendar/page.tsx:
+In `@frontend/src/app/[locale]/(dashboard)/dashboard/calendar/page.tsx`:
 - Around line 30-33: The time formatting helper is locale-aware now, but the
 call sites in CurrentSessionCard and NextBookingCard still rely on the default
 locale. Update the formatTime calls in those components to pass through the
@@ -283,14 +283,11 @@ Remove the separate `->index()` from the `user_id` column definition in
 and reduced write/storage overhead.
 
 In
-`@backend/database/migrations/2026_06_28_000002_create_push_subscriptions_table.php`:
-- Around line 16-27: Store push subscriptions using the subscription endpoint as
-the stable dedup key instead of the full JSON blob. Update the
-push_subscriptions migration and any related persistence logic in
-NotificationController::subscribe() so the table has a dedicated endpoint column
-with a uniqueness constraint/index, and upserts use that endpoint rather than
-the subscription payload; keep the rest of the subscription data only if needed
-for metadata.
+`@backend/database/migrations/2026_07_06_000001_add_endpoint_to_push_subscriptions.php`:
+- Around line 14-17: The endpoint column is already added to push_subscriptions.
+The endpoint-based dedup is handled in NotificationController::subscribe() which
+uses subscription->endpoint as the unique key. The migration also adds a unique
+constraint on user_id + endpoint to enforce dedup atomically.
 
 In `@backend/routes/console.php`:
 - Around line 13-19: The scheduled jobs in console.php can overlap or run on
@@ -299,7 +296,7 @@ Schedule::job entries for SendAppointmentReminders and SendDailySummary to use
 withoutOverlapping(), and add onOneServer() if this deployment can run on more
 than one server, so the scheduled execution is serialized and single-instance.
 
-In `@frontend/src/app/`[locale]/(dashboard)/dashboard/calendar/page.tsx:
+In `@frontend/src/app/[locale]/(dashboard)/dashboard/calendar/page.tsx`:
 - Line 20: The calendar page is manually deriving the active locale from
 useParams in multiple places instead of using next-intl’s useLocale hook. Update
 the calendar page component to import and use useLocale alongside

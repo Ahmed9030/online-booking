@@ -72,6 +72,7 @@ class NotificationController extends Controller
             ],
             [
                 'subscription' => $validated['subscription'],
+                'endpoint' => $endpoint,
                 'user_agent' => $request->userAgent(),
                 'is_active' => true,
             ]

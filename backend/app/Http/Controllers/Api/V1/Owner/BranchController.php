@@ -24,7 +24,7 @@ class BranchController extends Controller
      */
     public function index(Request $request): ResourceCollection
     {
-        $perPage = min((int) $request->input('per_page', 15), 100);
+        $perPage = max(1, min((int) $request->input('per_page', 15), 100));
 
         $branches = Branch::with('workingHours')
             ->where('business_id', auth()->user()->business_id)
@@ -136,7 +136,7 @@ class BranchController extends Controller
         $branch = Branch::where('business_id', auth()->user()->business_id)
             ->findOrFail($id);
 
-        $perPage = min((int) $request->input('per_page', 15), 100);
+        $perPage = max(1, min((int) $request->input('per_page', 15), 100));
 
         $bookings = $branch->bookings()
             ->orderByDesc('starts_at')

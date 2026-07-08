@@ -7,16 +7,17 @@ namespace App\Repositories;
 use App\Enums\BookingStatus;
 use App\Models\Booking;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Support\Collection;
 
 final class AvailabilityRepository
 {
     /**
      * Get confirmed bookings for a staff member on a specific date.
      *
-     * @return Collection<int, Booking>
+     * @return EloquentCollection<int, Booking>
      */
-    public function getConfirmedBookingsForStaffOnDate(string $staffId, Carbon $date): Collection
+    public function getConfirmedBookingsForStaffOnDate(string $staffId, Carbon $date): EloquentCollection
     {
         return Booking::where('staff_id', $staffId)
             ->where('status', BookingStatus::Confirmed)
@@ -29,9 +30,9 @@ final class AvailabilityRepository
      * Get confirmed bookings for multiple staff members on a specific date.
      *
      * @param  array<int, string>  $staffIds
-     * @return \Illuminate\Support\Collection<int, Booking>
+     * @return Collection<int, Booking>
      */
-    public function getConfirmedBookingsForStaffArray(array $staffIds, Carbon $date): \Illuminate\Support\Collection
+    public function getConfirmedBookingsForStaffArray(array $staffIds, Carbon $date): Collection
     {
         return Booking::whereIn('staff_id', $staffIds)
             ->where('status', BookingStatus::Confirmed)
