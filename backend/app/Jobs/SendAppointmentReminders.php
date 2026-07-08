@@ -24,7 +24,7 @@ final class SendAppointmentReminders implements ShouldQueue
     public function handle(NotificationService $notificationService): void
     {
         $tomorrow = now('Africa/Cairo')->addDay()->startOfDay();
-        $tomorrowEnd = $tomorrow->endOfDay();
+        $tomorrowEnd = now('Africa/Cairo')->addDay()->endOfDay();
 
         $bookings = Booking::whereBetween('starts_at', [$tomorrow, $tomorrowEnd])
             ->where('status', 'confirmed')

@@ -10,7 +10,7 @@ import type { EventClickArg } from '@fullcalendar/core'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/services/api'
 import { useDashboardBookings, useUpdateBookingStatus } from '@/features/bookings/hooks/useDashboardBookings'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { useRouter } from '@/i18n/routing'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/button'
@@ -40,9 +40,10 @@ function BookingModal({
   onClose: () => void
 }) {
   const t = useTranslations()
+  const localeHook = useLocale()
   const router = useRouter()
   const params = useParams()
-  const locale = (params.locale as string) || 'ar'
+  const locale = (params.locale as string) || localeHook || 'ar'
   const updateStatus = useUpdateBookingStatus()
 
   const handleCancel = () => {
@@ -63,7 +64,7 @@ function BookingModal({
         {/* Header */}
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-text-primary font-heading">
-            تفاصيل الحجز
+            {t('booking.booking_details')}
           </h2>
           <button
             onClick={onClose}
@@ -124,7 +125,7 @@ function BookingModal({
         {/* Actions */}
         <div className="flex gap-3 pt-2">
           <Button variant="primary" className="flex-1" onClick={handleEdit}>
-            تعديل
+            {t('common.edit')}
           </Button>
           <Button
             variant="danger"
@@ -132,7 +133,7 @@ function BookingModal({
             onClick={handleCancel}
             disabled={booking.status === 'cancelled' || updateStatus.isPending}
           >
-            {booking.status === 'cancelled' ? 'ملغي' : 'إلغاء الحجز'}
+            {booking.status === 'cancelled' ? t('common.cancelled') : t('common.cancel_booking')}
           </Button>
         </div>
       </div>
@@ -140,7 +141,7 @@ function BookingModal({
   )
 }
 
-function CurrentSessionCard({ bookings }: { bookings: Booking[] }) {
+function CurrentSessionCard({ bookings, locale }: { bookings: Booking[]; locale: string }) {
   const [now, setNow] = useState(new Date())
 
   useEffect(() => {
@@ -185,14 +186,14 @@ function CurrentSessionCard({ bookings }: { bookings: Booking[] }) {
           {current.staff?.name}
         </p>
         <p className="text-xs text-text-muted mt-1 font-medium">
-          {formatTime(current.starts_at)} — {formatTime(current.ends_at)}
+          {formatTime(current.starts_at, locale)} — {formatTime(current.ends_at, locale)}
         </p>
       </div>
     </div>
   )
 }
 
-function NextBookingCard({ bookings }: { bookings: Booking[] }) {
+function NextBookingCard({ bookings, locale }: { bookings: Booking[]; locale: string }) {
   const [now, setNow] = useState(new Date())
 
   useEffect(() => {
@@ -235,7 +236,7 @@ function NextBookingCard({ bookings }: { bookings: Booking[] }) {
           {next.staff?.name}
         </p>
         <p className="text-xs text-text-muted mt-1 font-medium">
-          {formatTime(next.starts_at)} — {formatTime(next.ends_at)}
+          {formatTime(next.starts_at, locale)} — {formatTime(next.ends_at, locale)}
         </p>
       </div>
     </div>
@@ -244,8 +245,9 @@ function NextBookingCard({ bookings }: { bookings: Booking[] }) {
 
 export default function CalendarPage() {
   const t = useTranslations()
+  const localeHook = useLocale()
   const params = useParams()
-  const locale = (params.locale as string) || 'ar'
+  const locale = (params.locale as string) || localeHook || 'ar'
   const isStaff = useAuthStore((s) => s.isStaff())
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [dateRange, setDateRange] = useState<{ from: string; to: string } | null>(null)
@@ -350,7 +352,7 @@ export default function CalendarPage() {
                 <span className="w-1.5 h-1.5 rounded-full bg-confirmed animate-pulse" />
                 الجاري الآن
               </h3>
-              <CurrentSessionCard bookings={bookingsData?.data || []} />
+              <CurrentSessionCard bookings={bookingsData?.data || []} locale={locale} />
             </div>
 
             {/* Next Booking */}
@@ -359,7 +361,7 @@ export default function CalendarPage() {
                 <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                 الحجز القادم
               </h3>
-              <NextBookingCard bookings={bookingsData?.data || []} />
+              <NextBookingCard bookings={bookingsData?.data || []} locale={locale} />
             </div>
           </div>
         </div>

@@ -25,12 +25,13 @@ final class SendDailySummary implements ShouldQueue
     public function handle(NotificationService $notificationService): void
     {
         $today = now('Africa/Cairo')->startOfDay();
-        $todayEnd = $today->endOfDay();
+        $todayEnd = now('Africa/Cairo')->endOfDay();
 
         $businesses = Business::where('subscription_status', 'active')->get();
 
         foreach ($businesses as $business) {
-            $bookings = Booking::where('business_id', $business->id)
+            $bookings = Booking::with('service', 'staff')
+                ->where('business_id', $business->id)
                 ->whereBetween('created_at', [$today, $todayEnd])
                 ->get();
 
@@ -43,6 +44,7 @@ final class SendDailySummary implements ShouldQueue
                 ->groupBy('staff_id')
                 ->map(fn ($group, $staffId) => [
                     'id' => $staffId,
+                    'name' => $group->first()->staff?->name ?? '',
                     'bookings' => $group->count(),
                 ])
                 ->sortByDesc('bookings')

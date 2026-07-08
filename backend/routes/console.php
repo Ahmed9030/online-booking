@@ -12,8 +12,12 @@ Artisan::command('inspire', function () {
 
 Schedule::job(new SendAppointmentReminders)
     ->dailyAt('08:00')
-    ->timezone('Africa/Cairo');
+    ->timezone('Africa/Cairo')
+    ->withoutOverlapping()
+    ->onOneServer();
 
 Schedule::job(new SendDailySummary)
     ->dailyAt('18:00')
-    ->timezone('Africa/Cairo');
+    ->timezone('Africa/Cairo')
+    ->withoutOverlapping()
+    ->onOneServer();

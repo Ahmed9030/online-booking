@@ -26,7 +26,10 @@ function parse24h(value: string | null): { hour12: number; minute: number; isPM:
 }
 
 function roundStep(value: number, step: number): number {
-  return Math.round(value / step) * step
+  const rounded = Math.round(value / step) * step
+  if (rounded >= 60) return 0
+  if (rounded < 0) return 0
+  return rounded
 }
 
 function to24hString(hour12: number, minute: number, isPM: boolean): string {
@@ -93,7 +96,7 @@ function PickerColumn({ items, value, onChange, label }: PickerColumnProps) {
             <button
               key={item.value}
               type="button"
-              tabIndex={-1}
+              tabIndex={0}
               className={cn(
                 'flex items-center justify-center w-full text-sm font-medium snap-center transition-all duration-150',
                 'select-none',
@@ -238,6 +241,7 @@ export function NeumorphicTimePicker({
           className="neu-card rounded-xl absolute z-50 shadow-xl start-0 mt-2 p-4 w-full"
           style={{ minWidth: '320px' }}
           role="dialog"
+          aria-modal="true"
           aria-label={label || (isRtl ? 'اختيار الوقت' : 'Time picker')}
         >
           <div className={cn('flex gap-3 items-stretch', isRtl && 'flex-row-reverse')}>

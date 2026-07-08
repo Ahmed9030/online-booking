@@ -225,7 +225,7 @@ export interface Notification {
   updated_at: string
 }
 
-export interface PushSubscription {
+export interface AppPushSubscription {
   id: string
   user_id: string
   subscription: Record<string, unknown>

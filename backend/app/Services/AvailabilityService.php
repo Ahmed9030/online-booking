@@ -8,6 +8,7 @@ use App\Exceptions\SlotNotAvailableException;
 use App\Models\Branch;
 use App\Models\Service as ServiceModel;
 use App\Models\Staff;
+use App\Models\StaffWorkingHour;
 use App\Repositories\AvailabilityRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Collection as SupportCollection;
@@ -22,10 +23,10 @@ final class AvailabilityService
     /**
      * Get available time slots for a branch, service, optional staff, and date.
      *
-     * @param  Branch        $branch   The branch to check availability for.
+     * @param  Branch  $branch  The branch to check availability for.
      * @param  ServiceModel  $service  The requested service.
-     * @param  Staff|null    $staff    Specific staff member (null for any available).
-     * @param  Carbon        $date     The target date.
+     * @param  Staff|null  $staff  Specific staff member (null for any available).
+     * @param  Carbon  $date  The target date.
      * @return SupportCollection<int, array{id: string, starts_at: Carbon, ends_at: Carbon, staff_id: string, staff_name: string}>
      */
     public function getAvailableSlots(
@@ -145,12 +146,79 @@ final class AvailabilityService
             ->orderBy('id')
             ->get();
 
+        if ($qualifiedStaff->isEmpty()) {
+            return collect([]);
+        }
+
+        $weekday = $date->dayOfWeek;
+        $staffIds = $qualifiedStaff->pluck('id');
+
+        $staffHours = StaffWorkingHour::whereIn('staff_id', $staffIds)
+            ->where('weekday', $weekday)
+            ->get()
+            ->keyBy('staff_id');
+
+        $branchHoursForDay = $branch->workingHours()->where('weekday', $weekday)->first();
+        if (! $branchHoursForDay || ! $branchHoursForDay->open_time) {
+            return collect([]);
+        }
+
+        $bookedSlotsByStaff = $this->repository->getConfirmedBookingsForStaffArray($staffIds->toArray(), $date)
+            ->groupBy('staff_id');
+
+        $startOfDay = $date->clone()->setHour(0)->setMinute(0)->setSecond(0);
+        $openDateTime = $startOfDay->clone()->setTimeFromTimeString($branchHoursForDay->open_time);
+        $closeDateTime = $startOfDay->clone()->setTimeFromTimeString($branchHoursForDay->close_time);
+
         $allSlots = collect([]);
+        $duration = (int) $service->duration_minutes;
 
         foreach ($qualifiedStaff as $staff) {
-            $slots = $this->getSlotsForSpecificStaff($branch, $service, $staff, $date);
-            if ($slots->isNotEmpty()) {
-                $allSlots = $allSlots->concat($slots);
+            if (! $staff->services()->where('service_id', $service->id)->exists()) {
+                continue;
+            }
+
+            $sh = $staffHours->get($staff->id);
+            if (! $sh || ! $sh->start_time) {
+                continue;
+            }
+
+            $staffStart = $startOfDay->clone()->setTimeFromTimeString($sh->start_time);
+            $staffEnd = $startOfDay->clone()->setTimeFromTimeString($sh->end_time);
+
+            $workStart = $openDateTime->greaterThan($staffStart) ? $openDateTime : $staffStart;
+            $workEnd = $closeDateTime->lessThan($staffEnd) ? $closeDateTime : $staffEnd;
+
+            if ($workStart >= $workEnd) {
+                continue;
+            }
+
+            $staffBookedSlots = ($bookedSlotsByStaff->get($staff->id) ?? collect([]))->map(function ($b) {
+                $b->starts_at = Carbon::parse($b->starts_at)->setTimezone('Africa/Cairo');
+                $b->ends_at = Carbon::parse($b->ends_at)->setTimezone('Africa/Cairo');
+
+                return $b;
+            });
+
+            $current = $workStart->clone();
+            while ($current->clone()->addMinutes($duration) <= $workEnd) {
+                $slotEnd = $current->clone()->addMinutes($duration);
+
+                $isAvailable = ! $staffBookedSlots->contains(function ($booking) use ($current, $slotEnd) {
+                    return $current < $booking->ends_at && $slotEnd > $booking->starts_at;
+                });
+
+                if ($isAvailable) {
+                    $allSlots->push([
+                        'id' => $staff->id.'_'.$current->format('H_i'),
+                        'starts_at' => $current->clone(),
+                        'ends_at' => $slotEnd->clone(),
+                        'staff_id' => $staff->id,
+                        'staff_name' => $staff->name,
+                    ]);
+                }
+
+                $current->addMinutes($duration);
             }
         }
 

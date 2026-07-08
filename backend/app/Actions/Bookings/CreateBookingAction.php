@@ -7,20 +7,22 @@ namespace App\Actions\Bookings;
 use App\Data\CreateBookingData;
 use App\Enums\BookingSource;
 use App\Enums\BookingStatus;
+use App\Events\BookingConfirmed;
 use App\Events\BookingCreated;
 use App\Exceptions\SlotNotAvailableException;
 use App\Models\Booking;
 use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\Service;
+use App\Models\Staff;
 use App\Services\AvailabilityService;
 use Illuminate\Support\Facades\DB;
 
 final class CreateBookingAction
 {
     /**
-     * @param  AssignAvailableStaffAction  $assignStaff   Service to auto-assign staff.
-     * @param  AvailabilityService         $availability  Service to verify slot availability.
+     * @param  AssignAvailableStaffAction  $assignStaff  Service to auto-assign staff.
+     * @param  AvailabilityService  $availability  Service to verify slot availability.
      */
     public function __construct(
         private readonly AssignAvailableStaffAction $assignStaff,
@@ -31,8 +33,8 @@ final class CreateBookingAction
      * Create a new booking, validate times, auto-assign staff if not specified,
      * and dispatch the BookingCreated event after the database transaction commits.
      *
-     * @throws \InvalidArgumentException      If start/end times are invalid or in the past.
-     * @throws SlotNotAvailableException      If no staff or time slot is available.
+     * @throws \InvalidArgumentException If start/end times are invalid or in the past.
+     * @throws SlotNotAvailableException If no staff or time slot is available.
      */
     public function handle(CreateBookingData $data): Booking
     {
@@ -55,11 +57,11 @@ final class CreateBookingAction
 
             $staffId = $data->staffId;
             if ($staffId) {
-                $staff = \App\Models\Staff::findOrFail($staffId);
+                $staff = Staff::findOrFail($staffId);
                 if ($staff->branch_id !== $branch->id) {
                     throw new \InvalidArgumentException('Staff member does not belong to the selected branch.');
                 }
-                if (!$staff->services()->where('service_id', $service->id)->exists()) {
+                if (! $staff->services()->where('service_id', $service->id)->exists()) {
                     throw new \InvalidArgumentException('Staff member cannot perform the selected service.');
                 }
             } else {
@@ -94,9 +96,10 @@ final class CreateBookingAction
             ]);
         });
 
-        // Dispatch event after commit to ensure booking is visible to dependent jobs
+        // Dispatch events after commit to ensure booking is visible to dependent jobs
         DB::afterCommit(function () use ($booking) {
             event(new BookingCreated($booking));
+            event(new BookingConfirmed($booking));
         });
 
         return $booking;

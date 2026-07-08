@@ -27,7 +27,7 @@ class SettingsController extends Controller
         $user = auth()->user();
 
         $validated = $request->validate([
-            'username' => ['required', 'string', 'min:3', 'max:50', 'unique:users,username,' . $user->id],
+            'username' => ['required', 'string', 'min:3', 'max:50', 'unique:users,username,'.$user->id],
         ]);
 
         $user->update(['username' => $validated['username']]);

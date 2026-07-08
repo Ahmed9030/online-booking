@@ -15,9 +15,8 @@ final class EnsureUserHasRole
      * Ensure the authenticated user has one of the given roles.
      *
      * @param  Request  $request  The incoming request.
-     * @param  Closure  $next     The next middleware handler.
-     * @param  string   ...$roles Allowed role names.
-     * @return Response
+     * @param  Closure  $next  The next middleware handler.
+     * @param  string  ...$roles  Allowed role names.
      *
      * @throws AuthenticationException If no user is authenticated.
      */

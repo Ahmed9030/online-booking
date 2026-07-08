@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { useRouter } from 'next/navigation'
-import { useParams } from 'next/navigation'
+import { useRouter, Link } from '@/i18n/routing'
 
 /**
  * Landing page component for the Booking SaaS barbershop appointment platform.
@@ -19,8 +17,6 @@ import { useParams } from 'next/navigation'
 export default function LandingPage() {
   const t = useTranslations()
   const router = useRouter()
-  const params = useParams()
-  const locale = (params.locale as string) || 'ar'
   const [scrolled, setScrolled] = useState(false)
   const [activeTab, setActiveTab] = useState<'owner' | 'staff' | 'customer'>('customer')
 
@@ -57,7 +53,7 @@ export default function LandingPage() {
             </a>
           </div>
 
-          <Link href={`/${locale}/login`}>
+          <Link href="/login">
             <Button variant="primary" size="sm">
               {t('auth.login')}
             </Button>
@@ -116,13 +112,13 @@ export default function LandingPage() {
             <Button
               variant="primary"
               size="lg"
-              onClick={() => router.push(`/${locale}/find-business`)}
+              onClick={() => router.push('/find-business')}
               className="neu-btn-primary transform hover:scale-105 transition-transform"
             >
               {t('hero.book_now')} →
             </Button>
 
-            <Link href={`/${locale}/register`}>
+            <Link href="/register">
               <Button
                 variant="default"
                 size="lg"
@@ -240,7 +236,7 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <Link href={`/${locale}/register`}>
+                <Link href="/register">
                   <Button variant="primary" className="w-full mt-6">
                     {t('hero.get_started')}
                   </Button>
@@ -342,7 +338,7 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-          <Link href={`/${locale}/login`}>
+          <Link href="/login">
                   <Button variant="primary" className="w-full mt-6">
                     دخول الموظف
                   </Button>
@@ -441,7 +437,7 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <Link href={`/${locale}/find-business`}>
+                <Link href="/find-business">
                   <Button variant="primary" className="w-full mt-6">
                     {t('booking.find_business')}
                   </Button>
@@ -651,7 +647,7 @@ export default function LandingPage() {
                   ))}
                 </ul>
 
-                <Link href={`/${locale}/register`}>
+                <Link href="/register">
                   <Button
                     variant={plan.highlighted ? 'primary' : 'default'}
                     className="w-full"
@@ -717,13 +713,13 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col md:flex-row gap-4 justify-center">
-            <Link href={`/${locale}/register`}>
+            <Link href="/register">
               <Button variant="primary" size="lg" className="transform hover:scale-105">
                 {t('hero.get_started')}
               </Button>
             </Link>
 
-            <Link href={`/${locale}/find-business`}>
+            <Link href="/find-business">
               <Button variant="default" size="lg" className="transform hover:scale-105">
                 {t('hero.book_now')}
               </Button>

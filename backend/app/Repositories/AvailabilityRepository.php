@@ -26,6 +26,21 @@ final class AvailabilityRepository
     }
 
     /**
+     * Get confirmed bookings for multiple staff members on a specific date.
+     *
+     * @param  array<int, string>  $staffIds
+     * @return \Illuminate\Support\Collection<int, Booking>
+     */
+    public function getConfirmedBookingsForStaffArray(array $staffIds, Carbon $date): \Illuminate\Support\Collection
+    {
+        return Booking::whereIn('staff_id', $staffIds)
+            ->where('status', BookingStatus::Confirmed)
+            ->whereDate('starts_at', $date->toDateString())
+            ->orderBy('starts_at')
+            ->get(['id', 'staff_id', 'starts_at', 'ends_at']);
+    }
+
+    /**
      * Find a single conflicting confirmed booking for the given interval.
      */
     public function findConflictingBooking(string $staffId, Carbon $startsAt, Carbon $endsAt): ?Booking

@@ -15,15 +15,13 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class ScheduleController extends Controller
 {
     /**
      * @param  MarkBookingCompletedAction  $markCompleted  Service to mark bookings as completed.
-     * @param  MarkBookingNoShowAction     $markNoShow     Service to mark bookings as no-show.
-     * @param  CancelBookingAction         $cancelBooking  Service to cancel bookings.
+     * @param  MarkBookingNoShowAction  $markNoShow  Service to mark bookings as no-show.
+     * @param  CancelBookingAction  $cancelBooking  Service to cancel bookings.
      */
     public function __construct(
         private readonly MarkBookingCompletedAction $markCompleted,
@@ -38,14 +36,10 @@ class ScheduleController extends Controller
      */
     public function index(Request $request): ResourceCollection
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'date_from' => ['nullable', 'date'],
             'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
         ]);
-
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
-        }
 
         $user = auth()->user();
         $staff = Staff::where('user_id', $user->id)->firstOrFail();
@@ -53,9 +47,9 @@ class ScheduleController extends Controller
         $query = Booking::where('staff_id', $staff->id)
             ->with(['customer', 'service', 'branch']);
 
-        if ($request->filled('date_from') && $request->filled('date_to')) {
-            $query->whereDate('starts_at', '>=', Carbon::parse($request->input('date_from')))
-                ->whereDate('starts_at', '<=', Carbon::parse($request->input('date_to')));
+        if ($validated['date_from'] ?? false) {
+            $query->whereDate('starts_at', '>=', Carbon::parse($validated['date_from']))
+                ->whereDate('starts_at', '<=', Carbon::parse($validated['date_to']));
         } else {
             $query->whereDate('starts_at', now('Africa/Cairo')->toDateString());
         }
@@ -71,20 +65,14 @@ class ScheduleController extends Controller
      */
     public function show(string $date): ResourceCollection
     {
-        $validator = Validator::make(['date' => $date], [
-            'date' => ['required', 'date'],
-        ]);
-
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
-        }
+        $parsedDate = Carbon::parse($date);
 
         $user = auth()->user();
         $staff = Staff::where('user_id', $user->id)->firstOrFail();
 
         $bookings = Booking::where('staff_id', $staff->id)
             ->with(['customer', 'service', 'branch'])
-            ->whereDate('starts_at', Carbon::parse($date)->toDateString())
+            ->whereDate('starts_at', $parsedDate->toDateString())
             ->orderBy('starts_at')
             ->get();
 
@@ -97,16 +85,12 @@ class ScheduleController extends Controller
      */
     public function listBookings(Request $request): ResourceCollection
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'status' => ['nullable', 'string'],
             'date_from' => ['nullable', 'date'],
             'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
         ]);
-
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
-        }
 
         $user = auth()->user();
         $staff = Staff::where('user_id', $user->id)->firstOrFail();
@@ -114,19 +98,19 @@ class ScheduleController extends Controller
         $query = Booking::where('staff_id', $staff->id)
             ->with(['customer', 'service', 'branch']);
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->input('status'));
+        if ($validated['status'] ?? false) {
+            $query->where('status', $validated['status']);
         }
 
-        if ($request->filled('date_from')) {
-            $query->whereDate('starts_at', '>=', Carbon::parse($request->input('date_from')));
+        if ($validated['date_from'] ?? false) {
+            $query->whereDate('starts_at', '>=', Carbon::parse($validated['date_from']));
         }
 
-        if ($request->filled('date_to')) {
-            $query->whereDate('starts_at', '<=', Carbon::parse($request->input('date_to')));
+        if ($validated['date_to'] ?? false) {
+            $query->whereDate('starts_at', '<=', Carbon::parse($validated['date_to']));
         }
 
-        $perPage = min((int) $request->input('per_page', 15), 100);
+        $perPage = min((int) ($validated['per_page'] ?? 15), 100);
 
         $bookings = $query->orderBy('starts_at', 'desc')->paginate($perPage);
 
